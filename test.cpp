@@ -30,8 +30,19 @@ namespace Minus
         {
             static const auto button_size(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
             setSizePolicy(button_size);
-            connect(this, &QAbstractButton::clicked, [this] {
-                this->revealCallback(*this); });
+        }
+        virtual void mouseReleaseEvent(QMouseEvent *e) override
+        {
+            if (e->button() == Qt::LeftButton)
+            {
+                revealCallback(*this);
+            }
+        }
+        virtual void mouseMoveEvent(QMouseEvent *e) override
+        {
+            // override to work around this issue:
+            // when holding a cell button with the mouse button
+            // and leaving it, it raises it
         }
 
         // helpers
@@ -53,7 +64,7 @@ namespace Minus
         RevealCallback revealCallback;
         const int x, y;
         bool mine { false };
-        bool shown { false };
+        bool revealed { false };
         vector<Cell*> neighbors;
         int neighbor_mines { 0 };
 
@@ -69,6 +80,7 @@ namespace Minus
             auto* central_widget = new QFrame;
             main_window.setCentralWidget(central_widget);
             central_widget->setLayout(&layout);
+            main_window.setWindowTitle("Super Minus");
             main_window.show();
 
             gen.seed(time(0));
@@ -78,11 +90,13 @@ namespace Minus
 
         void reveal(Cell& cell)
         {
-            if (cell.shown)
+            // TODO : does this function belong to Cell or to Logic ?
+
+            if (cell.revealed)
             {
                 return;
             }
-            cell.shown = true;
+            cell.revealed = true;
             cell.setDown(true);
             if (!cell.mine)
             {
@@ -204,7 +218,7 @@ namespace Minus
         int width, height;
         vector<Cell*> cells;
 
-        // random
+        // random-ness
         std::random_device rd;
         std::mt19937 gen { rd() };
         std::uniform_int_distribution<int> distrib;
