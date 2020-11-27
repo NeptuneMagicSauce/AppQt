@@ -12,18 +12,30 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QApplication>
-// #include <QSizePolicy>
+
+#include "Cell.h"
+
+/* potential names
+
+   Minus
+   Ninja Minus
+   Rominus
+   Minus Is Not Ur Solitaire (s...)
+
+ */
 
 using std::vector;
 
 namespace Minus
 {
-    class Cell: public QToolButton
+    class CellToRename:
+        public Cell
+        // public QToolButton
     {
     public:
-        using RevealCallback = std::function<void(Cell&)>;
+        using RevealCallback = std::function<void(CellToRename&)>;
 
-        Cell(RevealCallback reveal_callback, int x, int y) :
+        CellToRename(RevealCallback reveal_callback, int x, int y) :
             revealCallback(reveal_callback),
             x(x),
             y(y)
@@ -50,7 +62,7 @@ namespace Minus
         {
             return QString::number(x) + "/" + QString::number(y);
         }
-        void setNeighbors(vector<Cell*>& neighbors)
+        void setNeighbors(vector<CellToRename*>& neighbors)
         {
             this->neighbors.swap(neighbors);
             neighbor_mines = 0;
@@ -65,7 +77,7 @@ namespace Minus
         const int x, y;
         bool mine { false };
         bool revealed { false };
-        vector<Cell*> neighbors;
+        vector<CellToRename*> neighbors;
         int neighbor_mines { 0 };
 
     };
@@ -84,13 +96,14 @@ namespace Minus
             main_window.show();
 
             gen.seed(time(0));
+            Cell::gen = &gen;
 
             reset(width, height);
         }
 
-        void reveal(Cell& cell)
+        void reveal(CellToRename& cell)
         {
-            // TODO : does this function belong to Cell or to Logic ?
+            // TODO : does this function belong to CellToRename or to Logic ?
 
             if (cell.revealed)
             {
@@ -136,13 +149,13 @@ namespace Minus
             cells.clear();
             cells.resize(size);
 
-            auto reveal_callback = [this] (Cell& c) { reveal(c); };
+            auto reveal_callback = [this] (CellToRename& c) { reveal(c); };
 
             for (int x=0; x<width; ++x)
             {
                 for (int y=0; y<height; ++y)
                 {
-                    auto* cell = new Cell(reveal_callback, x, y);
+                    auto* cell = new CellToRename(reveal_callback, x, y);
                     layout.addWidget(cell, y, x);
                     cells[index(x, y)] = cell;
                 }
@@ -167,7 +180,7 @@ namespace Minus
             {
                 for (int y=0; y<height; ++y)
                 {
-                    vector<Cell*> neighbors;
+                    vector<CellToRename*> neighbors;
                     for (int nx=x-1; nx<=x+1; ++nx)
                     {
                         for (int ny=y-1; ny<=y+1; ++ny)
@@ -194,11 +207,11 @@ namespace Minus
         }
 
         // helper accessors
-        Cell& cell(int x, int y)
+        CellToRename& cell(int x, int y)
         {
             return cell(index(x, y));
         }
-        Cell& cell(int index)
+        CellToRename& cell(int index)
         {
             return *cells[index];
         }
@@ -216,7 +229,7 @@ namespace Minus
         QMainWindow main_window;
         QGridLayout layout;
         int width, height;
-        vector<Cell*> cells;
+        vector<CellToRename*> cells;
 
         // random-ness
         std::random_device rd;
