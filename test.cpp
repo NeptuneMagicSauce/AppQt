@@ -3,6 +3,7 @@
 #include <vector>
 // #include <set>
 #include <random>
+#include <cmath>
 
 #include <QDebug>
 #include <QtGui>
@@ -13,7 +14,9 @@
 #include <QToolButton>
 #include <QApplication>
 
-#include "Cell.h"
+#include "Utils.hpp"
+#include "Cell.hpp"
+#include "Labels.hpp"
 
 /* potential names
 
@@ -28,60 +31,6 @@ using std::vector;
 
 namespace Minus
 {
-    class CellToRename:
-        public Cell
-        // public QToolButton
-    {
-    public:
-        using RevealCallback = std::function<void(CellToRename&)>;
-
-        CellToRename(RevealCallback reveal_callback, int x, int y) :
-            revealCallback(reveal_callback),
-            x(x),
-            y(y)
-        {
-            static const auto button_size(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-            setSizePolicy(button_size);
-        }
-        virtual void mouseReleaseEvent(QMouseEvent *e) override
-        {
-            if (e->button() == Qt::LeftButton)
-            {
-                revealCallback(*this);
-            }
-        }
-        virtual void mouseMoveEvent(QMouseEvent *e) override
-        {
-            // override to work around this issue:
-            // when holding a cell button with the mouse button
-            // and leaving it, it raises it
-        }
-
-        // helpers
-        QString description(void) const
-        {
-            return QString::number(x) + "/" + QString::number(y);
-        }
-        void setNeighbors(vector<CellToRename*>& neighbors)
-        {
-            this->neighbors.swap(neighbors);
-            neighbor_mines = 0;
-            for (auto* n: this->neighbors)
-            {
-                neighbor_mines += n->mine;
-            }
-        }
-
-        // state
-        RevealCallback revealCallback;
-        const int x, y;
-        bool mine { false };
-        bool revealed { false };
-        vector<CellToRename*> neighbors;
-        int neighbor_mines { 0 };
-
-    };
-
     class Logic
     {
     public:
@@ -94,33 +43,35 @@ namespace Minus
             central_widget->setLayout(&layout);
             main_window.setWindowTitle("Super Minus");
             main_window.show();
-
             gen.seed(time(0));
-            Cell::gen = &gen;
+            auto reveal_callback = [this] (Cell& c) { reveal(c); };
+            Cell::setRevealCallback(reveal_callback);
 
             reset(width, height);
         }
 
-        void reveal(CellToRename& cell)
+        void reveal(Cell& cell)
         {
-            // TODO : does this function belong to CellToRename or to Logic ?
+            // TODO : does this function belong to Cell or to Logic ?
+            // TODO : couple reveal and raise, call them in only 1 place Cell or Logic
 
             if (cell.revealed)
             {
                 return;
             }
             cell.revealed = true;
-            cell.setDown(true);
+            cell.raise(false);
+
             if (!cell.mine)
             {
                 if (cell.neighbor_mines > 0)
                 {
-                    cell.setText(QString::number(cell.neighbor_mines));
+                    cell.setText(Minus::Labels::digits[cell.neighbor_mines]);
                 }
             }
             else
             {
-                cell.setText("*");
+                cell.setText(Minus::Labels::bomb);
             }
 
             if (cell.mine == false && cell.neighbor_mines == 0)
@@ -149,13 +100,24 @@ namespace Minus
             cells.clear();
             cells.resize(size);
 
-            auto reveal_callback = [this] (CellToRename& c) { reveal(c); };
+            constexpr auto max_distance = std::sqrt(2.f);
+            static const QColor
+                color_min(112, 195, 255),
+                color_max(0, 80, 137);
 
             for (int x=0; x<width; ++x)
             {
+                const auto ratio_x = float(x) / (width - 1);
                 for (int y=0; y<height; ++y)
                 {
-                    auto* cell = new CellToRename(reveal_callback, x, y);
+                    const auto ratio_y = float(y) / (height - 1);
+                    const auto distance =
+                        std::sqrt(std::pow(ratio_x, 2.f) +
+                                  std::pow(ratio_y, 2.f))
+                        / max_distance;
+                    auto* cell = new Cell(
+                        // reveal_callback,
+                        Utils::lerpColor(color_min, color_max, distance));
                     layout.addWidget(cell, y, x);
                     cells[index(x, y)] = cell;
                 }
@@ -180,7 +142,7 @@ namespace Minus
             {
                 for (int y=0; y<height; ++y)
                 {
-                    vector<CellToRename*> neighbors;
+                    vector<Cell*> neighbors;
                     for (int nx=x-1; nx<=x+1; ++nx)
                     {
                         for (int ny=y-1; ny<=y+1; ++ny)
@@ -207,11 +169,11 @@ namespace Minus
         }
 
         // helper accessors
-        CellToRename& cell(int x, int y)
+        Cell& cell(int x, int y)
         {
             return cell(index(x, y));
         }
-        CellToRename& cell(int index)
+        Cell& cell(int index)
         {
             return *cells[index];
         }
@@ -229,7 +191,7 @@ namespace Minus
         QMainWindow main_window;
         QGridLayout layout;
         int width, height;
-        vector<CellToRename*> cells;
+        vector<Cell*> cells;
 
         // random-ness
         std::random_device rd;
