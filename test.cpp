@@ -54,6 +54,7 @@ namespace Minus
         {
             // TODO : does this function belong to Cell or to Logic ?
             // TODO : couple reveal and raise, call them in only 1 place Cell or Logic
+            // TODO : store neighbors in Logic not Cell
 
             if (cell.revealed)
             {

@@ -13,8 +13,11 @@ namespace Minus
     /* TODO
        scale font size to window size
        nicer font for digits, add outline
+       use a QGraphicsView instead of QFrame ?
+       cf https://stackoverflow.com/a/13990849
        reveal cells with nice animation
        layouting : square cells, either with window ratio or borders
+       have flags on mouse2
      */
 
     struct
