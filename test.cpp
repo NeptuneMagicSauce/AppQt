@@ -56,6 +56,14 @@ namespace Minus
             // TODO : couple reveal and raise, call them in only 1 place Cell or Logic
             // TODO : store neighbors in Logic not Cell
 
+            // TODO : store instances in only 1 place : vector<Cell> no pointers
+            // neighbors can be indices rather than pointers/instances
+
+            // TODO fix emacs and cmake
+            // emacs error = can not find make
+            // cmake error = can not find compiler
+            // g++ -Wall -Wextra
+
             if (cell.revealed)
             {
                 return;
