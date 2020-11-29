@@ -54,15 +54,17 @@ namespace Minus
         {
             // TODO : does this function belong to Cell or to Logic ?
             // TODO : couple reveal and raise, call them in only 1 place Cell or Logic
-            // TODO : store neighbors in Logic not Cell
+            // -> have widget for cell only do gui/rendering with signal revealed
+            // and slot do/trigger reveal = keep down and emit signal
 
             // TODO : store instances in only 1 place : vector<Cell> no pointers
             // neighbors can be indices rather than pointers/instances
+            // xor store neighbors in Logic not Cell
 
             // TODO fix emacs and cmake
             // emacs error = can not find make
             // cmake error = can not find compiler
-            // g++ -Wall -Wextra
+            // enable -Wall -Wextra
 
             if (cell.revealed)
             {
