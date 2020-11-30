@@ -8,7 +8,6 @@ set(CMAKE_CXX_FLAGS "-std=c++17")
 if (WIN32)
   set(QT5_MINGW "c:/Devel/Tools/Qt5/5.15.1/mingw81_64")
   set(CMAKE_PREFIX_PATH "${QT5_MINGW}/lib/cmake/Qt5")
-  set(CMAKE_CXX_COMPILER "${QT5_MINGW}/../../Tools/mingw810_64/bin/g++" CACHE INTERNAL "" FORCE)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
