@@ -26,13 +26,12 @@ namespace Minus
        have flags on mouse2
        have auto reveal with flags
        highlight auto revealed cell same as hovered maybe ?
-       highlight / specular and/or texture
+       highlight / specular and/or texture: nice noise or pattern
      */
 
-    struct
+    struct CellImpl
     {
         Cell* cell_of_mouse_press { nullptr };
-        Cell::RevealCallback revealCallback;
 
         std::random_device rd;
         std::mt19937 gen { rd() };
@@ -53,10 +52,10 @@ namespace Minus
             return QColor(r, g, b);
         }
 
-    } state;
+    } impl;
 
     Cell::Cell(const QColor& color) :
-        color(state.processColor(color)),
+        color(impl.processColor(color)),
         sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
     {
         setAutoFillBackground(true);
@@ -64,27 +63,22 @@ namespace Minus
         raise(true);
         setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
         // setLineWidth(3); // not respected
-    }
-
-    void Cell::setRevealCallback(RevealCallback revealCallback)
-    {
-        state.revealCallback = revealCallback;
-    }
-
-    void Cell::raise(bool raised)
-    {
-        this->raised = raised;
-        setStyleSheet("background-color:" + (raised ? color : sunken_color).name(QColor::HexRgb) +";");
-        // TODO test shape = Box, Panel, WinPanel
-        setFrameStyle(QFrame::StyledPanel |
-                      (raised ? QFrame::Raised : QFrame::Sunken));
         static const auto size(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
         setSizePolicy(size);
     }
 
+    void Cell::raise(bool raised)
+    {
+        // this->raised = raised;
+        setStyleSheet("background-color:" + (raised ? color : sunken_color).name(QColor::HexRgb) +";");
+        // TODO test shape = Box, Panel, WinPanel
+        setFrameStyle(QFrame::StyledPanel |
+                      (raised ? QFrame::Raised : QFrame::Sunken));
+    }
+
     void Cell::mousePressEvent(QMouseEvent *e)
     {
-        state.cell_of_mouse_press = this;
+        impl.cell_of_mouse_press = this;
         if (e->button() == Qt::LeftButton &&
             revealed == false)
         {
@@ -94,8 +88,8 @@ namespace Minus
     void Cell::mouseReleaseEvent(QMouseEvent *e)
     {
         const bool released_where_pressed =
-            state.cell_of_mouse_press != nullptr &&
-            state.cell_of_mouse_press->geometry().contains(mapToParent(e->pos()));
+            impl.cell_of_mouse_press != nullptr &&
+            impl.cell_of_mouse_press->geometry().contains(mapToParent(e->pos()));
 
         if (e->button() == Qt::LeftButton)
         {
@@ -103,18 +97,18 @@ namespace Minus
             {
                 if (revealed == false)
                 {
-                    state.revealCallback(*this);
+                    emit reveal(*this);
                 }
             }
             else
             {
-                if (state.cell_of_mouse_press->revealed == false)
+                if (impl.cell_of_mouse_press->revealed == false)
                 {
-                    state.cell_of_mouse_press->raise(true);
+                    impl.cell_of_mouse_press->raise(true);
                 }
             }
         }
-        state.cell_of_mouse_press = nullptr;
+        impl.cell_of_mouse_press = nullptr;
     }
 
     void Cell::setNeighbors(vector<Cell*>& neighbors)
