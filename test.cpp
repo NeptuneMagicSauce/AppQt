@@ -15,7 +15,7 @@
 #include <QApplication>
 
 #include "Utils.hpp"
-#include "Cell.hpp"
+#include "CellWidget.hpp"
 #include "Labels.hpp"
 
 /* potential names
