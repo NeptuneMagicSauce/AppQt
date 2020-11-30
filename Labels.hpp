@@ -5,7 +5,7 @@ namespace Minus::Labels
 {
     const std::array<QString, 10> digits
     {
-        "0",
+        "",
         "1",
         "2",
         "3",
