@@ -3,17 +3,17 @@
 
 namespace Minus
 {
-    class Cell: public QLabel
+    class CellWidget: public QLabel
     {
         Q_OBJECT
     public:
-        Cell(const QColor&);
+        CellWidget(const QColor&);
 
         void raise(bool);
-        void setNeighbors(std::vector<Cell*>& neighbors);
+        void setNeighbors(std::vector<CellWidget*>& neighbors);
 
     signals:
-        void reveal(Cell&);
+        void reveal(CellWidget&);
 
     protected:
         virtual void mousePressEvent(QMouseEvent *e) override;
@@ -25,7 +25,7 @@ namespace Minus
         bool mine { false };
         bool revealed { false };
         int neighbor_mines { 0 };
-        std::vector<Cell*> neighbors;
+        std::vector<CellWidget*> neighbors;
     };
 
 };
