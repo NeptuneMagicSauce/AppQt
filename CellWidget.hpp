@@ -8,24 +8,19 @@ namespace Minus
         Q_OBJECT
     public:
         CellWidget(const QColor&);
-
+        void enable(bool);
         void raise(bool);
-        void setNeighbors(std::vector<CellWidget*>& neighbors);
 
     signals:
-        void reveal(CellWidget&);
+        void reveal(void);
 
     protected:
         virtual void mousePressEvent(QMouseEvent *e) override;
         virtual void mouseReleaseEvent(QMouseEvent *e) override;
+
     private:
+        bool enabled { true };
         const QColor color, sunken_color;
-        // bool raised { false };
-    public:
-        bool mine { false };
-        bool revealed { false };
-        int neighbor_mines { 0 };
-        std::vector<CellWidget*> neighbors;
     };
 
 };

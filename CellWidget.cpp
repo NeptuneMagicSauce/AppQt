@@ -27,6 +27,8 @@ namespace Minus
        have auto reveal with flags
        highlight auto revealed cell same as hovered maybe ?
        highlight / specular and/or texture: nice noise or pattern
+       do no react on release where pressed but on press
+       but only 1 cell per press, no keep pressed for multi cells
      */
 
     struct CellWidgetImpl
@@ -67,9 +69,13 @@ namespace Minus
         setSizePolicy(size);
     }
 
+    void CellWidget::enable(bool b)
+    {
+        enabled = b;
+    }
+
     void CellWidget::raise(bool raised)
     {
-        // this->raised = raised;
         setStyleSheet("background-color:" + (raised ? color : sunken_color).name(QColor::HexRgb) +";");
         // TODO test shape = Box, Panel, WinPanel
         setFrameStyle(QFrame::StyledPanel |
@@ -78,15 +84,22 @@ namespace Minus
 
     void CellWidget::mousePressEvent(QMouseEvent *e)
     {
+        if (enabled == false)
+        {
+            return;
+        }
         impl.cell_of_mouse_press = this;
-        if (e->button() == Qt::LeftButton &&
-            revealed == false)
+        if (e->button() == Qt::LeftButton)
         {
             raise(false);
         }
     }
     void CellWidget::mouseReleaseEvent(QMouseEvent *e)
     {
+        if (enabled == false)
+        {
+            return;
+        }
         const bool released_where_pressed =
             impl.cell_of_mouse_press != nullptr &&
             impl.cell_of_mouse_press->geometry().contains(mapToParent(e->pos()));
@@ -95,30 +108,14 @@ namespace Minus
         {
             if (released_where_pressed)
             {
-                if (revealed == false)
-                {
-                    emit reveal(*this);
-                }
+                emit reveal();
             }
             else
             {
-                if (impl.cell_of_mouse_press->revealed == false)
-                {
-                    impl.cell_of_mouse_press->raise(true);
-                }
+                impl.cell_of_mouse_press->raise(true);
             }
         }
         impl.cell_of_mouse_press = nullptr;
-    }
-
-    void CellWidget::setNeighbors(vector<CellWidget*>& neighbors)
-    {
-        this->neighbors.swap(neighbors);
-        neighbor_mines = 0;
-        for (auto* n: this->neighbors)
-        {
-            neighbor_mines += n->mine;
-        }
     }
 
 };

@@ -1,6 +1,7 @@
 #include <iostream>
-// #include <array>
 #include <vector>
+#include <map>
+// #include <array>
 // #include <set>
 #include <random>
 #include <cmath>
@@ -28,9 +29,27 @@
  */
 
 using std::vector;
+using std::map;
 
 namespace Minus
 {
+    class Cell
+    {
+    public:
+        Cell(const QColor& c) :
+            widget(c)
+        { }
+
+        // members
+        CellWidget widget;
+
+        // state
+        bool mine { false };
+        bool revealed { false };
+        int neighbor_mines { 0 };
+    };
+
+
     class Logic
     {
     public:
@@ -48,41 +67,29 @@ namespace Minus
             reset(width, height);
         }
 
-        void reveal(CellWidget& cell)
+        void reveal(Cell& cell)
         {
-            // TODO : couple reveal and raise, call them in only 1 place Cell or Logic
-            // -> have widget for cell only do gui/rendering with signal revealed
-            // and slot do/trigger reveal = keep down and emit signal
-
-            // TODO : store instances in only 1 place : vector<Cell> no pointers
-            // neighbors can be indices rather than pointers/instances
-            // xor store neighbors in Logic not Cell
-
-            // do no react on release where pressed but on press
-            // but only 1 cell per press, no keep pressed for multi cells
-
             if (cell.revealed)
             {
                 return;
             }
+
             cell.revealed = true;
-            cell.raise(false);
+            cell.widget.raise(false);
+            cell.widget.enable(false);
 
             if (!cell.mine)
             {
-                if (cell.neighbor_mines > 0)
-                {
-                    cell.setText(Minus::Labels::digits[cell.neighbor_mines]);
-                }
+                cell.widget.setText(Minus::Labels::digits[cell.neighbor_mines]);
             }
             else
             {
-                cell.setText(Minus::Labels::bomb);
+                cell.widget.setText(Minus::Labels::bomb);
             }
 
             if (cell.mine == false && cell.neighbor_mines == 0)
             {
-                for (auto* n: cell.neighbors)
+                for (auto* n: neighbors[&cell])
                 {
                     reveal(*n);
                 }
@@ -101,9 +108,14 @@ namespace Minus
             {
                 layout.removeItem(layout.itemAt(0));
             }
+            for (auto* c: cells)
+            {
+                delete c;
+            }
+            cells.clear();
 
             const auto size = width * height;
-            cells.clear();
+
             cells.resize(size);
 
             constexpr auto max_distance = std::sqrt(2.f);
@@ -121,14 +133,13 @@ namespace Minus
                         std::sqrt(std::pow(ratio_x, 2.f) +
                                   std::pow(ratio_y, 2.f))
                         / max_distance;
-                    auto* cell = new CellWidget(
-                        Utils::lerpColor(color_min, color_max, distance));
-                    static auto reveal_callback = [this] (CellWidget& c) {
-                        reveal(c);
-                    };
-                    QObject::connect(cell, &CellWidget::reveal, reveal_callback);
-                    layout.addWidget(cell, y, x);
+                    const auto color = Utils::lerpColor(color_min, color_max, distance);
+                    auto* cell = new Cell(color);
                     cells[index(x, y)] = cell;
+                    layout.addWidget(&cell->widget, y, x);
+                    QObject::connect(&cell->widget, &CellWidget::reveal, [this, cell] () {
+                            reveal(*cell);
+                        });
                 }
             }
 
@@ -151,18 +162,34 @@ namespace Minus
             {
                 for (int y=0; y<height; ++y)
                 {
-                    vector<CellWidget*> neighbors;
+                    vector<Cell*> n;
+                    int neighbor_mines = 0;
                     for (int nx=x-1; nx<=x+1; ++nx)
                     {
                         for (int ny=y-1; ny<=y+1; ++ny)
                         {
-                            if (indexValid(nx, ny) == false) { continue; }
-                            neighbors.emplace_back(&cell(nx, ny));
+                            if (indexValid(nx, ny) == false)
+                            {
+                                continue;
+                            }
+                            auto& neighbor_cell = cell(nx, ny);
+                            neighbor_mines += int(neighbor_cell.mine);
+                            n.emplace_back(&neighbor_cell);
                         }
                     }
-                    cell(x, y).setNeighbors(neighbors);
+                    auto& c = cell(x, y);
+                    neighbors[&c] = n;
+                    c.neighbor_mines = neighbor_mines;
                 }
             }
+
+            // warm-up, first call is slow
+            QThread::create([this] () {
+                for (auto* c: cells)
+                {
+                    c->widget.setText(" ");
+                }
+            })->start();
 
             // print mines and neighbors
             for (int y=0; y<height; ++y)
@@ -178,11 +205,11 @@ namespace Minus
         }
 
         // helper accessors
-        CellWidget& cell(int x, int y)
+        Cell& cell(int x, int y)
         {
             return cell(index(x, y));
         }
-        CellWidget& cell(int index)
+        Cell& cell(int index)
         {
             return *cells[index];
         }
@@ -200,7 +227,8 @@ namespace Minus
         QMainWindow main_window;
         QGridLayout layout;
         int width, height;
-        vector<CellWidget*> cells;
+        vector<Cell*> cells;
+        map<Cell*, vector<Cell*>> neighbors;
 
         // random-ness
         std::random_device rd;
