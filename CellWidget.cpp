@@ -77,7 +77,6 @@ namespace Minus
     void CellWidget::raise(bool raised)
     {
         setStyleSheet("background-color:" + (raised ? color : sunken_color).name(QColor::HexRgb) +";");
-        // TODO test shape = Box, Panel, WinPanel
         setFrameStyle(QFrame::StyledPanel |
                       (raised ? QFrame::Raised : QFrame::Sunken));
     }
