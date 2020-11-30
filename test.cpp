@@ -184,12 +184,15 @@ namespace Minus
             }
 
             // warm-up, first call is slow
-            QThread::create([this] () {
-                for (auto* c: cells)
+            static bool warmup { true };
+            if (warmup)
+            {
+                if (size)
                 {
-                    c->widget.setText(" ");
+                    cells.front()->widget.setText(" ");
+                    warmup = false;
                 }
-            })->start();
+            }
 
             // print mines and neighbors
             for (int y=0; y<height; ++y)
