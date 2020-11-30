@@ -1,4 +1,4 @@
-#include "Cell.hpp"
+#include "CellWidget.hpp"
 
 #include <random>
 
