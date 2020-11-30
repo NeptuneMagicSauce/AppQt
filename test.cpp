@@ -51,7 +51,6 @@ namespace Minus
 
         void reveal(Cell& cell)
         {
-            // TODO : does this function belong to Cell or to Logic ?
             // TODO : couple reveal and raise, call them in only 1 place Cell or Logic
             // -> have widget for cell only do gui/rendering with signal revealed
             // and slot do/trigger reveal = keep down and emit signal
@@ -60,9 +59,6 @@ namespace Minus
             // neighbors can be indices rather than pointers/instances
             // xor store neighbors in Logic not Cell
 
-            // TODO fix emacs and cmake
-            // emacs error = can not find make and can not find moc
-            // cmake error = can not find compiler
             // enable -Wall -Wextra
 
             // do no react on release where pressed but on press
