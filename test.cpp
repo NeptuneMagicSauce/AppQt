@@ -45,7 +45,6 @@ namespace Minus
             main_window.show();
             gen.seed(time(0));
             auto reveal_callback = [this] (Cell& c) { reveal(c); };
-            Cell::setRevealCallback(reveal_callback);
 
             reset(width, height);
         }
@@ -62,9 +61,12 @@ namespace Minus
             // xor store neighbors in Logic not Cell
 
             // TODO fix emacs and cmake
-            // emacs error = can not find make
+            // emacs error = can not find make and can not find moc
             // cmake error = can not find compiler
             // enable -Wall -Wextra
+
+            // do no react on release where pressed but on press
+            // but only 1 cell per press, no keep pressed for multi cells
 
             if (cell.revealed)
             {
@@ -127,8 +129,11 @@ namespace Minus
                                   std::pow(ratio_y, 2.f))
                         / max_distance;
                     auto* cell = new Cell(
-                        // reveal_callback,
                         Utils::lerpColor(color_min, color_max, distance));
+                    static auto reveal_callback = [this] (Cell& c) {
+                        reveal(c);
+                    };
+                    QObject::connect(cell, &Cell::reveal, reveal_callback);
                     layout.addWidget(cell, y, x);
                     cells[index(x, y)] = cell;
                 }

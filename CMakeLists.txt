@@ -1,7 +1,6 @@
 project (AppQt)
 cmake_minimum_required(VERSION 3.6)
 FILE(GLOB SOURCES *.cpp)
-add_executable(${PROJECT_NAME} ${SOURCES})
 
 # set(CMAKE_CXX_STANDARD 17) # does not work with my setup
 set(CMAKE_CXX_FLAGS "-std=c++17")
@@ -22,6 +21,12 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+add_executable(${PROJECT_NAME} ${SOURCES}) # must be after AUTOMOC
+
 set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/install)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
@@ -30,10 +35,6 @@ find_package(Qt5 REQUIRED ${QTLIBLIST})
 foreach(qtlib ${QTLIBLIST})
   target_link_libraries(${PROJECT_NAME} Qt5::${qtlib})
 endforeach()
-
-# set(CMAKE_AUTOMOC ON) # ?
-# set(CMAKE_AUTORCC ON) # ?
-# set(CMAKE_INCLUDE_CURRENT_DIR ON) # ?
 
 # TODO store in subdir of build : /bin/
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
