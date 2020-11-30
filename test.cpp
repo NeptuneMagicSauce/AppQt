@@ -44,7 +44,6 @@ namespace Minus
             main_window.setWindowTitle("Super Minus");
             main_window.show();
             gen.seed(time(0));
-            auto reveal_callback = [this] (Cell& c) { reveal(c); };
 
             reset(width, height);
         }
@@ -58,8 +57,6 @@ namespace Minus
             // TODO : store instances in only 1 place : vector<Cell> no pointers
             // neighbors can be indices rather than pointers/instances
             // xor store neighbors in Logic not Cell
-
-            // enable -Wall -Wextra
 
             // do no react on release where pressed but on press
             // but only 1 cell per press, no keep pressed for multi cells

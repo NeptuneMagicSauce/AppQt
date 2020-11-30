@@ -20,11 +20,15 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOMOC ON) # must be before add_executable()
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-add_executable(${PROJECT_NAME} ${SOURCES}) # must be after AUTOMOC
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+  add_compile_options(-Wall -Wextra) # must be before add_executable()
+endif()
+
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/install)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
