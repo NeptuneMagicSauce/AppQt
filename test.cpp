@@ -48,7 +48,7 @@ namespace Minus
             reset(width, height);
         }
 
-        void reveal(Cell& cell)
+        void reveal(CellWidget& cell)
         {
             // TODO : couple reveal and raise, call them in only 1 place Cell or Logic
             // -> have widget for cell only do gui/rendering with signal revealed
@@ -121,12 +121,12 @@ namespace Minus
                         std::sqrt(std::pow(ratio_x, 2.f) +
                                   std::pow(ratio_y, 2.f))
                         / max_distance;
-                    auto* cell = new Cell(
+                    auto* cell = new CellWidget(
                         Utils::lerpColor(color_min, color_max, distance));
-                    static auto reveal_callback = [this] (Cell& c) {
+                    static auto reveal_callback = [this] (CellWidget& c) {
                         reveal(c);
                     };
-                    QObject::connect(cell, &Cell::reveal, reveal_callback);
+                    QObject::connect(cell, &CellWidget::reveal, reveal_callback);
                     layout.addWidget(cell, y, x);
                     cells[index(x, y)] = cell;
                 }
@@ -151,7 +151,7 @@ namespace Minus
             {
                 for (int y=0; y<height; ++y)
                 {
-                    vector<Cell*> neighbors;
+                    vector<CellWidget*> neighbors;
                     for (int nx=x-1; nx<=x+1; ++nx)
                     {
                         for (int ny=y-1; ny<=y+1; ++ny)
@@ -178,11 +178,11 @@ namespace Minus
         }
 
         // helper accessors
-        Cell& cell(int x, int y)
+        CellWidget& cell(int x, int y)
         {
             return cell(index(x, y));
         }
-        Cell& cell(int index)
+        CellWidget& cell(int index)
         {
             return *cells[index];
         }
@@ -200,7 +200,7 @@ namespace Minus
         QMainWindow main_window;
         QGridLayout layout;
         int width, height;
-        vector<Cell*> cells;
+        vector<CellWidget*> cells;
 
         // random-ness
         std::random_device rd;

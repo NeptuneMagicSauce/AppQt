@@ -29,9 +29,9 @@ namespace Minus
        highlight / specular and/or texture: nice noise or pattern
      */
 
-    struct CellImpl
+    struct CellWidgetImpl
     {
-        Cell* cell_of_mouse_press { nullptr };
+        CellWidget* cell_of_mouse_press { nullptr };
 
         std::random_device rd;
         std::mt19937 gen { rd() };
@@ -54,7 +54,7 @@ namespace Minus
 
     } impl;
 
-    Cell::Cell(const QColor& color) :
+    CellWidget::CellWidget(const QColor& color) :
         color(impl.processColor(color)),
         sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
     {
@@ -67,7 +67,7 @@ namespace Minus
         setSizePolicy(size);
     }
 
-    void Cell::raise(bool raised)
+    void CellWidget::raise(bool raised)
     {
         // this->raised = raised;
         setStyleSheet("background-color:" + (raised ? color : sunken_color).name(QColor::HexRgb) +";");
@@ -76,7 +76,7 @@ namespace Minus
                       (raised ? QFrame::Raised : QFrame::Sunken));
     }
 
-    void Cell::mousePressEvent(QMouseEvent *e)
+    void CellWidget::mousePressEvent(QMouseEvent *e)
     {
         impl.cell_of_mouse_press = this;
         if (e->button() == Qt::LeftButton &&
@@ -85,7 +85,7 @@ namespace Minus
             raise(false);
         }
     }
-    void Cell::mouseReleaseEvent(QMouseEvent *e)
+    void CellWidget::mouseReleaseEvent(QMouseEvent *e)
     {
         const bool released_where_pressed =
             impl.cell_of_mouse_press != nullptr &&
@@ -111,7 +111,7 @@ namespace Minus
         impl.cell_of_mouse_press = nullptr;
     }
 
-    void Cell::setNeighbors(vector<Cell*>& neighbors)
+    void CellWidget::setNeighbors(vector<CellWidget*>& neighbors)
     {
         this->neighbors.swap(neighbors);
         neighbor_mines = 0;
