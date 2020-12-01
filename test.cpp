@@ -55,7 +55,12 @@ namespace Minus
             cells(cells),
             width(width),
             height(height)
-        { }
+        {
+            layout.setContentsMargins(0, 0, 0, 0);
+            layout.setSpacing(0);
+            setLayout(&layout);
+        }
+
         virtual void resizeEvent(QResizeEvent *event) override
         {
             QFrame::resizeEvent(event);
@@ -79,6 +84,7 @@ namespace Minus
             }
         }
 
+        QGridLayout layout;
         vector<Cell*>& cells;
         int& width;
         int& height;
@@ -94,12 +100,9 @@ namespace Minus
     {
     public:
         Logic(int width=30, int height=16) :
-            central_widget(cells, width, height)
+            frame(cells, width, height)
         {
-            layout.setContentsMargins(0, 0, 0, 0);
-            layout.setSpacing(0);
-            main_window.setCentralWidget(&central_widget);
-            central_widget.setLayout(&layout);
+            main_window.setCentralWidget(&frame);
             main_window.setWindowTitle("Super Minus");
             main_window.show();
             gen.seed(time(0));
@@ -138,9 +141,9 @@ namespace Minus
             const int scale = 30;
             main_window.resize(scale * width, scale * height);
 
-            while (layout.count())
+            while (frame.layout.count())
             {
-                layout.removeItem(layout.itemAt(0));
+                frame.layout.removeItem(frame.layout.itemAt(0));
             }
             for (auto* c: cells)
             {
@@ -170,7 +173,7 @@ namespace Minus
                     const auto color = Utils::lerpColor(color_min, color_max, distance);
                     auto* cell = new Cell(color);
                     cells[index(x, y)] = cell;
-                    layout.addWidget(&cell->widget, y, x);
+                    frame.layout.addWidget(&cell->widget, y, x);
                     QObject::connect(&cell->widget, &CellWidget::reveal, [this, cell] () {
                             reveal(*cell);
                         });
@@ -220,8 +223,8 @@ namespace Minus
             }
 
             // emit resize event
-            QResizeEvent e { central_widget.size(), QSize(0, 0) };
-            central_widget.resizeEvent(&e);
+            QResizeEvent e { frame.size(), QSize(0, 0) };
+            frame.resizeEvent(&e);
 
             // print mines and neighbors
             for (int y=0; y<height; ++y)
@@ -233,6 +236,13 @@ namespace Minus
                 }
                 std::cout << std::endl;
             }
+
+//             // reveal all
+//             for (auto* c: cells)
+//             {
+// #warning debug to remove
+//                 reveal(*c);
+//             }
 
         }
 
@@ -257,8 +267,7 @@ namespace Minus
 
         // state
         QMainWindow main_window;
-        Frame central_widget;
-        QGridLayout layout;
+        Frame frame;
         int width, height;
         vector<Cell*> cells;
         map<Cell*, vector<Cell*>> neighbors;
