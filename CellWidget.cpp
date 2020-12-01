@@ -7,6 +7,7 @@
 #include <QPaintEvent>
 
 #include "Utils.hpp"
+#include "Labels.hpp"
 
 using std::vector;
 
@@ -72,6 +73,10 @@ namespace Minus
     void CellWidget::enable(bool b)
     {
         enabled = b;
+        if (enabled == false)
+        {
+            setText(label);
+        }
     }
 
     void CellWidget::raise(bool raised)
@@ -79,6 +84,20 @@ namespace Minus
         setStyleSheet("background-color:" + (raised ? color : sunken_color).name(QColor::HexRgb) +";");
         setFrameStyle(QFrame::StyledPanel |
                       (raised ? QFrame::Raised : QFrame::Sunken));
+    }
+
+    void CellWidget::setLabel(bool mine, int neighbor_mines)
+    {
+        label =
+            mine
+            ? Minus::Labels::bomb
+            : Minus::Labels::digits[neighbor_mines];
+
+        /* TODO
+           text color if not mine
+           text outline if not mine
+           text scale : on event resize
+         */
     }
 
     void CellWidget::mousePressEvent(QMouseEvent *e)

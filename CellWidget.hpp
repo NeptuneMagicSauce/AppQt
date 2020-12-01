@@ -10,6 +10,7 @@ namespace Minus
         CellWidget(const QColor&);
         void enable(bool);
         void raise(bool);
+        void setLabel(bool mine, int neighbor_mines);
 
     signals:
         void reveal(void);
@@ -20,6 +21,7 @@ namespace Minus
 
     private:
         bool enabled { true };
+        QString label;
         const QColor color, sunken_color;
     };
 
