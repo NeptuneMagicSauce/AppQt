@@ -17,7 +17,6 @@
 
 #include "Utils.hpp"
 #include "CellWidget.hpp"
-#include "Labels.hpp"
 
 /* potential names
 
@@ -80,15 +79,6 @@ namespace Minus
             cell.revealed = true;
             cell.widget.raise(false);
             cell.widget.enable(false);
-
-            if (!cell.mine)
-            {
-                cell.widget.setText(Minus::Labels::digits[cell.neighbor_mines]);
-            }
-            else
-            {
-                cell.widget.setText(Minus::Labels::bomb);
-            }
 
             if (cell.mine == false && cell.neighbor_mines == 0)
             {
@@ -183,6 +173,8 @@ namespace Minus
                     auto& c = cell(x, y);
                     neighbors[&c] = n;
                     c.neighbor_mines = neighbor_mines;
+
+                    c.widget.setLabel(c.mine, c.neighbor_mines);
                 }
             }
 
