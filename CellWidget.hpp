@@ -7,9 +7,10 @@ namespace Minus
     {
         Q_OBJECT
     public:
+        enum struct Depth : int { Raised, Sunken };
         CellWidget(const QColor&);
         void enable(bool);
-        void raise(bool);
+        void raise(Depth);
         void setLabel(bool mine, int neighbor_mines);
 
     signals:

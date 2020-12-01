@@ -14,8 +14,6 @@ using std::vector;
 namespace Minus
 {
     /* TODO
-       scale font size to window size
-       nicer font for digits, add outline
        highlight hovered cell
        use a QGraphicsView instead of QFrame ?
        cf https://stackoverflow.com/a/13990849
@@ -24,12 +22,16 @@ namespace Minus
          rebouding particles
          shockwave with cells moving in depth or in XY
        layouting : square cells, either with window ratio or borders
+       layouting : find square cells on un-maximize
        have flags on mouse2
        have auto reveal with flags
        highlight auto revealed cell same as hovered maybe ?
        highlight / specular and/or texture: nice noise or pattern
        do no react on release where pressed but on press
        but only 1 cell per press, no keep pressed for multi cells
+
+       emacs theme light = doom-one-light
+       https://github.com/hlissner/emacs-doom-themes/blob/master/themes/doom-one-light-theme.el
      */
 
     struct CellWidgetImpl
@@ -63,7 +65,7 @@ namespace Minus
         sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
     {
         setAutoFillBackground(true);
-        raise(true);
+        raise(Depth::Raised);
         setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
         static const QSizePolicy size { QSizePolicy::Expanding,QSizePolicy::Expanding };
         setSizePolicy(size);
@@ -78,13 +80,13 @@ namespace Minus
         }
     }
 
-    void CellWidget::raise(bool raised)
+    void CellWidget::raise(Depth depth)
     {
         setFrameStyle(QFrame::StyledPanel |
-                      (raised ? QFrame::Raised : QFrame::Sunken));
+                      (depth == Depth::Raised ? QFrame::Raised : QFrame::Sunken));
         setStyleSheet(
             "background-color:" +
-            (raised ? color : sunken_color).name(QColor::HexRgb) + ";"
+            (depth == Depth::Raised ? color : sunken_color).name(QColor::HexRgb) + ";"
             "color:" + label_color.name(QColor::HexRgb) + ";"
             );
     }
@@ -97,9 +99,10 @@ namespace Minus
             : Minus::Labels::digits[neighbor_mines];
         label_color = Minus::Labels::colors[mine ? 0 : neighbor_mines];
         /* TODO
+           text nicer font
            text color if not mine
            text outline if not mine
-           text scale : on event resize
+           text aliasing is not great
          */
     }
 
@@ -112,7 +115,7 @@ namespace Minus
         impl.cell_of_mouse_press = this;
         if (e->button() == Qt::LeftButton)
         {
-            raise(false);
+            raise(Depth::Sunken);
         }
     }
     void CellWidget::mouseReleaseEvent(QMouseEvent *e)
@@ -133,7 +136,7 @@ namespace Minus
             }
             else
             {
-                impl.cell_of_mouse_press->raise(true);
+                impl.cell_of_mouse_press->raise(Depth::Raised);
             }
         }
         impl.cell_of_mouse_press = nullptr;

@@ -48,17 +48,58 @@ namespace Minus
         int neighbor_mines { 0 };
     };
 
+    class Frame: public QFrame
+    {
+    public:
+        Frame(vector<Cell*>& cells, int& width, int& height) :
+            cells(cells),
+            width(width),
+            height(height)
+        { }
+        virtual void resizeEvent(QResizeEvent *event) override
+        {
+            QFrame::resizeEvent(event);
+
+            if (!cells.size())
+            {
+                return;
+            }
+            auto font = cells.front()->widget.font();
+
+            // qDebug() << event->oldSize() << "->" << event->size();
+            const auto smallest_dimension = std::min(
+                event->size().width() / width,
+                event->size().height() / height)
+                * 0.4f; // default was 0.26
+
+            for (auto* c: cells)
+            {
+                font.setPointSizeF(smallest_dimension * sizes.at(c->mine));
+                c->widget.setFont(font);
+            }
+        }
+
+        vector<Cell*>& cells;
+        int& width;
+        int& height;
+        const map<bool, float> sizes
+        {
+            { true,  0.9f },
+            { false, 1.0f },
+        };
+    };
+
 
     class Logic
     {
     public:
-        Logic(int width=30, int height=16)
+        Logic(int width=30, int height=16) :
+            central_widget(cells, width, height)
         {
             layout.setContentsMargins(0, 0, 0, 0);
             layout.setSpacing(0);
-            auto* central_widget = new QFrame;
-            main_window.setCentralWidget(central_widget);
-            central_widget->setLayout(&layout);
+            main_window.setCentralWidget(&central_widget);
+            central_widget.setLayout(&layout);
             main_window.setWindowTitle("Super Minus");
             main_window.show();
             gen.seed(time(0));
@@ -77,7 +118,7 @@ namespace Minus
             }
 
             cell.revealed = true;
-            cell.widget.raise(false);
+            cell.widget.raise(CellWidget::Depth::Sunken);
             cell.widget.enable(false);
 
             if (cell.mine == false && cell.neighbor_mines == 0)
@@ -178,6 +219,10 @@ namespace Minus
                 }
             }
 
+            // emit resize event
+            QResizeEvent e { central_widget.size(), QSize(0, 0) };
+            central_widget.resizeEvent(&e);
+
             // print mines and neighbors
             for (int y=0; y<height; ++y)
             {
@@ -212,6 +257,7 @@ namespace Minus
 
         // state
         QMainWindow main_window;
+        Frame central_widget;
         QGridLayout layout;
         int width, height;
         vector<Cell*> cells;
