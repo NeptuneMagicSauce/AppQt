@@ -1,13 +1,13 @@
 #include "CellWidget.hpp"
+#include "LoadContent.hpp"
+#include "Utils.hpp"
+#include "Labels.hpp"
 
 #include <random>
 
 #include <QDebug>
 #include <QPainter>
 #include <QPaintEvent>
-
-#include "Utils.hpp"
-#include "Labels.hpp"
 
 using std::vector;
 
@@ -34,7 +34,7 @@ namespace Minus
        https://github.com/hlissner/emacs-doom-themes/blob/master/themes/doom-one-light-theme.el
      */
 
-    struct CellWidgetImpl
+    struct CellWidgetImpl: public LoadContent
     {
         CellWidget* cell_of_mouse_press { nullptr };
 
@@ -57,6 +57,16 @@ namespace Minus
             return QColor(r, g, b);
         }
 
+        virtual void loadCallback(void) override
+        {
+            font.setFamily("Verdana");
+            font.setStyleStrategy(QFont::PreferAntialias);
+            font.setWeight(QFont::DemiBold); // Medium Bold
+        }
+
+        QFont font;
+        const QSizePolicy size_policy { QSizePolicy::Expanding, QSizePolicy::Expanding };
+        const Qt::Alignment alignment { Qt::AlignHCenter | Qt::AlignVCenter };
 
     } impl;
 
@@ -65,10 +75,10 @@ namespace Minus
         sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
     {
         setAutoFillBackground(true);
+        setAlignment(impl.alignment);
+        setSizePolicy(impl.size_policy);
+        setFont(impl.font);
         raise(Depth::Raised);
-        setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-        static const QSizePolicy size { QSizePolicy::Expanding,QSizePolicy::Expanding };
-        setSizePolicy(size);
     }
 
     void CellWidget::enable(bool b)
@@ -98,12 +108,6 @@ namespace Minus
             ? Minus::Labels::bomb
             : Minus::Labels::digits[neighbor_mines];
         label_color = Minus::Labels::colors[mine ? 0 : neighbor_mines];
-        /* TODO
-           text nicer font
-           text color if not mine
-           text outline if not mine
-           text aliasing is not great
-         */
     }
 
     void CellWidget::mousePressEvent(QMouseEvent *e)
