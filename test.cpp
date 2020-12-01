@@ -65,6 +65,9 @@ namespace Minus
             gen.seed(time(0));
 
             reset(width, height);
+
+            // warm-up, first call is slow
+            cells.front()->widget.setText(" ");
         }
 
         void reveal(Cell& cell)
@@ -180,17 +183,6 @@ namespace Minus
                     auto& c = cell(x, y);
                     neighbors[&c] = n;
                     c.neighbor_mines = neighbor_mines;
-                }
-            }
-
-            // warm-up, first call is slow
-            static bool warmup { true };
-            if (warmup)
-            {
-                if (size)
-                {
-                    cells.front()->widget.setText(" ");
-                    warmup = false;
                 }
             }
 
