@@ -59,22 +59,22 @@ namespace Minus
         virtual void resizeEvent(QResizeEvent *event) override
         {
             QFrame::resizeEvent(event);
+            // qDebug() << event->oldSize() << "->" << event->size();
 
-            if (!cells.size())
+            if (cells.empty())
             {
                 return;
             }
-            auto font = cells.front()->widget.font();
 
-            // qDebug() << event->oldSize() << "->" << event->size();
-            const auto smallest_dimension = std::min(
+            auto font = cells.front()->widget.font();
+            const auto size = std::min(
                 event->size().width() / width,
                 event->size().height() / height)
                 * 0.4f; // default was 0.26
 
             for (auto* c: cells)
             {
-                font.setPointSizeF(smallest_dimension * sizes.at(c->mine));
+                font.setPointSizeF(size * sizes.at(c->mine));
                 c->widget.setFont(font);
             }
         }
