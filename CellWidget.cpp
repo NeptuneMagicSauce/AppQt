@@ -4,29 +4,38 @@
 #include "Labels.hpp"
 
 #include <random>
+#include <map>
 
 #include <QDebug>
 #include <QPainter>
 #include <QPaintEvent>
 
 using std::vector;
+using std::map;
 
 namespace Minus
 {
     /* TODO
+
+       have flags on mouse2
+       have auto reveal with flags
+
+       layouting : square cells, either with window ratio or borders
+       layouting : find square cells on un-maximize
+
        highlight hovered cell
+       highlight auto revealed cell same as hovered maybe ?
+
        use a QGraphicsView instead of QFrame ?
        cf https://stackoverflow.com/a/13990849
+
        reveal cells with nice animation
          shake viewport
          rebouding particles
          shockwave with cells moving in depth or in XY
-       layouting : square cells, either with window ratio or borders
-       layouting : find square cells on un-maximize
-       have flags on mouse2
-       have auto reveal with flags
-       highlight auto revealed cell same as hovered maybe ?
+
        highlight / specular and/or texture: nice noise or pattern
+
        do no react on release where pressed but on press
        but only 1 cell per press, no keep pressed for multi cells
 
@@ -36,7 +45,7 @@ namespace Minus
 
     struct CellWidgetImpl: public LoadContent
     {
-        CellWidget* cell_of_mouse_press { nullptr };
+        map<unsigned int, CellWidget*> cell_of_mouse_press;
 
         std::random_device rd;
         std::mt19937 gen { rd() };
@@ -71,6 +80,8 @@ namespace Minus
     } impl;
 
     CellWidget::CellWidget(const QColor& color) :
+        revealed(m_revealed),
+        flag(m_flag),
         color(impl.processColor(color)),
         sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
     {
@@ -81,22 +92,19 @@ namespace Minus
         raise(Depth::Raised);
     }
 
-    void CellWidget::enable(bool b)
+    void CellWidget::revealLabel(void)
     {
-        enabled = b;
-        if (enabled == false)
-        {
-            setText(label);
-        }
+        setText(label);
     }
 
     void CellWidget::raise(Depth depth)
     {
+        const auto raised { depth == Depth::Raised };
         setFrameStyle(QFrame::StyledPanel |
-                      (depth == Depth::Raised ? QFrame::Raised : QFrame::Sunken));
+                      (raised ? QFrame::Raised : QFrame::Sunken));
         setStyleSheet(
             "background-color:" +
-            (depth == Depth::Raised ? color : sunken_color).name(QColor::HexRgb) + ";"
+            (raised ? color : sunken_color).name(QColor::HexRgb) + ";"
             "color:" + label_color.name(QColor::HexRgb) + ";"
             );
     }
@@ -112,38 +120,48 @@ namespace Minus
 
     void CellWidget::mousePressEvent(QMouseEvent *e)
     {
-        if (enabled == false)
-        {
-            return;
-        }
-        impl.cell_of_mouse_press = this;
-        if (e->button() == Qt::LeftButton)
+        impl.cell_of_mouse_press[e->button()] = this;
+        if (e->button() == Qt::LeftButton &&
+            flag == false &&
+            revealed == false)
         {
             raise(Depth::Sunken);
         }
     }
     void CellWidget::mouseReleaseEvent(QMouseEvent *e)
     {
-        if (enabled == false)
-        {
-            return;
-        }
-        const bool released_where_pressed =
-            impl.cell_of_mouse_press != nullptr &&
-            impl.cell_of_mouse_press->geometry().contains(mapToParent(e->pos()));
+        auto& cell_of_mouse_press { impl.cell_of_mouse_press[e->button()] };
+        const bool released_where_pressed {
+            cell_of_mouse_press->geometry().contains(mapToParent(e->pos())) };
 
-        if (e->button() == Qt::LeftButton)
+        if (released_where_pressed)
         {
-            if (released_where_pressed)
+            switch(e->button())
             {
-                emit reveal();
+            case Qt::LeftButton:
+                if (revealed)
+                {
+                    emit autoRevealNeighbors();
+                } else if (flag == false)
+                {
+                    emit reveal();
+                }
+                break;
+            case Qt::RightButton:
+                if (revealed == false)
+                {
+                    flag = !flag;
+                    // TODO set font size smaller for flag same as mine
+                    setText(flag ? Labels::flag : "");
+                }
+                break;
+            default: break;
             }
-            else
-            {
-                impl.cell_of_mouse_press->raise(Depth::Raised);
-            }
+        } else if (cell_of_mouse_press->revealed == false) {
+            cell_of_mouse_press->raise(Depth::Raised);
         }
-        impl.cell_of_mouse_press = nullptr;
+
+        cell_of_mouse_press = nullptr;
     }
 
 };

@@ -37,15 +37,18 @@ namespace Minus
     {
     public:
         Cell(const QColor& c) :
-            widget(c)
+            widget(c),
+            revealed(widget.revealed),
+            flag(widget.flag)
         { }
 
         // members
         CellWidget widget;
 
         // state
+        bool& revealed;
+        bool& flag;
         bool mine { false };
-        bool revealed { false };
         int neighbor_mines { 0 };
     };
 
@@ -100,7 +103,7 @@ namespace Minus
     class Logic
     {
     public:
-        Logic(int width=16, int height=16) :
+        Logic(int width=9, int height=9) :
             frame(cells, width, height)
         {
             main_window.setCentralWidget(&frame);
@@ -114,6 +117,7 @@ namespace Minus
             cells.front()->widget.setText(" ");
         }
 
+    private:
         void reveal(Cell& cell)
         {
             if (cell.revealed)
@@ -123,7 +127,7 @@ namespace Minus
 
             cell.revealed = true;
             cell.widget.raise(CellWidget::Depth::Sunken);
-            cell.widget.enable(false);
+            cell.widget.revealLabel();
 
             if (cell.mine == false && cell.neighbor_mines == 0)
             {
@@ -134,7 +138,33 @@ namespace Minus
             }
 
         }
-    private:
+
+        void autoRevealNeighbors(Cell& cell)
+        {
+            int flagged_neighbors { 0 };
+            vector<Cell*> to_reveal;
+            for (auto* n: neighbors[&cell])
+            {
+                if (n->revealed)
+                {
+                    continue;
+                }
+                if (n->flag)
+                {
+                    ++flagged_neighbors;
+                } else {
+                    to_reveal.emplace_back(n);
+                }
+            }
+            if (flagged_neighbors == cell.neighbor_mines)
+            {
+                for (auto* n: to_reveal)
+                {
+                    reveal(*n);
+                }
+            }
+        }
+
         void reset(int width, int height)
         {
             this->width = width;
@@ -177,6 +207,9 @@ namespace Minus
                     frame.layout.addWidget(&cell->widget, y, x);
                     QObject::connect(&cell->widget, &CellWidget::reveal, [this, cell] () {
                             reveal(*cell);
+                        });
+                    QObject::connect(&cell->widget, &CellWidget::autoRevealNeighbors, [this, cell] () {
+                            autoRevealNeighbors(*cell);
                         });
                 }
             }
