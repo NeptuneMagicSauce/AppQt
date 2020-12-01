@@ -48,7 +48,7 @@ namespace Minus
         int neighbor_mines { 0 };
     };
 
-    class Frame: public QFrame
+    class Frame: public QWidget
     {
     public:
         Frame(vector<Cell*>& cells, int& width, int& height) :
@@ -63,7 +63,7 @@ namespace Minus
 
         virtual void resizeEvent(QResizeEvent *event) override
         {
-            QFrame::resizeEvent(event);
+            QWidget::resizeEvent(event);
             // qDebug() << event->oldSize() << "->" << event->size();
 
             if (cells.empty())
