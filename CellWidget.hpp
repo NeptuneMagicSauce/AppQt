@@ -23,6 +23,7 @@ namespace Minus
         bool enabled { true };
         QString label;
         const QColor color, sunken_color;
+        QColor label_color { Qt::white };
     };
 
 };

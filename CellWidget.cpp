@@ -55,6 +55,7 @@ namespace Minus
             return QColor(r, g, b);
         }
 
+
     } impl;
 
     CellWidget::CellWidget(const QColor& color) :
@@ -62,11 +63,9 @@ namespace Minus
         sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
     {
         setAutoFillBackground(true);
-        setStyleSheet("background-color:" + color.name(QColor::HexRgb) +";");
         raise(true);
         setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-        // setLineWidth(3); // not respected
-        static const auto size(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+        static const QSizePolicy size { QSizePolicy::Expanding,QSizePolicy::Expanding };
         setSizePolicy(size);
     }
 
@@ -81,9 +80,13 @@ namespace Minus
 
     void CellWidget::raise(bool raised)
     {
-        setStyleSheet("background-color:" + (raised ? color : sunken_color).name(QColor::HexRgb) +";");
         setFrameStyle(QFrame::StyledPanel |
                       (raised ? QFrame::Raised : QFrame::Sunken));
+        setStyleSheet(
+            "background-color:" +
+            (raised ? color : sunken_color).name(QColor::HexRgb) + ";"
+            "color:" + label_color.name(QColor::HexRgb) + ";"
+            );
     }
 
     void CellWidget::setLabel(bool mine, int neighbor_mines)
@@ -92,7 +95,7 @@ namespace Minus
             mine
             ? Minus::Labels::bomb
             : Minus::Labels::digits[neighbor_mines];
-
+        label_color = Minus::Labels::colors[mine ? 0 : neighbor_mines];
         /* TODO
            text color if not mine
            text outline if not mine
