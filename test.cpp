@@ -15,6 +15,7 @@
 #include <QToolButton>
 #include <QApplication>
 
+#include "LoadContent.hpp"
 #include "Utils.hpp"
 #include "CellWidget.hpp"
 
@@ -99,7 +100,7 @@ namespace Minus
     class Logic
     {
     public:
-        Logic(int width=30, int height=16) :
+        Logic(int width=16, int height=16) :
             frame(cells, width, height)
         {
             main_window.setCentralWidget(&frame);
@@ -287,6 +288,8 @@ int main(int argc, char **argv)
     // std::cout << "__VERSION__ " << __VERSION__ << std::endl;
 
     QApplication app(argc, argv);
+
+    LoadContent::doLoad();
 
     Minus::Logic logic;
 
