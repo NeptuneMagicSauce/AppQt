@@ -100,6 +100,7 @@ namespace Minus
 
     void CellWidget::revealLabel(void)
     {
+        m_revealed = true;
         setText(label);
     }
 
@@ -136,11 +137,13 @@ namespace Minus
     void CellWidget::mouseMoveEvent(QMouseEvent *e)
     {
         auto* w { impl.widgetOfMouseEvent(this, e) };
-        if (w && (e->buttons() & Qt::LeftButton))
+        if (w == nullptr)
+        {
+            // TODO handle move out of window while pressed
+        } else if (e->buttons() & Qt::LeftButton)
         {
             w->onPress();
         }
-        // TODO handle move out of window while pressed
     }
 
     void CellWidget::mouseReleaseEvent(QMouseEvent *e)
@@ -186,7 +189,7 @@ namespace Minus
         {
             if (revealed == false)
             {
-                flag = !flag;
+                m_flag = !flag;
                 // TODO set font size smaller for flag same as mine
                 setText(flag ? Labels::flag : "");
             }
