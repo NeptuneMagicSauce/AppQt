@@ -14,13 +14,13 @@ namespace Minus
 {
     /* TODO
 
-       resize window -> keep the window in correct ratio ?
-
        auto win first reveal
 
        result modal window : win or lose
 
        nicer font as baked resource
+
+       tool bar icons: nicer icons and highdpi xor emojis
 
        emoji renders are not nicely anti-aliased
 
