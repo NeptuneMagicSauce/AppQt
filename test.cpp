@@ -249,6 +249,7 @@ namespace Minus
                 delete c;
             }
             cells.clear();
+            CellWidget::reset();
 
             const auto size = width * height;
 

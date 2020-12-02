@@ -1,17 +1,21 @@
 #include <vector>
 #include <QLabel>
 
+
 namespace Minus
 {
     class CellWidget: public QLabel
     {
         Q_OBJECT
     public:
-        enum struct Depth : int { Raised, Sunken };
         CellWidget(const QColor&);
+        virtual ~CellWidget(void);
 
-        void revealLabel(void);
+        static void reset(void);
+
+        enum struct Depth : int { Raised, Sunken };
         void raise(Depth);
+        void revealLabel(void);
         void setLabel(bool mine, int neighbor_mines);
 
     signals:
