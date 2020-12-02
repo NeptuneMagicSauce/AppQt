@@ -89,7 +89,7 @@ namespace Minus
                             cell_size,
                             cell_size,
                         };
-                    itemAtPosition(x, y)->setGeometry(rect);
+                    itemAtPosition(y, x)->setGeometry(rect);
                 }
             }
         }
@@ -148,7 +148,7 @@ namespace Minus
     class Logic
     {
     public:
-        Logic(int width=9, int height=9) :
+        Logic(int width=16, int height=9) :
             frame(cells, width, height)
         {
             main_window.setCentralWidget(&frame);
