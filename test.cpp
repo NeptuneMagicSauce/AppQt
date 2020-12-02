@@ -52,16 +52,61 @@ namespace Minus
         int neighbor_mines { 0 };
     };
 
-    class Frame: public QWidget
+    class Layout: public QGridLayout
     {
     public:
-        Frame(vector<Cell*>& cells, int& width, int& height) :
+        Layout(vector<Cell*>& cells, int& width, int& height) :
             cells(cells),
             width(width),
             height(height)
         {
-            layout.setContentsMargins(0, 0, 0, 0);
-            layout.setSpacing(0);
+            setContentsMargins(0, 0, 0, 0);
+            setSpacing(0);
+        }
+        virtual void setGeometry(const QRect &r) override
+        {
+            if (cells.empty())
+            {
+                QGridLayout::setGeometry(r);
+                return;
+            }
+
+            const auto cell_size = std::min(
+                r.width() / width,
+                r.height() / height);
+            const auto
+                start_x = (r.width() - (cell_size * width)) / 2,
+                start_y = (r.height() - (cell_size * height)) / 2;
+
+            for (int x=0; x<width; ++x)
+            {
+                for (int y=0; y<height; ++y)
+                {
+                    const QRect rect
+                        {
+                            start_x + cell_size * x,
+                            start_y + cell_size * y,
+                            cell_size,
+                            cell_size,
+                        };
+                    itemAtPosition(x, y)->setGeometry(rect);
+                }
+            }
+        }
+        vector<Cell*>& cells;
+        int& width;
+        int& height;
+    };
+
+    class Frame: public QWidget
+    {
+    public:
+        Frame(vector<Cell*>& cells, int& width, int& height) :
+            layout(cells, width, height),
+            cells(cells),
+            width(width),
+            height(height)
+        {
             setLayout(&layout);
         }
 
@@ -88,7 +133,7 @@ namespace Minus
             }
         }
 
-        QGridLayout layout;
+        Layout layout;
         vector<Cell*>& cells;
         int& width;
         int& height;
