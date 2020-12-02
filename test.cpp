@@ -57,8 +57,7 @@ namespace Minus
     class Layout: public QGridLayout
     {
     public:
-        Layout(vector<Cell*>& cells, int& width, int& height) :
-            cells(cells),
+        Layout(int& width, int& height) :
             width(width),
             height(height)
         {
@@ -67,11 +66,13 @@ namespace Minus
         }
         virtual void setGeometry(const QRect &r) override
         {
-            if (cells.empty())
+            if (isEmpty())
             {
                 QGridLayout::setGeometry(r);
                 return;
             }
+
+            assert(count() == width * height);
 
             const auto cell_size = std::min(
                 r.width() / width,
@@ -99,8 +100,6 @@ namespace Minus
         {
             return QSize { 40 * width, 40 * height };
         }
-
-        vector<Cell*>& cells;
         int& width;
         int& height;
     };
@@ -109,7 +108,7 @@ namespace Minus
     {
     public:
         Frame(vector<Cell*>& cells, int& width, int& height) :
-            layout(cells, width, height),
+            layout(width, height),
             cells(cells),
             width(width),
             height(height)
@@ -140,6 +139,7 @@ namespace Minus
         }
 
         Layout layout;
+        // TODO should cells belong to Frame or Logic ?
         vector<Cell*>& cells;
         int& width;
         int& height;
