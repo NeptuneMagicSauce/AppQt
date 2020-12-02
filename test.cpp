@@ -169,7 +169,7 @@ namespace Minus
         {
             this->width = width;
             this->height = height;
-            const int scale = 30;
+            const int scale = 40;
             main_window.resize(scale * width, scale * height);
 
             while (frame.layout.count())

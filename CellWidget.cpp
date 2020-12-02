@@ -17,8 +17,7 @@ namespace Minus
 {
     /* TODO
 
-       have flags on mouse2
-       have auto reveal with flags
+       emoji renders are not nicely anti-aliased
 
        layouting : square cells, either with window ratio or borders
        layouting : find square cells on un-maximize
@@ -45,7 +44,7 @@ namespace Minus
 
     struct CellWidgetImpl: public LoadContent
     {
-        map<unsigned int, CellWidget*> cell_of_mouse_press;
+        CellWidget* cell_pressed { nullptr };
 
         std::random_device rd;
         std::mt19937 gen { rd() };
@@ -64,6 +63,13 @@ namespace Minus
             perColor(g);
             perColor(b);
             return QColor(r, g, b);
+        }
+
+        CellWidget* widgetOfMouseEvent(CellWidget* w, QMouseEvent* e)
+        {
+            auto* parent { dynamic_cast<QWidget*>(w->parent()) };
+            if (parent == nullptr) { return nullptr; }
+            return dynamic_cast<CellWidget*>(parent->childAt(w->mapToParent(e->pos())));
         }
 
         virtual void loadCallback(void) override
@@ -120,7 +126,7 @@ namespace Minus
 
     void CellWidget::mousePressEvent(QMouseEvent *e)
     {
-        impl.cell_of_mouse_press[e->button()] = this;
+        impl.cell_pressed = this;
         if (e->button() == Qt::LeftButton &&
             flag == false &&
             revealed == false)
@@ -128,40 +134,96 @@ namespace Minus
             raise(Depth::Sunken);
         }
     }
+
+    void CellWidget::mouseMoveEvent(QMouseEvent *e)
+    {
+        if (e->buttons() & Qt::LeftButton)
+        {
+            auto* w { impl.widgetOfMouseEvent(this, e) };
+            if (w == nullptr)
+            {
+                return;
+            }
+            auto& pressed { impl.cell_pressed };
+
+            if (pressed != w)
+            {
+                if (pressed->revealed == false)
+                {
+                    pressed->raise(Depth::Raised);
+                }
+
+                QMouseEvent press_event
+                    {
+                        QEvent::MouseButtonPress,
+                        e->localPos(),
+                        e->windowPos(),
+                        e->screenPos(),
+                        Qt::LeftButton,
+                        e->buttons(),
+                        e->modifiers(),
+                        e->source()
+                    };
+                w->mousePressEvent(&press_event);
+            }
+        }
+    }
+
     void CellWidget::mouseReleaseEvent(QMouseEvent *e)
     {
-        auto& cell_of_mouse_press { impl.cell_of_mouse_press[e->button()] };
-        const bool released_where_pressed {
-            cell_of_mouse_press->geometry().contains(mapToParent(e->pos())) };
+        auto* w { impl.widgetOfMouseEvent(this, e) };
 
-        if (released_where_pressed)
+        switch(e->button())
         {
-            switch(e->button())
+        case Qt::LeftButton:
+        {
+            if (w->revealed)
             {
-            case Qt::LeftButton:
-                if (revealed)
-                {
-                    emit autoRevealNeighbors();
-                } else if (flag == false)
-                {
-                    emit reveal();
-                }
-                break;
-            case Qt::RightButton:
-                if (revealed == false)
-                {
-                    flag = !flag;
-                    // TODO set font size smaller for flag same as mine
-                    setText(flag ? Labels::flag : "");
-                }
-                break;
-            default: break;
+                emit w->autoRevealNeighbors();
+            } else if (flag == false)
+            {
+                emit w->reveal();
             }
-        } else if (cell_of_mouse_press->revealed == false) {
-            cell_of_mouse_press->raise(Depth::Raised);
+            impl.cell_pressed = nullptr;
+            break;
+        }
+        case Qt::RightButton:
+        {
+            // auto& pressed { impl.cell_pressed };
+            // qDebug() << "release" << this << (pressed == w) << e->pos();
+            // if (pressed != w)
+            // {
+            //     // QPoint screen_pos { e->screenPos().x(), e->screenPos().y() };
+            //     // qDebug() << w->mapFromGlobal(screen_pos);
+            //     QMouseEvent release_event
+            //         {
+            //             QEvent::MouseButtonRelease,
+            //             // w->pos() + e->pos(),
+            //             // w->mapFromGlobal(screen_pos),
+            //             w->mapFrom(this, e->pos()),
+            //             e->windowPos(),
+            //             e->screenPos(),
+            //             Qt::RightButton,
+            //             e->buttons(),
+            //             e->modifiers(),
+            //             e->source()
+            //         };
+            //     w->mouseReleaseEvent(&release_event);
+            // }
+
+            // TODO work on this rather than w
+            if (w->revealed == false)
+            {
+                w->flag = !w->flag;
+                // TODO set font size smaller for flag same as mine
+                w->setText(w->flag ? Labels::flag : "");
+            }
+
+            break;
+        }
+        default: break;
         }
 
-        cell_of_mouse_press = nullptr;
     }
 
 };
