@@ -19,6 +19,8 @@ namespace Minus
        nicer font as baked resource
 
        tool bar icons: nicer icons and highdpi xor emojis
+       xor find better default icon with list
+       https://joekuan.wordpress.com/2015/09/23/list-of-qt-icons/
 
        emoji renders are not nicely anti-aliased
 

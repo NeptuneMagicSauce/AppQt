@@ -155,7 +155,7 @@ namespace Minus
     {
         // TODO remove widget / layout from logic
     public:
-        Logic(int width=9, int height=9) :
+        Logic(int width=16, int height=9) :
             frame(cells, width, height)
         {
             main_window.setCentralWidget(&frame);
@@ -342,6 +342,8 @@ namespace Minus
             any_reveal = true;
 
             // remove neighbors from eligible cells for new mines (cells_empty)
+            // TODO cache computation of this set in function reset()
+            // TODO have reset work on background thread
             set<Cell*> first_cell_neighbors;
             for (auto* n: neighbors[&first_cell])
             {
@@ -358,7 +360,7 @@ namespace Minus
             }
             cells_empty.swap(cells_empty_not_neighbors);
 
-            // move to random empty cell with shared function
+            // move to random empty
             // not in my neighborhood
             for (auto* n: neighbors[&first_cell])
             {
@@ -368,6 +370,7 @@ namespace Minus
                     n->mine = false;
                 }
             }
+            cells_empty.clear();
 
             // count neighbor mines
             for (auto* c: cells)
