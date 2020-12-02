@@ -14,8 +14,6 @@ namespace Minus
         void raise(Depth);
         void setLabel(bool mine, int neighbor_mines);
 
-        static void reset(void);
-
     signals:
         void reveal(void);
         void autoRevealNeighbors(void);
