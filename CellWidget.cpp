@@ -14,8 +14,6 @@ namespace Minus
 {
     /* TODO
 
-       auto win first reveal
-
        result modal window : win or lose
 
        nicer font as baked resource
