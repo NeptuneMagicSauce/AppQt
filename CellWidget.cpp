@@ -126,104 +126,71 @@ namespace Minus
 
     void CellWidget::mousePressEvent(QMouseEvent *e)
     {
-        impl.cell_pressed = this;
-        if (e->button() == Qt::LeftButton &&
-            flag == false &&
+        auto* w { impl.widgetOfMouseEvent(this, e) };
+        if (w && e->button() == Qt::LeftButton)
+        {
+            w->onPress();
+        }
+    }
+
+    void CellWidget::mouseMoveEvent(QMouseEvent *e)
+    {
+        auto* w { impl.widgetOfMouseEvent(this, e) };
+        if (w && (e->buttons() & Qt::LeftButton))
+        {
+            w->onPress();
+        }
+        // TODO handle move out of window while pressed
+    }
+
+    void CellWidget::mouseReleaseEvent(QMouseEvent *e)
+    {
+        auto* w { impl.widgetOfMouseEvent(this, e) };
+        if (w && (e->button() == Qt::LeftButton))
+        {
+            w->onRelease(Action::Reveal);
+        } else if (w && (e->button() == Qt::RightButton))
+        {
+            w->onRelease(Action::Flag);
+        }
+    }
+
+    void CellWidget::onPress(void)
+    {
+        auto& pressed { impl.cell_pressed };
+        if (pressed && impl.cell_pressed->revealed == false)
+        {
+            pressed->raise(Depth::Raised);
+        }
+        pressed = this;
+
+        if (flag == false &&
             revealed == false)
         {
             raise(Depth::Sunken);
         }
     }
 
-    void CellWidget::mouseMoveEvent(QMouseEvent *e)
+    void CellWidget::onRelease(Action action)
     {
-        if (e->buttons() & Qt::LeftButton)
+        if (action == Action::Reveal)
         {
-            auto* w { impl.widgetOfMouseEvent(this, e) };
-            if (w == nullptr)
+            if (revealed)
             {
-                return;
-            }
-            auto& pressed { impl.cell_pressed };
-
-            if (pressed != w)
-            {
-                if (pressed->revealed == false)
-                {
-                    pressed->raise(Depth::Raised);
-                }
-
-                QMouseEvent press_event
-                    {
-                        QEvent::MouseButtonPress,
-                        e->localPos(),
-                        e->windowPos(),
-                        e->screenPos(),
-                        Qt::LeftButton,
-                        e->buttons(),
-                        e->modifiers(),
-                        e->source()
-                    };
-                w->mousePressEvent(&press_event);
-            }
-        }
-    }
-
-    void CellWidget::mouseReleaseEvent(QMouseEvent *e)
-    {
-        auto* w { impl.widgetOfMouseEvent(this, e) };
-
-        switch(e->button())
-        {
-        case Qt::LeftButton:
-        {
-            if (w->revealed)
-            {
-                emit w->autoRevealNeighbors();
+                emit autoRevealNeighbors();
             } else if (flag == false)
             {
-                emit w->reveal();
+                emit reveal();
             }
-            impl.cell_pressed = nullptr;
-            break;
-        }
-        case Qt::RightButton:
+        } else if (action == Action::Flag)
         {
-            // auto& pressed { impl.cell_pressed };
-            // qDebug() << "release" << this << (pressed == w) << e->pos();
-            // if (pressed != w)
-            // {
-            //     // QPoint screen_pos { e->screenPos().x(), e->screenPos().y() };
-            //     // qDebug() << w->mapFromGlobal(screen_pos);
-            //     QMouseEvent release_event
-            //         {
-            //             QEvent::MouseButtonRelease,
-            //             // w->pos() + e->pos(),
-            //             // w->mapFromGlobal(screen_pos),
-            //             w->mapFrom(this, e->pos()),
-            //             e->windowPos(),
-            //             e->screenPos(),
-            //             Qt::RightButton,
-            //             e->buttons(),
-            //             e->modifiers(),
-            //             e->source()
-            //         };
-            //     w->mouseReleaseEvent(&release_event);
-            // }
-
-            // TODO work on this rather than w
-            if (w->revealed == false)
+            if (revealed == false)
             {
-                w->flag = !w->flag;
+                flag = !flag;
                 // TODO set font size smaller for flag same as mine
-                w->setText(w->flag ? Labels::flag : "");
+                setText(flag ? Labels::flag : "");
             }
-
-            break;
         }
-        default: break;
-        }
-
     }
 
 };

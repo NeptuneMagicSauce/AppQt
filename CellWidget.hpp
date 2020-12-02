@@ -31,6 +31,11 @@ namespace Minus
         QString label;
         const QColor color, sunken_color;
         QColor label_color { Qt::white };
+
+    private:
+        enum struct Action : int { Reveal, Flag };
+        void onPress(void);
+        void onRelease(Action);
     };
 
 };
