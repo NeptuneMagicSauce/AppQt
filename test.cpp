@@ -54,6 +54,10 @@ namespace Minus
         int neighbor_mines { 0 };
     };
 
+    // types
+    using CellPtr = std::shared_ptr<Cell>;
+    using Cells = vector<CellPtr>;
+
     class Layout: public QGridLayout
     {
     public:
@@ -107,7 +111,7 @@ namespace Minus
     class Frame: public QWidget
     {
     public:
-        Frame(vector<Cell*>& cells, int& width, int& height) :
+        Frame(Cells& cells, int& width, int& height) :
             layout(width, height),
             cells(cells),
             width(width),
@@ -131,7 +135,7 @@ namespace Minus
                 event->size().height() / height)
                 * 0.4f; // default was 0.26
 
-            for (auto* c: cells)
+            for (auto& c: cells)
             {
                 font.setPointSizeF(size * sizes.at(c->mine));
                 c->widget.setFont(font);
@@ -140,7 +144,7 @@ namespace Minus
 
         Layout layout;
         // TODO should cells belong to Frame or Logic ?
-        vector<Cell*>& cells;
+        Cells& cells;
         int& width;
         int& height;
         const map<bool, float> sizes
@@ -189,9 +193,9 @@ namespace Minus
         }
 
     private:
-        void reveal(Cell& cell)
+        void reveal(CellPtr cell)
         {
-            if (cell.revealed)
+            if (cell->revealed)
             {
                 return;
             }
@@ -201,24 +205,24 @@ namespace Minus
                 firstReveal(cell);
             }
 
-            cell.widget.raise(CellWidget::Depth::Sunken);
-            cell.widget.revealLabel();
+            cell->widget.raise(CellWidget::Depth::Sunken);
+            cell->widget.revealLabel();
 
-            if (cell.mine == false && cell.neighbor_mines == 0)
+            if (cell->mine == false && cell->neighbor_mines == 0)
             {
-                for (auto* n: neighbors[&cell])
+                for (auto& n: neighbors[cell])
                 {
-                    reveal(*n);
+                    reveal(n);
                 }
             }
 
         }
 
-        void autoRevealNeighbors(Cell& cell)
+        void autoRevealNeighbors(CellPtr cell)
         {
             int flagged_neighbors { 0 };
-            vector<Cell*> to_reveal;
-            for (auto* n: neighbors[&cell])
+            Cells to_reveal;
+            for (auto& n: neighbors[cell])
             {
                 if (n->revealed)
                 {
@@ -231,11 +235,11 @@ namespace Minus
                     to_reveal.emplace_back(n);
                 }
             }
-            if (flagged_neighbors == cell.neighbor_mines)
+            if (flagged_neighbors == cell->neighbor_mines)
             {
-                for (auto* n: to_reveal)
+                for (auto& n: to_reveal)
                 {
-                    reveal(*n);
+                    reveal(n);
                 }
             }
         }
@@ -256,10 +260,6 @@ namespace Minus
             while (frame.layout.count())
             {
                 frame.layout.takeAt(0);
-            }
-            for (auto* c: cells)
-            {
-                delete c;
             }
             cells.clear();
             CellWidget::reset();
@@ -285,14 +285,14 @@ namespace Minus
                                   std::pow(ratio_y, 2.f))
                         / max_distance;
                     const auto color = Utils::lerpColor(color_min, color_max, distance);
-                    auto* cell = new Cell(color);
+                    auto cell = std::make_shared<Cell>(color);
                     cells[index(x, y)] = cell;
                     frame.layout.addWidget(&cell->widget, y, x);
-                    QObject::connect(&cell->widget, &CellWidget::reveal, [this, cell] () {
-                            reveal(*cell);
+                    QObject::connect(&cell->widget, &CellWidget::reveal, [this, x, y] () {
+                            reveal(this->cell(x, y));
                         });
-                    QObject::connect(&cell->widget, &CellWidget::autoRevealNeighbors, [this, cell] () {
-                            autoRevealNeighbors(*cell);
+                    QObject::connect(&cell->widget, &CellWidget::autoRevealNeighbors, [this, x, y] () {
+                            autoRevealNeighbors(this->cell(x, y));
                         });
                 }
             }
@@ -314,7 +314,7 @@ namespace Minus
             {
                 for (int y=0; y<height; ++y)
                 {
-                    vector<Cell*> cell_neighbors;
+                    Cells cell_neighbors;
                     for (int nx=x-1; nx<=x+1; ++nx)
                     {
                         for (int ny=y-1; ny<=y+1; ++ny)
@@ -324,11 +324,11 @@ namespace Minus
                                 continue;
                             }
                             auto& neighbor_cell = cell(nx, ny);
-                            cell_neighbors.emplace_back(&neighbor_cell);
+                            cell_neighbors.emplace_back(neighbor_cell);
                         }
                     }
                     auto& c = cell(x, y);
-                    neighbors[&c] = cell_neighbors;
+                    neighbors[c].swap(cell_neighbors);
                 }
             }
 
@@ -337,20 +337,20 @@ namespace Minus
             frame.resizeEvent(&e);
         }
 
-        void firstReveal(Cell& first_cell)
+        void firstReveal(CellPtr first_cell)
         {
             any_reveal = true;
 
             // remove neighbors from eligible cells for new mines (cells_empty)
             // TODO cache computation of this set in function reset()
             // TODO have reset work on background thread
-            set<Cell*> first_cell_neighbors;
-            for (auto* n: neighbors[&first_cell])
+            set<CellPtr> first_cell_neighbors;
+            for (auto& n: neighbors[first_cell])
             {
                 first_cell_neighbors.insert(n);
             }
-            vector<Cell*> cells_empty_not_neighbors;
-            for (auto* c: cells_empty)
+            Cells cells_empty_not_neighbors;
+            for (auto& c: cells_empty)
             {
                 if (first_cell_neighbors.count(c) == 0)
                 {
@@ -362,7 +362,7 @@ namespace Minus
 
             // move to random empty
             // not in my neighborhood
-            for (auto* n: neighbors[&first_cell])
+            for (auto& n: neighbors[first_cell])
             {
                 if (n->mine)
                 {
@@ -373,10 +373,10 @@ namespace Minus
             cells_empty.clear();
 
             // count neighbor mines
-            for (auto* c: cells)
+            for (auto& c: cells)
             {
                 int neighbor_mines = 0;
-                for (auto* n: neighbors[c])
+                for (auto& n: neighbors[c])
                 {
                     neighbor_mines += int(n->mine);
                 }
@@ -390,28 +390,24 @@ namespace Minus
                 for (int x=0; x<width; ++x)
                 {
                     const auto& c = cell(x, y);
-                    std::cout << (c.mine ? "x" : std::to_string(c.neighbor_mines));
+                    std::cout << (c->mine ? "x" : std::to_string(c->neighbor_mines));
                 }
                 std::cout << std::endl;
             }
             std::cout << std::endl;
 
 //             // reveal all
-//             for (auto* c: cells)
+//             for (auto& c: cells)
 //             {
 // #warning debug to remove
-//                 reveal(*c);
+//                 reveal(c);
 //             }
         }
 
         // helper accessors
-        Cell& cell(int x, int y)
+        CellPtr& cell(int x, int y)
         {
-            return cell(index(x, y));
-        }
-        Cell& cell(int index)
-        {
-            return *cells[index];
+            return cells[index(x, y)];
         }
         int index(int x, int y) const
         {
@@ -427,9 +423,9 @@ namespace Minus
         QToolBar tool_bar;
         Frame frame;
         int width, height;
-        vector<Cell*> cells;
-        vector<Cell*> cells_empty;
-        map<Cell*, vector<Cell*>> neighbors; // includes itself as neighbor
+        Cells cells;
+        Cells cells_empty;
+        map<CellPtr, Cells> neighbors; // includes itself as neighbor
         bool any_reveal { false };
 
         // random-ness
