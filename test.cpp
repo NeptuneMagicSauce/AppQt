@@ -1,8 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
-// #include <array>
-// #include <set>
+#include <set>
 #include <random>
 #include <cmath>
 
@@ -32,6 +31,7 @@
 
 using std::vector;
 using std::map;
+using std::set;
 
 namespace Minus
 {
@@ -97,7 +97,7 @@ namespace Minus
         }
         virtual QSize minimumSize() const override
         {
-            return QSize { 30 * width, 30 * height };
+            return QSize { 40 * width, 40 * height };
         }
 
         vector<Cell*>& cells;
@@ -155,7 +155,7 @@ namespace Minus
     {
         // TODO remove widget / layout from logic
     public:
-        Logic(int width=16, int height=9) :
+        Logic(int width=9, int height=9) :
             frame(cells, width, height)
         {
             main_window.setCentralWidget(&frame);
@@ -194,6 +194,11 @@ namespace Minus
             if (cell.revealed)
             {
                 return;
+            }
+
+            if (any_reveal == false)
+            {
+                firstReveal(cell);
             }
 
             cell.widget.raise(CellWidget::Depth::Sunken);
@@ -235,6 +240,14 @@ namespace Minus
             }
         }
 
+        void setOneRandomCellToMine(void)
+        {
+            distrib.param(std::uniform_int_distribution<int>::param_type(0, int(cells_empty.size() - 1)));
+            const auto mine_index = distrib(gen);
+            cells_empty[mine_index]->mine = true;
+            cells_empty.erase(cells_empty.begin() + mine_index);
+        }
+
         void reset(int width, int height)
         {
             this->width = width;
@@ -250,6 +263,7 @@ namespace Minus
             }
             cells.clear();
             CellWidget::reset();
+            neighbors.clear();
 
             const auto size = width * height;
 
@@ -284,27 +298,23 @@ namespace Minus
             }
 
 
-            const int mines = float(size) * 0.20f;
+            const int mines_count = float(size) * 0.20f;
 
             // populate mines
-            auto cells_temp = cells;
-            for (int mine=0; mine<mines; ++mine)
+            cells_empty = cells;
+            for (int mine=0; mine<mines_count; ++mine)
             {
-                // qDebug() << "remaining cells" << cells.size();
-                distrib.param(std::uniform_int_distribution<int>::param_type(0, int(cells_temp.size() - 1)));
-                const auto mine_index = distrib(gen);
-                cells_temp[mine_index]->mine = true;
-                cells_temp.erase(cells_temp.begin() + mine_index);
+                setOneRandomCellToMine();
             }
 
+            any_reveal = false;
+
             // populate neighbors
-            neighbors.clear();
             for (int x=0; x<width; ++x)
             {
                 for (int y=0; y<height; ++y)
                 {
-                    vector<Cell*> n;
-                    int neighbor_mines = 0;
+                    vector<Cell*> cell_neighbors;
                     for (int nx=x-1; nx<=x+1; ++nx)
                     {
                         for (int ny=y-1; ny<=y+1; ++ny)
@@ -314,24 +324,64 @@ namespace Minus
                                 continue;
                             }
                             auto& neighbor_cell = cell(nx, ny);
-                            neighbor_mines += int(neighbor_cell.mine);
-                            n.emplace_back(&neighbor_cell);
+                            cell_neighbors.emplace_back(&neighbor_cell);
                         }
                     }
                     auto& c = cell(x, y);
-                    neighbors[&c] = n;
-                    c.neighbor_mines = neighbor_mines;
-
-                    c.widget.setLabel(c.mine, c.neighbor_mines);
+                    neighbors[&c] = cell_neighbors;
                 }
             }
 
             // emit resize event
             QResizeEvent e { frame.size(), QSize(0, 0) };
             frame.resizeEvent(&e);
+        }
+
+        void firstReveal(Cell& first_cell)
+        {
+            any_reveal = true;
+
+            // remove neighbors from eligible cells for new mines (cells_empty)
+            set<Cell*> first_cell_neighbors;
+            for (auto* n: neighbors[&first_cell])
+            {
+                first_cell_neighbors.insert(n);
+            }
+            vector<Cell*> cells_empty_not_neighbors;
+            for (auto* c: cells_empty)
+            {
+                if (first_cell_neighbors.count(c) == 0)
+                {
+                    // not in first cell neighborhood
+                    cells_empty_not_neighbors.emplace_back(c);
+                }
+            }
+            cells_empty.swap(cells_empty_not_neighbors);
+
+            // move to random empty cell with shared function
+            // not in my neighborhood
+            for (auto* n: neighbors[&first_cell])
+            {
+                if (n->mine)
+                {
+                    setOneRandomCellToMine();
+                    n->mine = false;
+                }
+            }
+
+            // count neighbor mines
+            for (auto* c: cells)
+            {
+                int neighbor_mines = 0;
+                for (auto* n: neighbors[c])
+                {
+                    neighbor_mines += int(n->mine);
+                }
+                c->neighbor_mines = neighbor_mines;
+                c->widget.setLabel(c->mine, c->neighbor_mines);
+            }
 
             // print mines and neighbors
-            std::cout << std::endl;
             for (int y=0; y<height; ++y)
             {
                 for (int x=0; x<width; ++x)
@@ -341,6 +391,7 @@ namespace Minus
                 }
                 std::cout << std::endl;
             }
+            std::cout << std::endl;
 
 //             // reveal all
 //             for (auto* c: cells)
@@ -348,7 +399,6 @@ namespace Minus
 // #warning debug to remove
 //                 reveal(*c);
 //             }
-
         }
 
         // helper accessors
@@ -369,14 +419,15 @@ namespace Minus
             return x >= 0 && y >= 0 && x < width && y < height;
         }
 
-
         // state
         QMainWindow main_window;
         QToolBar tool_bar;
         Frame frame;
         int width, height;
         vector<Cell*> cells;
-        map<Cell*, vector<Cell*>> neighbors;
+        vector<Cell*> cells_empty;
+        map<Cell*, vector<Cell*>> neighbors; // includes itself as neighbor
+        bool any_reveal { false };
 
         // random-ness
         std::random_device rd;
