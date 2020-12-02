@@ -46,8 +46,8 @@ namespace Minus
         CellWidget widget;
 
         // state
-        bool& revealed;
-        bool& flag;
+        const bool& revealed;
+        const bool& flag;
         bool mine { false };
         int neighbor_mines { 0 };
     };
@@ -125,7 +125,6 @@ namespace Minus
                 return;
             }
 
-            cell.revealed = true;
             cell.widget.raise(CellWidget::Depth::Sunken);
             cell.widget.revealLabel();
 

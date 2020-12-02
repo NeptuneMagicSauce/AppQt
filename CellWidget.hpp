@@ -23,8 +23,8 @@ namespace Minus
         virtual void mouseMoveEvent(QMouseEvent *e) override;
 
     public:
-        bool& revealed;
-        bool& flag;
+        const bool& revealed;
+        const bool& flag;
     private:
         bool m_revealed { false };
         bool m_flag { false };
@@ -32,10 +32,11 @@ namespace Minus
         const QColor color, sunken_color;
         QColor label_color { Qt::white };
 
-    private:
         enum struct Action : int { Reveal, Flag };
         void onPress(void);
         void onRelease(Action);
+
+        friend class CellWidgetImpl;
     };
 
 };
