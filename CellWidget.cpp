@@ -15,9 +15,13 @@ namespace Minus
 {
     /* TODO
 
-       reset feature, with toolbar action and keybind
+       resize window -> keep the window in correct ratio ?
 
        auto win first reveal
+
+       result modal window : win or lose
+
+       nicer font as baked resource
 
        emoji renders are not nicely anti-aliased
 
@@ -105,11 +109,6 @@ namespace Minus
         setAlignment(impl.alignment);
         setFont(impl.font);
         raise(Depth::Raised);
-    }
-
-    void CellWidget::reset(void)
-    {
-        impl.cell_pressed = nullptr;
     }
 
     void CellWidget::revealLabel(void)
@@ -203,6 +202,7 @@ namespace Minus
                 setText(flag ? Labels::flag : "");
             }
         }
+        impl.cell_pressed = nullptr;
     }
 
 };
