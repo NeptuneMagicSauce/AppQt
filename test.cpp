@@ -14,6 +14,8 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QApplication>
+#include <QToolBar>
+#include <QStyle>
 
 #include "LoadContent.hpp"
 #include "Utils.hpp"
@@ -75,8 +77,8 @@ namespace Minus
                 r.width() / width,
                 r.height() / height);
             const auto
-                start_x = (r.width() - (cell_size * width)) / 2,
-                start_y = (r.height() - (cell_size * height)) / 2;
+                start_x = r.width() / 2 - (cell_size * width) / 2,
+                start_y = r.height() / 2 - (cell_size * height) / 2;
 
             for (int x=0; x<width; ++x)
             {
@@ -93,6 +95,11 @@ namespace Minus
                 }
             }
         }
+        virtual QSize minimumSize() const override
+        {
+            return QSize { 30 * width, 30 * height };
+        }
+
         vector<Cell*>& cells;
         int& width;
         int& height;
@@ -113,7 +120,6 @@ namespace Minus
         virtual void resizeEvent(QResizeEvent *event) override
         {
             QWidget::resizeEvent(event);
-            // qDebug() << event->oldSize() << "->" << event->size();
 
             if (cells.empty())
             {
@@ -155,6 +161,25 @@ namespace Minus
             main_window.setWindowTitle("Super Minus");
             main_window.show();
             gen.seed(time(0));
+            main_window.addToolBar(Qt::TopToolBarArea, &tool_bar);
+
+            tool_bar.setFloatable(false);
+            tool_bar.setMovable(false);
+            auto* dummy1 = new QWidget;
+            dummy1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            auto* dummy2 = new QWidget;
+            dummy2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            tool_bar.addWidget(dummy1);
+            auto* action_reset = tool_bar.addAction(
+                main_window.style()->standardIcon(QStyle::SP_BrowserReload),
+                "Reset",
+                [this]() {
+                    reset(this->width, this->height);
+            });
+            tool_bar.addWidget(dummy2);
+            tool_bar.setToolButtonStyle(Qt::ToolButtonIconOnly);
+            action_reset->setShortcut(QKeySequence::Refresh);
+            action_reset->setText(action_reset->text() + " (" + action_reset->shortcut().toString() + ")");
 
             reset(width, height);
 
@@ -213,13 +238,14 @@ namespace Minus
         {
             this->width = width;
             this->height = height;
-            const int scale = 40;
-            main_window.resize(scale * width, scale * height);
 
             while (frame.layout.count())
             {
+                // frame.layout.takeAt(0);
+                // segfault sometimes !?
                 frame.layout.removeItem(frame.layout.itemAt(0));
             }
+            qDebug() << Q_FUNC_INFO;
             for (auto* c: cells)
             {
                 delete c;
@@ -345,6 +371,7 @@ namespace Minus
 
         // state
         QMainWindow main_window;
+        QToolBar tool_bar;
         Frame frame;
         int width, height;
         vector<Cell*> cells;

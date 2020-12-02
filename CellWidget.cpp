@@ -17,6 +17,8 @@ namespace Minus
 {
     /* TODO
 
+       reset feature, with toolbar action and keybind
+
        auto win first reveal
 
        emoji renders are not nicely anti-aliased
