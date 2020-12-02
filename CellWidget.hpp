@@ -1,5 +1,6 @@
 #include <vector>
 #include <QLabel>
+#include <QDebug>
 
 namespace Minus
 {
@@ -9,6 +10,10 @@ namespace Minus
     public:
         enum struct Depth : int { Raised, Sunken };
         CellWidget(const QColor&);
+        virtual ~CellWidget()
+        {
+            qDebug() << "DELETE" << this;
+        }
         void revealLabel(void);
         void raise(Depth);
         void setLabel(bool mine, int neighbor_mines);
