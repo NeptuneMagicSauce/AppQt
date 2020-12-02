@@ -72,6 +72,15 @@ namespace Minus
             return dynamic_cast<CellWidget*>(parent->childAt(w->mapToParent(e->pos())));
         }
 
+        void onNewCellPressed(CellWidget* w)
+        {
+            if (cell_pressed && cell_pressed->revealed == false)
+            {
+                cell_pressed->raise(CellWidget::Depth::Raised);
+            }
+            cell_pressed = w;
+        }
+
         virtual void loadCallback(void) override
         {
             font.setFamily("Verdana");
@@ -139,7 +148,7 @@ namespace Minus
         auto* w { impl.widgetOfMouseEvent(this, e) };
         if (w == nullptr)
         {
-            // TODO handle move out of window while pressed
+            impl.onNewCellPressed(nullptr);
         } else if (e->buttons() & Qt::LeftButton)
         {
             w->onPress();
@@ -160,12 +169,7 @@ namespace Minus
 
     void CellWidget::onPress(void)
     {
-        auto& pressed { impl.cell_pressed };
-        if (pressed && impl.cell_pressed->revealed == false)
-        {
-            pressed->raise(Depth::Raised);
-        }
-        pressed = this;
+        impl.onNewCellPressed(this);
 
         if (flag == false &&
             revealed == false)
