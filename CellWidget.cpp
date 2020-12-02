@@ -17,13 +17,15 @@ namespace Minus
 {
     /* TODO
 
-       emoji renders are not nicely anti-aliased
+       auto win first reveal
 
-       layouting : square cells, either with window ratio or borders
-       layouting : find square cells on un-maximize
+       emoji renders are not nicely anti-aliased
 
        highlight hovered cell
        highlight auto revealed cell same as hovered maybe ?
+
+       allow keyboard for reveal/flag highlighted
+       only need to call CellWidget::onRelease(Action)
 
        use a QGraphicsView instead of QFrame ?
        cf https://stackoverflow.com/a/13990849
@@ -89,7 +91,6 @@ namespace Minus
         }
 
         QFont font;
-        const QSizePolicy size_policy { QSizePolicy::Expanding, QSizePolicy::Expanding };
         const Qt::Alignment alignment { Qt::AlignHCenter | Qt::AlignVCenter };
 
     } impl;
@@ -102,7 +103,6 @@ namespace Minus
     {
         setAutoFillBackground(true);
         setAlignment(impl.alignment);
-        setSizePolicy(impl.size_policy);
         setFont(impl.font);
         raise(Depth::Raised);
     }
