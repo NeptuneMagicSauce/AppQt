@@ -153,6 +153,7 @@ namespace Minus
 
     class Logic
     {
+        // TODO remove widget / layout from logic
     public:
         Logic(int width=16, int height=9) :
             frame(cells, width, height)
@@ -241,16 +242,14 @@ namespace Minus
 
             while (frame.layout.count())
             {
-                // frame.layout.takeAt(0);
-                // segfault sometimes !?
-                frame.layout.removeItem(frame.layout.itemAt(0));
+                frame.layout.takeAt(0);
             }
-            qDebug() << Q_FUNC_INFO;
             for (auto* c: cells)
             {
                 delete c;
             }
             cells.clear();
+            CellWidget::reset();
 
             const auto size = width * height;
 
@@ -331,6 +330,7 @@ namespace Minus
             frame.resizeEvent(&e);
 
             // print mines and neighbors
+            std::cout << std::endl;
             for (int y=0; y<height; ++y)
             {
                 for (int x=0; x<width; ++x)

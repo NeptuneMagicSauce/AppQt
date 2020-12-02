@@ -4,14 +4,12 @@
 #include "Labels.hpp"
 
 #include <random>
-#include <map>
 
 #include <QDebug>
 #include <QPainter>
 #include <QPaintEvent>
 
 using std::vector;
-using std::map;
 
 namespace Minus
 {
@@ -107,6 +105,11 @@ namespace Minus
         setAlignment(impl.alignment);
         setFont(impl.font);
         raise(Depth::Raised);
+    }
+
+    void CellWidget::reset(void)
+    {
+        impl.cell_pressed = nullptr;
     }
 
     void CellWidget::revealLabel(void)
