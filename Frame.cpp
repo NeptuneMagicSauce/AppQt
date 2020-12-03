@@ -63,6 +63,36 @@ namespace Minus
         const int& width;
         const int& height;
     };
+
+    class Pool
+    {
+    public:
+        void reserve(int count)
+        {
+            instances.resize(count);
+            for (auto& i: instances)
+            {
+                i = new CellWidget;
+            }
+        }
+        CellWidget* get(void)
+        {
+            if (index >= instances.size())
+            {
+                instances.resize(instances.size() + instances.size() / 2);
+            }
+            assert(index < instances.size());
+            return instances[index++];
+        }
+        void reset(void)
+        {
+            index = 0;
+        }
+
+    private:
+        std::vector<CellWidget*> instances;
+        unsigned int index { 0 };
+    };
 };
 
 using namespace Minus;
@@ -74,6 +104,7 @@ public:
     CellWidget* cell_pressed { nullptr };
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
+    Pool pool;
 
     static QColor color(int column, int row, int width, int height)
     {
@@ -89,6 +120,7 @@ public:
             / max_distance;
         return Utils::lerpColor(color_min, color_max, distance);
     }
+
 } impl_f;
 
 Frame::Frame(const int& width, const int& height) :
@@ -97,6 +129,7 @@ Frame::Frame(const int& width, const int& height) :
 {
     Utils::assertSingleton(typeid(*this));
     impl_f.layout = new Layout(width, height);
+    impl_f.pool.reserve(40 * 40);
     setLayout(impl_f.layout);
     reset();
 }
@@ -107,10 +140,6 @@ void Frame::reset(void)
     {
         impl_f.layout->takeAt(0);
     }
-    for (auto w: impl_f.indices)
-    {
-        delete w.first;
-    }
     impl_f.cell_pressed = nullptr;
     impl_f.indices.clear();
     impl_f.widgets.resize(width);
@@ -118,11 +147,13 @@ void Frame::reset(void)
     {
         column.resize(height);
     }
+    impl_f.pool.reset();
 }
 
 void Frame::addCell(int row, int column)
 {
-    auto* widget = new CellWidget(FrameImpl::color(column, row, width, height));
+    auto* widget = impl_f.pool.get();
+    widget->reset(FrameImpl::color(column, row, width, height));
     impl_f.layout->addWidget(widget, row, column);
     impl_f.indices[widget] = { column, row };
     impl_f.widgets[column][row] = widget;
