@@ -41,8 +41,7 @@ void Logic::reveal(CellPtr& cell)
         firstReveal(cell);
     }
 
-    cell->widget.raise(CellWidget::Depth::Sunken);
-    cell->widget.revealLabel();
+    emit setMineRevealed(cell->indices);
 
     if (cell->mine == false && cell->neighbor_mines == 0)
     {
@@ -118,7 +117,7 @@ void Logic::reset(int width, int height)
                           std::pow(ratio_y, 2.f))
                 / max_distance;
             const auto color = Utils::lerpColor(color_min, color_max, distance);
-            auto cell = std::make_shared<Cell>(color);
+            auto cell = std::make_shared<Cell>(color, Indices(x, y));
             cells[index(x, y)] = cell;
         }
     }

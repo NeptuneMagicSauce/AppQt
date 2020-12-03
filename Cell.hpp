@@ -5,10 +5,11 @@
 
 namespace Minus
 {
+    using Indices = QPoint;
     class Cell
     {
     public:
-        Cell(const QColor& c);
+        Cell(const QColor& c, const Indices& indices);
         ~Cell(void);
 
         // members
@@ -17,6 +18,7 @@ namespace Minus
         CellWidget widget;
 
         // state
+        const Indices indices;
         const bool& revealed;
         const bool& flag;
         bool mine { false };

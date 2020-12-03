@@ -23,6 +23,7 @@ namespace Minus
 
     signals:
         void setMineData(const CellStates&);
+        void setMineRevealed(Indices);
 
     private:
         // state
