@@ -8,23 +8,23 @@ class LoadContentImpl
 public:
     std::vector<LoadContent*> instances;
     bool loaded { false };
-} impl;
+} impl_lc;
 
 
 LoadContent::LoadContent()
 {
-    if (impl.loaded)
+    if (impl_lc.loaded)
     {
         throw std::runtime_error(" too late");
     }
-    impl.instances.emplace_back(this);
+    impl_lc.instances.emplace_back(this);
 }
 
 void LoadContent::doLoad(void)
 {
-    for (auto* i: impl.instances)
+    for (auto* i: impl_lc.instances)
     {
         i->loadCallback();
     }
-    impl.loaded = true;
+    impl_lc.loaded = true;
 }

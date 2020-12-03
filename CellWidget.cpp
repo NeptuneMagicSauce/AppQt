@@ -1,20 +1,23 @@
 #include "CellWidget.hpp"
-#include "LoadContent.hpp"
-#include "Utils.hpp"
-#include "Labels.hpp"
 
 #include <random>
 #include <set>
 
 #include <QDebug>
-#include <QPainter>
-#include <QPaintEvent>
+#include <QMouseEvent>
+
+#include "LoadContent.hpp"
+#include "Utils.hpp"
+#include "Labels.hpp"
 
 using std::set;
 
 namespace Minus
 {
     /* TODO
+
+       do mouseEvent in Frame not CellWidget
+       so that we can grab mouse, and support keyboard
 
        result modal window : win or lose
        status win/lose: with face emoji
@@ -89,6 +92,10 @@ namespace Minus
             cell_pressed = w;
         }
 
+        // void applyFontSize(CellWidget* w)
+        // {
+        // }
+
         virtual void loadCallback(void) override
         {
             font.setFamily("Verdana");
@@ -100,24 +107,24 @@ namespace Minus
         const Qt::Alignment alignment { Qt::AlignHCenter | Qt::AlignVCenter };
 
         set<CellWidget*> instances;
-    } impl;
+    } impl_cw;
 
     CellWidget::CellWidget(const QColor& color) :
         revealed(m_revealed),
         flag(m_flag),
-        color(impl.processColor(color)),
+        color(impl_cw.processColor(color)),
         sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
     {
-        impl.instances.insert(this);
+        impl_cw.instances.insert(this);
         setAutoFillBackground(true);
-        setAlignment(impl.alignment);
-        setFont(impl.font);
+        setAlignment(impl_cw.alignment);
+        setFont(impl_cw.font);
         raise(Depth::Raised);
     }
 
     CellWidget::~CellWidget(void)
     {
-        impl.instances.erase(this);
+        impl_cw.instances.erase(this);
     }
 
     void CellWidget::revealLabel(void)
@@ -147,9 +154,19 @@ namespace Minus
         label_color = Minus::Labels::colors[mine ? 0 : neighbor_mines];
     }
 
+    void CellWidget::setFontSize(int font_size)
+    {
+        auto f = font();
+        if (f.pointSize() != font_size)
+        {
+            f.setPointSizeF(font_size);
+            setFont(f);
+        }
+    }
+
     void CellWidget::mousePressEvent(QMouseEvent *e)
     {
-        auto* w { impl.widgetOfMouseEvent(this, e) };
+        auto* w { impl_cw.widgetOfMouseEvent(this, e) };
         if (w && e->button() == Qt::LeftButton)
         {
             w->onPress();
@@ -158,10 +175,10 @@ namespace Minus
 
     void CellWidget::mouseMoveEvent(QMouseEvent *e)
     {
-        auto* w { impl.widgetOfMouseEvent(this, e) };
+        auto* w { impl_cw.widgetOfMouseEvent(this, e) };
         if (w == nullptr)
         {
-            impl.onNewCellPressed(nullptr);
+            impl_cw.onNewCellPressed(nullptr);
         } else if (e->buttons() & Qt::LeftButton)
         {
             w->onPress();
@@ -170,7 +187,7 @@ namespace Minus
 
     void CellWidget::mouseReleaseEvent(QMouseEvent *e)
     {
-        auto* w { impl.widgetOfMouseEvent(this, e) };
+        auto* w { impl_cw.widgetOfMouseEvent(this, e) };
         if (w && (e->button() == Qt::LeftButton))
         {
             w->onRelease(Action::Reveal);
@@ -182,7 +199,7 @@ namespace Minus
 
     void CellWidget::onPress(void)
     {
-        impl.onNewCellPressed(this);
+        impl_cw.onNewCellPressed(this);
 
         if (flag == false &&
             revealed == false)
@@ -210,7 +227,7 @@ namespace Minus
                 setText(flag ? Labels::flag : "");
             }
         }
-        impl.cell_pressed = nullptr;
+        impl_cw.cell_pressed = nullptr;
     }
 
 };
