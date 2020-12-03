@@ -113,9 +113,6 @@ void Logic::reset(int width, int height)
                 / max_distance;
             const auto color = Utils::lerpColor(color_min, color_max, distance);
             auto cell = std::make_shared<Cell>(color);
-
-            // TODO do not delete Cells on quit for faster quit?
-
             cells[index(x, y)] = cell;
             QObject::connect(&cell->widget, &CellWidget::reveal, [this, x, y] () {
                     reveal(this->cell(x, y));
