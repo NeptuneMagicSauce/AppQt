@@ -19,9 +19,6 @@ Logic::Logic(int width, int height) :
     gen.seed(time(0));
 
     reset(width, height);
-
-    // warm-up, first call is slow
-    cells.front()->widget.setText(" ");
 }
 
 Logic::~Logic(void)
