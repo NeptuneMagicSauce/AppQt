@@ -159,8 +159,6 @@ void Logic::firstReveal(const CellPtr& first_cell)
     any_reveal = true;
 
     // remove neighbors from eligible cells for new mines (cells_empty)
-    // TODO cache computation of this set in function reset()
-    // TODO have reset work on background thread
     set<CellPtr> first_cell_neighbors;
     for (auto& n: neighbors[first_cell])
     {

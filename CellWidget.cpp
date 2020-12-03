@@ -14,45 +14,6 @@ using std::set;
 
 using namespace Minus;
 
-/* TODO
-
-   highlight hovered cell
-   highlight auto revealed cell same as hovered maybe ?
-
-   allow keyboard for reveal/flag highlighted
-   only need to call CellWidget::onRelease(Action)
-
-   result modal window : win or lose
-   status win/lose: with face emoji
-
-   setting: size, ratio, color, emojis
-
-   auto-maximize when window size is close or bigger than screen size
-
-   nicer font as baked resource
-
-   emoji renders are not nicely anti-aliased
-
-   use a QGraphicsView instead of QFrame ?
-   cf https://stackoverflow.com/a/13990849
-
-   reveal cells with nice animation
-   shake viewport
-   rebouding particles
-   shockwave with cells moving in depth or in XY
-
-   highlight / specular and/or texture: nice noise or pattern
-
-   do no react on release where pressed but on press
-   but only 1 cell per press, no keep pressed for multi cells
-
-   emacs : show cmake colors in compile buffer
-   emacs : respect my identation style
-
-   emacs theme light = doom-one-light
-   https://github.com/hlissner/emacs-doom-themes/blob/master/themes/doom-one-light-theme.el
-*/
-
 struct CellWidgetImpl: public LoadContent
 {
     std::random_device rd;
