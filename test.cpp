@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include <QApplication>
-
 #include "LoadContent.hpp"
 #include "Logic.hpp"
 #include "Gui.hpp"
@@ -18,13 +17,11 @@
 
 namespace Minus
 {
-    class App
+    class App : public QApplication
     {
-        // TODO inherit from QApplication, call LoadContent before MainWindow
     public:
-        Logic logic;
-        Gui gui;
-        App() :
+        App(int argc, char** argv) :
+            QApplication(argc, argv),
             gui(logic.width, logic.height)
         {
             QObject::connect(&gui, &Gui::reset, [this] () {
@@ -41,6 +38,17 @@ namespace Minus
 
             emit gui.reset();
         }
+    private:
+        class Loader
+        {
+        public:
+            Loader()
+            {
+                LoadContent::doLoad();
+            }
+        } loader;
+        Logic logic;
+        Gui gui;
     };
 };
 
@@ -50,13 +58,9 @@ int main(int argc, char **argv)
     // std::cout << "__cplusplus " << __cplusplus << std::endl;
     // std::cout << "__VERSION__ " << __VERSION__ << std::endl;
 
-    QApplication q_app(argc, argv);
+    Minus::App app { argc, argv };
 
-    LoadContent::doLoad();
-
-    Minus::App app;
-
-    q_app.exec();
+    app.exec();
 
     return 0;
 }
