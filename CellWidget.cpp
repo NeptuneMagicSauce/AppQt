@@ -42,6 +42,8 @@ using namespace Minus;
    do no react on release where pressed but on press
    but only 1 cell per press, no keep pressed for multi cells
 
+   emacs: show cmake colors in compile buffer
+
    emacs theme light = doom-one-light
    https://github.com/hlissner/emacs-doom-themes/blob/master/themes/doom-one-light-theme.el
 */

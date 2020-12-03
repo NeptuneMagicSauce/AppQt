@@ -27,15 +27,15 @@ namespace Minus
             gui(new Gui(logic.width, logic.height))
         {
 
-            QObject::connect(&gui->frame, &Frame::reveal, [this] (Indices indices) {
+            QObject::connect(&gui->frame, &Frame::reveal, [this] (const Indices& indices) {
                     logic.reveal(indices);
                 });
 
-            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors, [this] (Indices indices) {
+            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors, [this] (const Indices& indices) {
                     logic.autoRevealNeighbors(indices);
                 });
 
-            QObject::connect(&gui->frame, &Frame::setFlag, [this] (Indices indices, bool flag) {
+            QObject::connect(&gui->frame, &Frame::setFlag, [this] (const Indices& indices, bool flag) {
                     logic.setFlag(indices, flag);
                 });
 
@@ -43,11 +43,12 @@ namespace Minus
                 gui->frame.setMineData(data);
             });
 
-            QObject::connect(&logic, &Logic::setMineRevealed, [this] (Indices indices) {
+            QObject::connect(&logic, &Logic::setMineRevealed, [this] (const Indices& indices) {
                 gui->frame.revealCell(indices);
             });
 
             auto update_gui = [this] () {
+                // TODO do not re-instantiate anything on reset
                 for (int x=0; x<logic.width; ++x)
                 {
                     for (int y=0; y<logic.height; ++y)

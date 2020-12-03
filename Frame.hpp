@@ -28,7 +28,6 @@ namespace Minus
         virtual void mouseMoveEvent(QMouseEvent *e) override;
 
     private:
-        class Layout* layout;
         const int& width;
         const int& height;
 
