@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <QApplication>
+#include <QDebug>
 
 #include "LoadContent.hpp"
 #include "Logic.hpp"
@@ -23,21 +24,25 @@ namespace Minus
     public:
         App(int argc, char** argv) :
             QApplication(argc, argv),
-            gui(logic.width, logic.height)
+            gui(new Gui(logic.width, logic.height))
         {
-            QObject::connect(&gui, &Gui::reset, [this] () {
-                logic.reset(logic.width, logic.height);
+            auto update_gui = [this] () {
                 for (int x=0; x<logic.width; ++x)
                 {
                     for (int y=0; y<logic.height; ++y)
                     {
-                        gui.addCell(logic.cell(x, y)->widget, y, x);
+                        gui->addCell(logic.cell(x, y)->widget, y, x);
                     }
                 }
-                gui.resizeEvent();
+                gui->resizeEvent();
+            };
+
+            QObject::connect(gui, &Gui::reset, [this, update_gui] () {
+                logic.reset(logic.width, logic.height);
+                update_gui();
             });
 
-            emit gui.reset();
+            update_gui();
         }
     private:
         class Loader
@@ -49,15 +54,18 @@ namespace Minus
             }
         } loader;
         Logic logic;
-        Gui gui;
+        Gui* gui;
+        // gui must be dynamic allocated so that it is not destructed
+        // auto destruction on quit fails with silent error
+        // maybe because QApplication is being destructed
     };
 };
 
 
 int main(int argc, char **argv)
 {
-    // std::cout << "__cplusplus " << __cplusplus << std::endl;
-    // std::cout << "__VERSION__ " << __VERSION__ << std::endl;
+    // qDebug()  << "__cplusplus" << __cplusplus;
+    // qDebug() << "__VERSION__" << __VERSION__;
 
     Minus::App app { argc, argv };
 
