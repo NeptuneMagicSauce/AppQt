@@ -11,8 +11,9 @@ namespace Minus
     class Cell
     {
     public:
-        Cell(const Indices& indices);
-        ~Cell(void);
+        Cell(const Indices& indices) :
+            indices(indices)
+            { }
 
         // state
         const Indices indices;
