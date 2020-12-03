@@ -69,26 +69,32 @@ using namespace Minus;
 class FrameImpl
 {
 public:
+    Layout* layout;
     CellWidget* cell_pressed { nullptr };
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
+
+    static QColor color(int column, int row)
+    {
+        return Qt::white;
+    }
 } impl_f;
 
 Frame::Frame(const int& width, const int& height) :
-    layout(new Layout(width, height)),
     width(width),
     height(height)
 {
     Utils::assertSingleton(typeid(*this));
-    setLayout(layout);
+    impl_f.layout = new Layout(width, height);
+    setLayout(impl_f.layout);
     reset();
 }
 
 void Frame::reset(void)
 {
-    while (layout->count())
+    while (impl_f.layout->count())
     {
-        layout->takeAt(0);
+        impl_f.layout->takeAt(0);
     }
     impl_f.cell_pressed = nullptr;
     impl_f.indices.clear();
@@ -101,7 +107,8 @@ void Frame::reset(void)
 
 void Frame::addCell(CellWidget& widget, int row, int column)
 {
-    layout->addWidget(&widget, row, column);
+    FrameImpl::color(column, row);
+    impl_f.layout->addWidget(&widget, row, column);
     impl_f.indices[&widget] = { column, row };
     impl_f.widgets[column][row] = &widget;
 }

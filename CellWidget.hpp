@@ -18,6 +18,8 @@ namespace Minus
         void setLabel(bool mine, int neighbor_mines);
         void setFontSize(int);
         void reveal(void);
+        void onPress(void);
+        void switchFlag(void);
 
     public:
         // TODO have these 2 state var private, only getters public
@@ -29,11 +31,7 @@ namespace Minus
         QColor label_color { Qt::white };
         float font_size_digit, font_size_bomb;
 
-    public:
-        void onPress(void);
-        void switchFlag(void);
-
-        friend class CellWidgetImpl;
+        friend class CellWidgetImpl; // TODO no longer needed
     };
 
 };
