@@ -8,9 +8,10 @@
 using namespace Minus;
 
 Gui::Gui(const int& width, const int& height) :
-    frame(width, height)
+    m_frame(width, height),
+    frame(m_frame)
 {
-    main_window.setCentralWidget(&frame);
+    main_window.setCentralWidget(&m_frame);
     main_window.setWindowTitle("Super Minus");
     main_window.show();
     createToolBar();
@@ -29,7 +30,7 @@ void Gui::createToolBar(void)
         Labels::reset,
         [this]() {
             // reset(this->width, this->height);
-            frame.reset();
+            m_frame.reset();
             emit reset();
         });
     tool_bar.addWidget(spacer_right);
@@ -55,5 +56,5 @@ void Gui::resizeEvent(void)
 {
     // emit resize event
     QResizeEvent e { frame.size(), QSize(0, 0) };
-    frame.resizeEvent(&e);
+    m_frame.resizeEvent(&e);
 }

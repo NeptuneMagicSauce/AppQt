@@ -15,7 +15,7 @@ namespace Minus
 
         inline void addCell(CellWidget& widget, int row, int column)
         {
-            frame.addCell(widget, row, column);
+            m_frame.addCell(widget, row, column);
         }
 
         void resizeEvent(void);
@@ -27,8 +27,11 @@ namespace Minus
 
         QMainWindow main_window;
         QToolBar tool_bar;
-        Frame frame;
+        Frame m_frame;
 
         void createToolBar(void);
+
+    public:
+        const Frame& frame;
     };
 };
