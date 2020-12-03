@@ -9,7 +9,7 @@
 
 namespace Minus
 {
-    class FrameImpl_F
+    class FrameImpl
     {
     public:
         std::vector<CellWidget*> widgets;
