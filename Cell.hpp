@@ -5,7 +5,8 @@
 
 namespace Minus
 {
-    using Indices = QPoint;
+    using Indices = QPoint; // order is X-Y column-row
+
     class Cell
     {
     public:
