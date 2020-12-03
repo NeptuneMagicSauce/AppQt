@@ -141,23 +141,11 @@ void CellWidget::onPress(void)
     }
 }
 
-void CellWidget::onRelease(Action action)
+void CellWidget::switchFlag(void)
 {
-    if (action == Action::Reveal)
+    if (revealed == false)
     {
-        if (revealed)
-        {
-            emit autoRevealNeighbors();
-        } else if (flag == false)
-        {
-            emit reveal();
-        }
-    } else if (action == Action::Flag)
-    {
-        if (revealed == false)
-        {
-            m_flag = !flag;
-            setText(flag ? Labels::flag : "");
-        }
+        m_flag = !flag;
+        setText(flag ? Labels::flag : "");
     }
 }

@@ -17,6 +17,9 @@ namespace Minus
         void reset(int width, int height);
         CellPtr& cell(int x, int y);
 
+        void reveal(CellPtr& cell);
+        void autoRevealNeighbors(CellPtr& cell);
+
     private:
         // state
         int m_width, m_height;
@@ -31,8 +34,6 @@ namespace Minus
         std::uniform_int_distribution<int> distrib;
 
         // functions
-        void reveal(CellPtr& cell);
-        void autoRevealNeighbors(CellPtr& cell);
         void firstReveal(CellPtr& first_cell);
         void setOneRandomCellToMine(void);
         int index(int x, int y) const;

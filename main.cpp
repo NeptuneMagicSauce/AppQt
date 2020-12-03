@@ -42,6 +42,14 @@ namespace Minus
                 update_gui();
             });
 
+            QObject::connect(&gui->frame, &Frame::reveal, [this] (QPoint indices) {
+                    logic.reveal(logic.cell(indices.y(), indices.x()));
+                });
+
+            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors, [this] (QPoint indices) {
+                    logic.autoRevealNeighbors(logic.cell(indices.y(), indices.x()));
+                });
+
             update_gui();
         }
     private:

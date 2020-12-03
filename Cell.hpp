@@ -8,13 +8,11 @@ namespace Minus
     class Cell
     {
     public:
-        Cell(const QColor& c) :
-            widget(c),
-            revealed(widget.revealed),
-            flag(widget.flag)
-        { }
+        Cell(const QColor& c);
+        ~Cell(void);
 
         // members
+        // TODO do not have widget as member, create and destroy them in Frame
         CellWidget widget;
 
         // state

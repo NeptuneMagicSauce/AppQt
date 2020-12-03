@@ -1,6 +1,7 @@
 #include "Frame.hpp"
 
 #include <vector>
+#include <map>
 #include <QGridLayout>
 #include <QResizeEvent>
 #include <QDebug>
@@ -65,8 +66,10 @@ using namespace Minus;
 class FrameImpl
 {
 public:
+    // TODO use indices rather than widgets
     std::vector<CellWidget*> widgets;
     CellWidget* cell_pressed { nullptr };
+    std::map<CellWidget*, QPoint> indices;
 } impl_f;
 
 Frame::Frame(const int& width, const int& height) :
@@ -86,12 +89,14 @@ void Frame::reset(void)
     }
     impl_f.widgets.clear();
     impl_f.cell_pressed = nullptr;
+    impl_f.indices.clear();
 }
 
 void Frame::addCell(CellWidget& widget, int row, int column)
 {
     layout->addWidget(&widget, row, column);
     impl_f.widgets.emplace_back(&widget);
+    impl_f.indices[&widget] = { row, column };
 }
 
 void Frame::resizeEvent(QResizeEvent *event)
@@ -140,10 +145,16 @@ void Frame::mouseReleaseEvent(QMouseEvent *e)
     auto* w = widgetOfEvent(e);
     if (w && (e->button() == Qt::LeftButton))
     {
-        w->onRelease(CellWidget::Action::Reveal);
+        if (w->revealed)
+        {
+            emit autoRevealNeighbors(impl_f.indices[w]);
+        } else if (w->flag == false)
+        {
+            emit reveal(impl_f.indices[w]);
+        }
     } else if (w && (e->button() == Qt::RightButton))
     {
-        w->onRelease(CellWidget::Action::Flag);
+        w->switchFlag();
     }
     impl_f.cell_pressed = nullptr;
 }

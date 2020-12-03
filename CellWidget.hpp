@@ -7,7 +7,6 @@ namespace Minus
 {
     class CellWidget: public QLabel
     {
-        Q_OBJECT
     public:
         CellWidget(const QColor&);
         virtual ~CellWidget(void);
@@ -17,10 +16,6 @@ namespace Minus
         void revealLabel(void);
         void setLabel(bool mine, int neighbor_mines);
         void setFontSize(int);
-
-    signals:
-        void reveal(void);
-        void autoRevealNeighbors(void);
 
     public:
         const bool& revealed;
@@ -34,9 +29,8 @@ namespace Minus
         float font_size_digit, font_size_bomb;
 
     public:
-        enum struct Action : int { Reveal, Flag };
         void onPress(void);
-        void onRelease(Action);
+        void switchFlag(void);
 
         friend class CellWidgetImpl;
     };
