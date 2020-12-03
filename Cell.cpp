@@ -4,10 +4,11 @@
 
 using namespace Minus;
 
+// TODO move implementations to header
+
 Cell::Cell(const QColor& c, const Indices& indices) :
     widget(c),
-    indices(indices),
-    revealed(widget.revealed)
+    indices(indices)
 { }
 
 Cell::~Cell(void)
