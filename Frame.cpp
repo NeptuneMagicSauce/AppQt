@@ -102,7 +102,7 @@ void Frame::reset(void)
 void Frame::addCell(CellWidget& widget, int row, int column)
 {
     layout->addWidget(&widget, row, column);
-    impl_f.indices[&widget] = { row, column };
+    impl_f.indices[&widget] = { column, row };
     impl_f.widgets[column][row] = &widget;
 }
 
@@ -183,7 +183,6 @@ void Frame::mouseReleaseEvent(QMouseEvent *e)
         {
             w->flag = !w->flag;
             w->setText(w->flag ? Labels::flag : "");
-            qDebug() << "flag" << impl_f.indices[w] << w->flag;
             emit setFlag(impl_f.indices[w], w->flag);
         }
     }

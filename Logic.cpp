@@ -29,7 +29,12 @@ Logic::~Logic(void)
     copy->swap(cells);
 }
 
-void Logic::reveal(CellPtr& cell)
+void Logic::reveal(const Indices& indices)
+{
+    reveal(cell(indices));
+}
+
+void Logic::reveal(const CellPtr& cell)
 {
     if (cell->revealed)
     {
@@ -53,11 +58,12 @@ void Logic::reveal(CellPtr& cell)
 
 }
 
-void Logic::autoRevealNeighbors(CellPtr& cell)
+void Logic::autoRevealNeighbors(const Indices& indices)
 {
+    const auto& c = cell(indices);
     int flagged_neighbors { 0 };
     Cells to_reveal;
-    for (auto& n: neighbors[cell])
+    for (auto& n: neighbors[c])
     {
         if (n->revealed)
         {
@@ -70,7 +76,7 @@ void Logic::autoRevealNeighbors(CellPtr& cell)
             to_reveal.emplace_back(n);
         }
     }
-    if (flagged_neighbors == cell->neighbor_mines)
+    if (flagged_neighbors == c->neighbor_mines)
     {
         for (auto& n: to_reveal)
         {
@@ -79,9 +85,9 @@ void Logic::autoRevealNeighbors(CellPtr& cell)
     }
 }
 
-void Logic::setFlag(Indices indices, bool flag)
+void Logic::setFlag(const Indices& indices, bool flag)
 {
-    cell(indices.y(), indices.x())->flag = flag;
+    cell(indices)->flag = flag;
 }
 
 void Logic::setOneRandomCellToMine(void)
@@ -163,7 +169,7 @@ void Logic::reset(int width, int height)
     }
 }
 
-void Logic::firstReveal(CellPtr& first_cell)
+void Logic::firstReveal(const CellPtr& first_cell)
 {
     any_reveal = true;
 
@@ -253,4 +259,9 @@ bool Logic::indexValid(int x, int y) const
 CellPtr& Logic::cell(int x, int y)
 {
     return cells[index(x, y)];
+}
+
+CellPtr& Logic::cell(const Indices& indices)
+{
+    return cell(indices.x(), indices.y());
 }
