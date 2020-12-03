@@ -18,7 +18,6 @@ Gui::Gui(const int& width, const int& height) :
 
 void Gui::createToolBar(void)
 {
-    // TODO disable context menu
     tool_bar.setFloatable(false);
     tool_bar.setMovable(false);
     auto* spacer_left = new QWidget;
@@ -48,6 +47,7 @@ void Gui::createToolBar(void)
             reset_button->setAutoRaise(false);
         }
     }
+    tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
     main_window.addToolBar(Qt::TopToolBarArea, &tool_bar);
 }
 
