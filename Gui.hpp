@@ -13,11 +13,6 @@ namespace Minus
     public:
         Gui(const int& width, const int& height);
 
-        inline void addCell(CellWidget& widget, int row, int column)
-        {
-            m_frame.addCell(widget, row, column);
-        }
-
         void resizeEvent(void);
 
     signals:
@@ -27,11 +22,10 @@ namespace Minus
 
         QMainWindow main_window;
         QToolBar tool_bar;
-        Frame m_frame;
 
         void createToolBar(void);
 
     public:
-        const Frame& frame;
+        Frame frame;
     };
 };

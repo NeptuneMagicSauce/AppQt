@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CellWidget.hpp"
+#include "Cell.hpp"
 #include <QPoint>
 
 namespace Minus
@@ -12,6 +13,7 @@ namespace Minus
         Frame(const int& width, const int& height);
         void reset(void);
         void addCell(CellWidget& widget, int row, int column);
+        void setMineData(const CellStates& data);
 
         virtual void resizeEvent(QResizeEvent *event) override;
 

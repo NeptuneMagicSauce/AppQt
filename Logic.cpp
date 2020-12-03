@@ -197,17 +197,26 @@ void Logic::firstReveal(CellPtr& first_cell)
     }
     cells_empty.clear();
 
-    // count neighbor mines
-    for (auto& c: cells)
+    static CellStates mine_data;
+    mine_data.resize(width);
+    for (auto& m : mine_data) { m.resize(height); }
+
+    for (int x=0; x<width; ++x)
     {
-        int neighbor_mines = 0;
-        for (auto& n: neighbors[c])
+        for (int y=0; y<height; ++y)
         {
-            neighbor_mines += int(n->mine);
+            auto idx = index(x, y);
+            auto& c = cells[idx];
+            int neighbor_mines = 0;
+            for (auto& n: neighbors[c])
+            {
+                neighbor_mines += int(n->mine);
+            }
+            c->neighbor_mines = neighbor_mines;
+            mine_data[x][y] = { c->mine, c->neighbor_mines };
         }
-        c->neighbor_mines = neighbor_mines;
-        c->widget.setLabel(c->mine, c->neighbor_mines);
     }
+    emit setMineData(mine_data);
 
     // print mines and neighbors
     for (int y=0; y<height; ++y)
@@ -234,6 +243,7 @@ int Logic::index(int x, int y) const
 {
     return y * width + x;
 }
+
 bool Logic::indexValid(int x, int y) const
 {
     return x >= 0 && y >= 0 && x < width && y < height;

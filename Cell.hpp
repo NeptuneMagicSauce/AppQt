@@ -26,4 +26,11 @@ namespace Minus
     // types
     using CellPtr = std::shared_ptr<Cell>;
     using Cells = std::vector<CellPtr>;
+
+    struct CellState
+    {
+        bool mine;
+        int neighbor_mines;
+    };
+    using CellStates = std::vector<std::vector<CellState>>;
 };

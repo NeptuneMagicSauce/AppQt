@@ -8,8 +8,9 @@
 namespace Minus
 {
 
-    class Logic
+    class Logic : public QObject
     {
+        Q_OBJECT
     public:
         Logic(int width=16, int height=9);
         ~Logic(void);
@@ -19,6 +20,9 @@ namespace Minus
 
         void reveal(CellPtr& cell);
         void autoRevealNeighbors(CellPtr& cell);
+
+    signals:
+        void setMineData(const CellStates&);
 
     private:
         // state
