@@ -18,8 +18,11 @@ namespace Minus
         void reset(int width, int height);
         CellPtr& cell(int x, int y);
 
+        // TODO param of reveal should be Indices
+        // TODO dereference Indices with shared function
         void reveal(CellPtr& cell);
         void autoRevealNeighbors(CellPtr& cell);
+        void setFlag(Indices, bool);
 
     signals:
         void setMineData(const CellStates&);

@@ -7,6 +7,7 @@
 #include <QDebug>
 
 #include "Utils.hpp"
+#include "Labels.hpp"
 
 using std::vector;
 
@@ -178,7 +179,13 @@ void Frame::mouseReleaseEvent(QMouseEvent *e)
         }
     } else if (w && (e->button() == Qt::RightButton))
     {
-        w->switchFlag();
+        if (w->revealed == false)
+        {
+            w->flag = !w->flag;
+            w->setText(w->flag ? Labels::flag : "");
+            qDebug() << "flag" << impl_f.indices[w] << w->flag;
+            emit setFlag(impl_f.indices[w], w->flag);
+        }
     }
     impl_f.cell_pressed = nullptr;
 }

@@ -20,6 +20,7 @@ namespace Minus
     signals:
         void reveal(Indices);
         void autoRevealNeighbors(Indices);
+        void setFlag(Indices, bool);
 
     protected:
         virtual void mousePressEvent(QMouseEvent *e) override;

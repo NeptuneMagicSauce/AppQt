@@ -35,6 +35,10 @@ namespace Minus
                     logic.autoRevealNeighbors(logic.cell(indices.y(), indices.x()));
                 });
 
+            QObject::connect(&gui->frame, &Frame::setFlag, [this] (Indices indices, bool flag) {
+                    logic.setFlag(indices, flag);
+                });
+
             QObject::connect(&logic, &Logic::setMineData, [this] (const CellStates& data) {
                 gui->frame.setMineData(data);
             });

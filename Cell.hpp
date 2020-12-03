@@ -21,7 +21,7 @@ namespace Minus
         // state
         const Indices indices;
         const bool& revealed;
-        const bool& flag;
+        bool flag { false };
         bool mine { false };
         int neighbor_mines { 0 };
     };
