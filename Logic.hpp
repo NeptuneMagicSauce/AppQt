@@ -12,6 +12,7 @@ namespace Minus
     {
     public:
         Logic(int width=16, int height=9);
+        ~Logic(void);
 
         void reset(int width, int height);
         CellPtr& cell(int x, int y);
