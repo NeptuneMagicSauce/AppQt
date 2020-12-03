@@ -26,12 +26,25 @@ namespace Minus
             QApplication(argc, argv),
             gui(new Gui(logic.width, logic.height))
         {
+
+            QObject::connect(&gui->frame, &Frame::reveal, [this] (QPoint indices) {
+                    logic.reveal(logic.cell(indices.y(), indices.x()));
+                });
+
+            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors, [this] (QPoint indices) {
+                    logic.autoRevealNeighbors(logic.cell(indices.y(), indices.x()));
+                });
+
+            QObject::connect(&logic, &Logic::setMineData, [this] (const CellStates& data) {
+                gui->frame.setMineData(data);
+            });
+
             auto update_gui = [this] () {
                 for (int x=0; x<logic.width; ++x)
                 {
                     for (int y=0; y<logic.height; ++y)
                     {
-                        gui->addCell(logic.cell(x, y)->widget, y, x);
+                        gui->frame.addCell(logic.cell(x, y)->widget, y, x);
                     }
                 }
                 gui->resizeEvent();
@@ -41,14 +54,6 @@ namespace Minus
                 logic.reset(logic.width, logic.height);
                 update_gui();
             });
-
-            QObject::connect(&gui->frame, &Frame::reveal, [this] (QPoint indices) {
-                    logic.reveal(logic.cell(indices.y(), indices.x()));
-                });
-
-            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors, [this] (QPoint indices) {
-                    logic.autoRevealNeighbors(logic.cell(indices.y(), indices.x()));
-                });
 
             update_gui();
         }

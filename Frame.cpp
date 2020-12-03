@@ -68,6 +68,7 @@ class FrameImpl
 public:
     CellWidget* cell_pressed { nullptr };
     std::map<CellWidget*, QPoint> indices;
+    std::map<std::tuple<int,int>, CellWidget*> widgets;
 } impl_f;
 
 Frame::Frame(const int& width, const int& height) :
@@ -87,19 +88,21 @@ void Frame::reset(void)
     }
     impl_f.cell_pressed = nullptr;
     impl_f.indices.clear();
+    impl_f.widgets.clear();
 }
 
 void Frame::addCell(CellWidget& widget, int row, int column)
 {
     layout->addWidget(&widget, row, column);
     impl_f.indices[&widget] = { row, column };
+    impl_f.widgets[{row, column}] = &widget;
 }
 
 void Frame::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
 
-    if (impl_f.indices.empty())
+    if (impl_f.widgets.empty())
     {
         return;
     }
@@ -109,9 +112,21 @@ void Frame::resizeEvent(QResizeEvent *event)
         event->size().height() / height)
         * 0.4f; // default was 0.26
 
-    for (auto& i: impl_f.indices)
+    for (auto w : impl_f.widgets)
     {
-        i.first->setFontSize(size);
+        w.second->setFontSize(size);
+    }
+}
+
+void Frame::setMineData(const CellStates& data)
+{
+    for (int x=0; x<width; ++x)
+    {
+        for (int y=0; y<height; ++y)
+        {
+            auto& cell = data[x][y];
+            impl_f.widgets[{y, x}]->setLabel(cell.mine, cell.neighbor_mines);
+        }
     }
 }
 
