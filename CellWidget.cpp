@@ -19,18 +19,18 @@ using namespace Minus;
    do mouseEvent in Frame not CellWidget
    so that we can grab mouse, and support keyboard
 
+   highlight hovered cell
+   highlight auto revealed cell same as hovered maybe ?
+
+   allow keyboard for reveal/flag highlighted
+   only need to call CellWidget::onRelease(Action)
+
    result modal window : win or lose
    status win/lose: with face emoji
 
    nicer font as baked resource
 
    emoji renders are not nicely anti-aliased
-
-   highlight hovered cell
-   highlight auto revealed cell same as hovered maybe ?
-
-   allow keyboard for reveal/flag highlighted
-   only need to call CellWidget::onRelease(Action)
 
    use a QGraphicsView instead of QFrame ?
    cf https://stackoverflow.com/a/13990849

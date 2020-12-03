@@ -23,6 +23,10 @@ Logic::Logic(int width, int height) :
     cells.front()->widget.setText(" ");
 }
 
+// TODO ~Logic: swap cells in dyn allocd vector
+// check singleton in ctor
+// use this better test in other location
+
 void Logic::reveal(CellPtr& cell)
 {
     if (cell->revealed)
