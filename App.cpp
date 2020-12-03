@@ -48,7 +48,6 @@ namespace Minus
             });
 
             auto update_gui = [this] () {
-                // TODO do not re-instantiate anything on reset
                 for (int x=0; x<logic.width; ++x)
                 {
                     for (int y=0; y<logic.height; ++y)
