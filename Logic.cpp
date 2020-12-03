@@ -15,6 +15,7 @@ Logic::Logic(int width, int height) :
     width(m_width),
     height(m_height)
 {
+    Utils::assertSingleton(typeid(*this));
     gen.seed(time(0));
 
     reset(width, height);
