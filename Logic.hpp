@@ -2,6 +2,7 @@
 
 #include <map>
 #include <random>
+#include <QObject>
 
 #include "Cell.hpp"
 

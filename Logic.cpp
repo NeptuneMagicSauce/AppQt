@@ -106,46 +106,29 @@ void Logic::reset(int width, int height)
     this->m_width = width;
     this->m_height = height;
 
-    // frame.reset();
     cells.clear();
     neighbors.clear();
+    any_reveal = false;
 
     const auto size = width * height;
-
     cells.resize(size);
-
-    constexpr auto max_distance = std::sqrt(2.f);
-    static const QColor
-        color_min(112, 195, 255),
-        color_max(0, 80, 137);
 
     for (int x=0; x<width; ++x)
     {
-        const auto ratio_x = float(x) / (width - 1);
         for (int y=0; y<height; ++y)
         {
-            const auto ratio_y = float(y) / (height - 1);
-            const auto distance =
-                std::sqrt(std::pow(ratio_x, 2.f) +
-                          std::pow(ratio_y, 2.f))
-                / max_distance;
-            const auto color = Utils::lerpColor(color_min, color_max, distance);
-            auto cell = std::make_shared<Cell>(color, Indices(x, y));
-            cells[index(x, y)] = cell;
+            cells[index(x, y)] = std::make_shared<Cell>(Indices(x, y));
         }
     }
 
 
-    const int mines_count = float(size) * 0.20f;
-
     // populate mines
+    const int mines_count = float(size) * 0.20f;
     cells_empty = cells;
     for (int mine=0; mine<mines_count; ++mine)
     {
         setOneRandomCellToMine();
     }
-
-    any_reveal = false;
 
     // populate neighbors
     for (int x=0; x<width; ++x)

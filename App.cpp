@@ -53,7 +53,7 @@ namespace Minus
                 {
                     for (int y=0; y<logic.height; ++y)
                     {
-                        gui->frame.addCell(logic.cell(x, y)->widget, y, x);
+                        gui->frame.addCell(y, x);
                     }
                 }
                 gui->resizeEvent();
