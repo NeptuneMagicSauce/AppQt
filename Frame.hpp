@@ -13,10 +13,18 @@ namespace Minus
 
         virtual void resizeEvent(QResizeEvent *event) override;
 
+    protected:
+        virtual void mousePressEvent(QMouseEvent *e) override;
+        virtual void mouseReleaseEvent(QMouseEvent *e) override;
+        virtual void mouseMoveEvent(QMouseEvent *e) override;
+
     private:
         class Layout* layout;
         const int& width;
         const int& height;
+
+        CellWidget* widgetOfEvent(QMouseEvent* e);
+        void onNewCellPressed(CellWidget* w);
     };
 
 };

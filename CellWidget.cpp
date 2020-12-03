@@ -16,9 +16,6 @@ using namespace Minus;
 
 /* TODO
 
-   do mouseEvent in Frame not CellWidget
-   so that we can grab mouse, and support keyboard
-
    highlight hovered cell
    highlight auto revealed cell same as hovered maybe ?
 
@@ -51,62 +48,35 @@ using namespace Minus;
 
 struct CellWidgetImpl: public LoadContent
 {
-    CellWidget* cell_pressed { nullptr };
-
     std::random_device rd;
     std::mt19937 gen { rd() };
     std::uniform_int_distribution<int> distrib{-5, 5};
 
     QColor processColor(const QColor& color)
-        {
-            int r, g, b;
-            color.getRgb(&r, &g, &b);
-            static auto perColor = [this] (int& c)
-                {
-                    c += distrib(gen);
-                    c = std::max(0, std::min(255, c));
-                };
-            perColor(r);
-            perColor(g);
-            perColor(b);
-            return QColor(r, g, b);
-        }
-
-    CellWidget* widgetOfMouseEvent(CellWidget* w, QMouseEvent* e)
-        {
-            auto* parent { dynamic_cast<QWidget*>(w->parent()) };
-            if (parent == nullptr) { return nullptr; }
-            return dynamic_cast<CellWidget*>(parent->childAt(w->mapToParent(e->pos())));
-        }
-
-    void onNewCellPressed(CellWidget* w)
-        {
-            if (instances.count(cell_pressed) == 0)
+    {
+        int r, g, b;
+        color.getRgb(&r, &g, &b);
+        static auto perColor = [this] (int& c)
             {
-                cell_pressed = nullptr;
-            }
-            if (cell_pressed && cell_pressed->revealed == false)
-            {
-                cell_pressed->raise(CellWidget::Depth::Raised);
-            }
-            cell_pressed = w;
-        }
-
-    // void applyFontSize(CellWidget* w)
-    // {
-    // }
+                c += distrib(gen);
+                c = std::max(0, std::min(255, c));
+            };
+        perColor(r);
+        perColor(g);
+        perColor(b);
+        return QColor(r, g, b);
+    }
 
     virtual void loadCallback(void) override
-        {
-            font.setFamily("Verdana");
-            font.setStyleStrategy(QFont::PreferAntialias);
-            font.setWeight(QFont::DemiBold); // Medium Bold
-        }
+    {
+        font.setFamily("Verdana");
+        font.setStyleStrategy(QFont::PreferAntialias);
+        font.setWeight(QFont::DemiBold); // Medium Bold
+    }
 
     QFont font;
     const Qt::Alignment alignment { Qt::AlignHCenter | Qt::AlignVCenter };
 
-    set<CellWidget*> instances;
 } impl_cw;
 
 CellWidget::CellWidget(const QColor& color) :
@@ -115,7 +85,6 @@ CellWidget::CellWidget(const QColor& color) :
     color(impl_cw.processColor(color)),
     sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
 {
-    impl_cw.instances.insert(this);
     setAutoFillBackground(true);
     setAlignment(impl_cw.alignment);
     setFont(impl_cw.font);
@@ -124,7 +93,6 @@ CellWidget::CellWidget(const QColor& color) :
 
 CellWidget::~CellWidget(void)
 {
-    impl_cw.instances.erase(this);
 }
 
 void CellWidget::revealLabel(void)
@@ -164,43 +132,8 @@ void CellWidget::setFontSize(int font_size)
     }
 }
 
-void CellWidget::mousePressEvent(QMouseEvent *e)
-{
-    auto* w { impl_cw.widgetOfMouseEvent(this, e) };
-    if (w && e->button() == Qt::LeftButton)
-    {
-        w->onPress();
-    }
-}
-
-void CellWidget::mouseMoveEvent(QMouseEvent *e)
-{
-    auto* w { impl_cw.widgetOfMouseEvent(this, e) };
-    if (w == nullptr)
-    {
-        impl_cw.onNewCellPressed(nullptr);
-    } else if (e->buttons() & Qt::LeftButton)
-    {
-        w->onPress();
-    }
-}
-
-void CellWidget::mouseReleaseEvent(QMouseEvent *e)
-{
-    auto* w { impl_cw.widgetOfMouseEvent(this, e) };
-    if (w && (e->button() == Qt::LeftButton))
-    {
-        w->onRelease(Action::Reveal);
-    } else if (w && (e->button() == Qt::RightButton))
-    {
-        w->onRelease(Action::Flag);
-    }
-}
-
 void CellWidget::onPress(void)
 {
-    impl_cw.onNewCellPressed(this);
-
     if (flag == false &&
         revealed == false)
     {
@@ -227,5 +160,4 @@ void CellWidget::onRelease(Action action)
             setText(flag ? Labels::flag : "");
         }
     }
-    impl_cw.cell_pressed = nullptr;
 }
