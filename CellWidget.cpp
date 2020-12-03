@@ -83,13 +83,15 @@ struct CellWidgetImpl: public LoadContent
 } impl_cw;
 
 CellWidget::CellWidget(const QColor& color) :
+    flag(m_flag),
+    revealed(m_revealed),
     color(impl_cw.processColor(color)),
     sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
 {
     setAutoFillBackground(true);
     setAlignment(impl_cw.alignment);
     setFont(impl_cw.font);
-    raise(Depth::Raised);
+    raise(true);
 }
 
 CellWidget::~CellWidget(void)
@@ -98,19 +100,18 @@ CellWidget::~CellWidget(void)
 
 void CellWidget::reveal(void)
 {
-    raise(CellWidget::Depth::Sunken);
-    revealed = true;
+    raise(false);
+    m_revealed = true;
     setText(label);
 }
 
-void CellWidget::raise(Depth depth)
+void CellWidget::raise(bool up)
 {
-    const auto raised { depth == Depth::Raised };
     setFrameStyle(QFrame::StyledPanel |
-                  (raised ? QFrame::Raised : QFrame::Sunken));
+                  (up ? QFrame::Raised : QFrame::Sunken));
     setStyleSheet(
         "background-color:" +
-        (raised ? color : sunken_color).name(QColor::HexRgb) + ";"
+        (up ? color : sunken_color).name(QColor::HexRgb) + ";"
         "color:" + label_color.name(QColor::HexRgb) + ";"
         );
 }
@@ -134,11 +135,17 @@ void CellWidget::setFontSize(int font_size)
     }
 }
 
+void CellWidget::switchFlag(void)
+{
+    m_flag = !m_flag;
+    setText(flag ? Labels::flag : "");
+}
+
 void CellWidget::onPress(void)
 {
-    if (flag == false &&
-        revealed == false)
+    if (m_flag == false &&
+        m_revealed == false)
     {
-        raise(Depth::Sunken);
+        raise(false);
     }
 }
