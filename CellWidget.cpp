@@ -84,18 +84,29 @@ struct CellWidgetImpl: public LoadContent
 
 CellWidget::CellWidget(const QColor& color) :
     flag(m_flag),
-    revealed(m_revealed),
-    color(impl_cw.processColor(color)),
-    sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
+    revealed(m_revealed)
 {
     setAutoFillBackground(true);
     setAlignment(impl_cw.alignment);
     setFont(impl_cw.font);
-    raise(true);
+    reset(color);
 }
 
 CellWidget::~CellWidget(void)
 {
+}
+
+void CellWidget::reset(const QColor& c)
+{
+    m_flag = false;
+    m_revealed = false;
+    color = impl_cw.processColor(c);
+    sunken_color = Utils::lerpColor(color, Qt::white, 0.25f);
+    setStyleSheet(
+        "background-color:" +
+        color.name(QColor::HexRgb));
+    setText("");
+    raise(true);
 }
 
 void CellWidget::reveal(void)

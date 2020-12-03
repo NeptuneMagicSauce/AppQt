@@ -7,9 +7,10 @@ namespace Minus
     class CellWidget: public QLabel
     {
     public:
-        CellWidget(const QColor&);
+        CellWidget(const QColor& color=Qt::white);
         virtual ~CellWidget(void);
 
+        void reset(const QColor& color);
         void pushUp(void) { raise(true); }
         void setLabel(bool mine, int neighbor_mines);
         void setFontSize(int);
@@ -23,7 +24,7 @@ namespace Minus
     private:
         bool m_flag { false };
         bool m_revealed { false };
-        const QColor color, sunken_color;
+        QColor color, sunken_color;
         QString label;
         QColor label_color { Qt::white };
         float font_size_digit, font_size_bomb;
