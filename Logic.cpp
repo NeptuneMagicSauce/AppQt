@@ -123,6 +123,7 @@ void Logic::reset(int width, int height)
             const auto color = Utils::lerpColor(color_min, color_max, distance);
             auto cell = std::make_shared<Cell>(color);
             cells[index(x, y)] = cell;
+            // TODO connect to instances of Cell, do not deal with Widgets
             QObject::connect(&cell->widget, &CellWidget::reveal, [this, x, y] () {
                     reveal(this->cell(x, y));
                 });

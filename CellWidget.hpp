@@ -22,11 +22,6 @@ namespace Minus
         void reveal(void);
         void autoRevealNeighbors(void);
 
-    protected:
-        virtual void mousePressEvent(QMouseEvent *e) override;
-        virtual void mouseReleaseEvent(QMouseEvent *e) override;
-        virtual void mouseMoveEvent(QMouseEvent *e) override;
-
     public:
         const bool& revealed;
         const bool& flag;
@@ -38,6 +33,7 @@ namespace Minus
         QColor label_color { Qt::white };
         float font_size_digit, font_size_bomb;
 
+    public:
         enum struct Action : int { Reveal, Flag };
         void onPress(void);
         void onRelease(Action);
