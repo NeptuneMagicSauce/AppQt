@@ -16,13 +16,12 @@ namespace Minus
         ~Logic(void);
 
         void reset(int width, int height);
+        // TODO cell() and reveal() should be private
         CellPtr& cell(int x, int y);
 
-        // TODO param of reveal should be Indices
-        // TODO dereference Indices with shared function
-        void reveal(CellPtr& cell);
-        void autoRevealNeighbors(CellPtr& cell);
-        void setFlag(Indices, bool);
+        void reveal(const Indices&);
+        void autoRevealNeighbors(const Indices&);
+        void setFlag(const Indices&, bool);
 
     signals:
         void setMineData(const CellStates&);
@@ -42,7 +41,9 @@ namespace Minus
         std::uniform_int_distribution<int> distrib;
 
         // functions
-        void firstReveal(CellPtr& first_cell);
+        CellPtr& cell(const Indices&);
+        void reveal(const CellPtr&);
+        void firstReveal(const CellPtr& first_cell);
         void setOneRandomCellToMine(void);
         int index(int x, int y) const;
         bool indexValid(int x, int y) const;

@@ -28,11 +28,11 @@ namespace Minus
         {
 
             QObject::connect(&gui->frame, &Frame::reveal, [this] (Indices indices) {
-                    logic.reveal(logic.cell(indices.y(), indices.x()));
+                    logic.reveal(indices);
                 });
 
             QObject::connect(&gui->frame, &Frame::autoRevealNeighbors, [this] (Indices indices) {
-                    logic.autoRevealNeighbors(logic.cell(indices.y(), indices.x()));
+                    logic.autoRevealNeighbors(indices);
                 });
 
             QObject::connect(&gui->frame, &Frame::setFlag, [this] (Indices indices, bool flag) {
