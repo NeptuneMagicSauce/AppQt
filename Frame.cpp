@@ -66,8 +66,6 @@ using namespace Minus;
 class FrameImpl
 {
 public:
-    // TODO use indices rather than widgets
-    std::vector<CellWidget*> widgets;
     CellWidget* cell_pressed { nullptr };
     std::map<CellWidget*, QPoint> indices;
 } impl_f;
@@ -87,7 +85,6 @@ void Frame::reset(void)
     {
         layout->takeAt(0);
     }
-    impl_f.widgets.clear();
     impl_f.cell_pressed = nullptr;
     impl_f.indices.clear();
 }
@@ -95,7 +92,6 @@ void Frame::reset(void)
 void Frame::addCell(CellWidget& widget, int row, int column)
 {
     layout->addWidget(&widget, row, column);
-    impl_f.widgets.emplace_back(&widget);
     impl_f.indices[&widget] = { row, column };
 }
 
@@ -103,20 +99,19 @@ void Frame::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
 
-    if (impl_f.widgets.empty())
+    if (impl_f.indices.empty())
     {
         return;
     }
 
-    auto font = impl_f.widgets.front()->font();
     const auto size = std::min(
         event->size().width() / width,
         event->size().height() / height)
         * 0.4f; // default was 0.26
 
-    for (auto* w: impl_f.widgets)
+    for (auto& i: impl_f.indices)
     {
-        w->setFontSize(size);
+        i.first->setFontSize(size);
     }
 }
 

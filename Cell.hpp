@@ -13,6 +13,7 @@ namespace Minus
 
         // members
         // TODO do not have widget as member, create and destroy them in Frame
+        // needs more decoupling: between Logic and CellWidget !
         CellWidget widget;
 
         // state
