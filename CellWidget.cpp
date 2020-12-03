@@ -17,6 +17,7 @@ namespace Minus
     /* TODO
 
        result modal window : win or lose
+       status win/lose: with face emoji
 
        nicer font as baked resource
 
