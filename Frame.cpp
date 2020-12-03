@@ -80,6 +80,10 @@ namespace Minus
             if (index >= instances.size())
             {
                 instances.resize(instances.size() + instances.size() / 2);
+                for (unsigned int i=index; i<instances.size(); ++i)
+                {
+                    instances[i] = new CellWidget;
+                }
             }
             assert(index < instances.size());
             return instances[index++];
