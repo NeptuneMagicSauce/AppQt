@@ -5,12 +5,13 @@
 #include <QResizeEvent>
 #include <QDebug>
 
+#include "Utils.hpp"
+
 namespace Minus
 {
     class FrameImpl_F
     {
     public:
-        Frame* instance { nullptr };
         std::vector<CellWidget*> widgets;
     } impl_f;
 
@@ -73,8 +74,7 @@ Frame::Frame(const int& width, const int& height) :
     width(width),
     height(height)
 {
-    assert(!impl_f.instance);
-    impl_f.instance = this;
+    Utils::assertSingleton(typeid(*this));
     setLayout(layout);
 }
 
