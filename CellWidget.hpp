@@ -18,11 +18,9 @@ namespace Minus
         void setFontSize(int);
 
     public:
-        const bool& revealed;
-        const bool& flag;
+        bool flag { false };
+        bool revealed { false };
     private:
-        bool m_revealed { false };
-        bool m_flag { false };
         QString label;
         const QColor color, sunken_color;
         QColor label_color { Qt::white };

@@ -79,6 +79,11 @@ void Logic::autoRevealNeighbors(CellPtr& cell)
     }
 }
 
+void Logic::setFlag(Indices indices, bool flag)
+{
+    cell(indices.y(), indices.x())->flag = flag;
+}
+
 void Logic::setOneRandomCellToMine(void)
 {
     assert(cells_empty.size());

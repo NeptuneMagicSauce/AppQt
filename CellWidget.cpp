@@ -80,8 +80,6 @@ struct CellWidgetImpl: public LoadContent
 } impl_cw;
 
 CellWidget::CellWidget(const QColor& color) :
-    revealed(m_revealed),
-    flag(m_flag),
     color(impl_cw.processColor(color)),
     sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
 {
@@ -97,7 +95,7 @@ CellWidget::~CellWidget(void)
 
 void CellWidget::revealLabel(void)
 {
-    m_revealed = true;
+    revealed = true;
     setText(label);
 }
 
@@ -138,14 +136,5 @@ void CellWidget::onPress(void)
         revealed == false)
     {
         raise(Depth::Sunken);
-    }
-}
-
-void CellWidget::switchFlag(void)
-{
-    if (revealed == false)
-    {
-        m_flag = !flag;
-        setText(flag ? Labels::flag : "");
     }
 }
