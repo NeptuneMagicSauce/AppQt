@@ -25,6 +25,10 @@ using namespace Minus;
    result modal window : win or lose
    status win/lose: with face emoji
 
+   setting: size, ratio, color, emojis
+
+   auto-maximize when window size is close or bigger than screen size
+
    nicer font as baked resource
 
    emoji renders are not nicely anti-aliased

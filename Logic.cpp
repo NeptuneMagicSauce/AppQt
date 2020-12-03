@@ -189,6 +189,7 @@ void Logic::firstReveal(const CellPtr& first_cell)
     }
     cells_empty.clear();
 
+    // signal mine data = is mine and neighbor count
     static CellStates mine_data;
     mine_data.resize(width);
     for (auto& m : mine_data) { m.resize(height); }
