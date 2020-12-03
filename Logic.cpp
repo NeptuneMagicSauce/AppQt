@@ -41,6 +41,8 @@ void Logic::reveal(const CellPtr& cell)
         return;
     }
 
+    cell->revealed = true;
+
     if (any_reveal == false)
     {
         firstReveal(cell);

@@ -15,10 +15,10 @@ namespace Minus
         Logic(int width=16, int height=9);
         ~Logic(void);
 
-        void reset(int width, int height);
-        // TODO cell() and reveal() should be private
+        // TODO cell() should be private
         CellPtr& cell(int x, int y);
 
+        void reset(int width, int height);
         void reveal(const Indices&);
         void autoRevealNeighbors(const Indices&);
         void setFlag(const Indices&, bool);

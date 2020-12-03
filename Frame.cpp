@@ -141,8 +141,7 @@ void Frame::setMineData(const CellStates& data)
 void Frame::revealCell(Indices indices)
 {
     auto* w = impl_f.widgets[indices.x()][indices.y()];
-    w->raise(CellWidget::Depth::Sunken);
-    w->revealLabel();
+    w->reveal();
 }
 
 void Frame::mousePressEvent(QMouseEvent *e)

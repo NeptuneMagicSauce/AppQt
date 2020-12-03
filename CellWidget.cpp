@@ -93,8 +93,9 @@ CellWidget::~CellWidget(void)
 {
 }
 
-void CellWidget::revealLabel(void)
+void CellWidget::reveal(void)
 {
+    raise(CellWidget::Depth::Sunken);
     revealed = true;
     setText(label);
 }
