@@ -64,49 +64,52 @@ namespace Minus
         const int& height;
     };
 
-    Frame::Frame(const int& width, const int& height) :
-        layout(new Layout(width, height)),
-        width(width),
-        height(height)
-    {
-        assert(!impl_f.instance);
-        impl_f.instance = this;
-        setLayout(layout);
-    }
-
-    void Frame::reset(void)
-    {
-        while (layout->count())
-        {
-            layout->takeAt(0);
-        }
-        impl_f.widgets.clear();
-    }
-
-    void Frame::addCell(CellWidget& widget, int row, int column)
-    {
-        layout->addWidget(&widget, row, column);
-        impl_f.widgets.emplace_back(&widget);
-    }
-
-    void Frame::resizeEvent(QResizeEvent *event)
-    {
-        QWidget::resizeEvent(event);
-
-        if (impl_f.widgets.empty())
-        {
-            return;
-        }
-
-        auto font = impl_f.widgets.front()->font();
-        const auto size = std::min(
-            event->size().width() / width,
-            event->size().height() / height)
-            * 0.4f; // default was 0.26
-
-        for (auto* w: impl_f.widgets)
-        {
-            w->setFontSize(size);
-        }
-    }
 };
+
+using namespace Minus;
+
+Frame::Frame(const int& width, const int& height) :
+    layout(new Layout(width, height)),
+    width(width),
+    height(height)
+{
+    assert(!impl_f.instance);
+    impl_f.instance = this;
+    setLayout(layout);
+}
+
+void Frame::reset(void)
+{
+    while (layout->count())
+    {
+        layout->takeAt(0);
+    }
+    impl_f.widgets.clear();
+}
+
+void Frame::addCell(CellWidget& widget, int row, int column)
+{
+    layout->addWidget(&widget, row, column);
+    impl_f.widgets.emplace_back(&widget);
+}
+
+void Frame::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+
+    if (impl_f.widgets.empty())
+    {
+        return;
+    }
+
+    auto font = impl_f.widgets.front()->font();
+    const auto size = std::min(
+        event->size().width() / width,
+        event->size().height() / height)
+        * 0.4f; // default was 0.26
+
+    for (auto* w: impl_f.widgets)
+    {
+        w->setFontSize(size);
+    }
+}

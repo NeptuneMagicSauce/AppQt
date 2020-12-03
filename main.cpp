@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <QApplication>
+
 #include "LoadContent.hpp"
 #include "Logic.hpp"
 #include "Gui.hpp"
