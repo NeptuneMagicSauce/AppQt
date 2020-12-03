@@ -18,6 +18,7 @@ namespace Minus::Labels
     };
     const QString bomb { "💣" };
     const QString flag { "🚩" };
+    const QString reset { "😅" };
 
     const std::array<QColor, 10> colors
     {

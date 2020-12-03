@@ -19,6 +19,7 @@
 #include "LoadContent.hpp"
 #include "Utils.hpp"
 #include "CellWidget.hpp"
+#include "Labels.hpp"
 
 /* potential names
 
@@ -167,24 +168,7 @@ namespace Minus
             main_window.show();
             gen.seed(time(0));
             main_window.addToolBar(Qt::TopToolBarArea, &tool_bar);
-
-            tool_bar.setFloatable(false);
-            tool_bar.setMovable(false);
-            auto* dummy1 = new QWidget;
-            dummy1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-            auto* dummy2 = new QWidget;
-            dummy2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-            tool_bar.addWidget(dummy1);
-            auto* action_reset = tool_bar.addAction(
-                main_window.style()->standardIcon(QStyle::SP_BrowserReload),
-                "Reset",
-                [this]() {
-                    reset(this->width, this->height);
-            });
-            tool_bar.addWidget(dummy2);
-            tool_bar.setToolButtonStyle(Qt::ToolButtonIconOnly);
-            action_reset->setShortcut(QKeySequence::Refresh);
-            action_reset->setText(action_reset->text() + " (" + action_reset->shortcut().toString() + ")");
+            createToolBar();
 
             reset(width, height);
 
@@ -193,6 +177,38 @@ namespace Minus
         }
 
     private:
+
+        void createToolBar(void)
+        {
+            tool_bar.setFloatable(false);
+            tool_bar.setMovable(false);
+            auto* spacer_left = new QWidget;
+            spacer_left->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            auto* spacer_right = new QWidget;
+            spacer_right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            tool_bar.addWidget(spacer_left);
+            auto* action_reset = tool_bar.addAction(
+                Labels::reset,
+                [this]() {
+                    reset(this->width, this->height);
+            });
+            tool_bar.addWidget(spacer_right);
+            tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
+            action_reset->setShortcut(QKeySequence::Refresh);
+            action_reset->setToolTip("Reset (" + action_reset->shortcut().toString() + ")");
+            auto font = action_reset->font();
+            font.setPointSize(16);
+            action_reset->setFont(font);
+            for (auto* w: action_reset->associatedWidgets())
+            {
+                auto* reset_button = dynamic_cast<QToolButton*>(w);
+                if (reset_button != nullptr)
+                {
+                    reset_button->setAutoRaise(false);
+                }
+            }
+        }
+
         void reveal(CellPtr cell)
         {
             if (cell->revealed)
