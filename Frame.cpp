@@ -8,6 +8,8 @@
 
 #include "Utils.hpp"
 
+using std::vector;
+
 namespace Minus
 {
     class Layout: public QGridLayout
@@ -68,7 +70,7 @@ class FrameImpl
 public:
     CellWidget* cell_pressed { nullptr };
     std::map<CellWidget*, QPoint> indices;
-    std::map<std::tuple<int,int>, CellWidget*> widgets;
+    vector<vector<CellWidget*>> widgets;
 } impl_f;
 
 Frame::Frame(const int& width, const int& height) :
@@ -78,6 +80,7 @@ Frame::Frame(const int& width, const int& height) :
 {
     Utils::assertSingleton(typeid(*this));
     setLayout(layout);
+    reset();
 }
 
 void Frame::reset(void)
@@ -88,21 +91,25 @@ void Frame::reset(void)
     }
     impl_f.cell_pressed = nullptr;
     impl_f.indices.clear();
-    impl_f.widgets.clear();
+    impl_f.widgets.resize(width);
+    for (auto& column: impl_f.widgets)
+    {
+        column.resize(height);
+    }
 }
 
 void Frame::addCell(CellWidget& widget, int row, int column)
 {
     layout->addWidget(&widget, row, column);
     impl_f.indices[&widget] = { row, column };
-    impl_f.widgets[{row, column}] = &widget;
+    impl_f.widgets[column][row] = &widget;
 }
 
 void Frame::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
 
-    if (impl_f.widgets.empty())
+    if (impl_f.indices.empty())
     {
         return;
     }
@@ -112,9 +119,9 @@ void Frame::resizeEvent(QResizeEvent *event)
         event->size().height() / height)
         * 0.4f; // default was 0.26
 
-    for (auto w : impl_f.widgets)
+    for (auto w : impl_f.indices)
     {
-        w.second->setFontSize(size);
+        w.first->setFontSize(size);
     }
 }
 
@@ -125,7 +132,7 @@ void Frame::setMineData(const CellStates& data)
         for (int y=0; y<height; ++y)
         {
             auto& cell = data[x][y];
-            impl_f.widgets[{y, x}]->setLabel(cell.mine, cell.neighbor_mines);
+            impl_f.widgets[x][y]->setLabel(cell.mine, cell.neighbor_mines);
         }
     }
 }
