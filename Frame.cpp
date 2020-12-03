@@ -69,7 +69,7 @@ class FrameImpl
 {
 public:
     CellWidget* cell_pressed { nullptr };
-    std::map<CellWidget*, QPoint> indices;
+    std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
 } impl_f;
 
@@ -135,6 +135,13 @@ void Frame::setMineData(const CellStates& data)
             impl_f.widgets[x][y]->setLabel(cell.mine, cell.neighbor_mines);
         }
     }
+}
+
+void Frame::revealCell(Indices indices)
+{
+    auto* w = impl_f.widgets[indices.x()][indices.y()];
+    w->raise(CellWidget::Depth::Sunken);
+    w->revealLabel();
 }
 
 void Frame::mousePressEvent(QMouseEvent *e)

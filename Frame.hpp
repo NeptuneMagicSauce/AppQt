@@ -2,7 +2,6 @@
 
 #include "CellWidget.hpp"
 #include "Cell.hpp"
-#include <QPoint>
 
 namespace Minus
 {
@@ -14,12 +13,13 @@ namespace Minus
         void reset(void);
         void addCell(CellWidget& widget, int row, int column);
         void setMineData(const CellStates& data);
+        void revealCell(Indices);
 
         virtual void resizeEvent(QResizeEvent *event) override;
 
     signals:
-        void reveal(QPoint);
-        void autoRevealNeighbors(QPoint);
+        void reveal(Indices);
+        void autoRevealNeighbors(Indices);
 
     protected:
         virtual void mousePressEvent(QMouseEvent *e) override;

@@ -27,16 +27,20 @@ namespace Minus
             gui(new Gui(logic.width, logic.height))
         {
 
-            QObject::connect(&gui->frame, &Frame::reveal, [this] (QPoint indices) {
+            QObject::connect(&gui->frame, &Frame::reveal, [this] (Indices indices) {
                     logic.reveal(logic.cell(indices.y(), indices.x()));
                 });
 
-            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors, [this] (QPoint indices) {
+            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors, [this] (Indices indices) {
                     logic.autoRevealNeighbors(logic.cell(indices.y(), indices.x()));
                 });
 
             QObject::connect(&logic, &Logic::setMineData, [this] (const CellStates& data) {
                 gui->frame.setMineData(data);
+            });
+
+            QObject::connect(&logic, &Logic::setMineRevealed, [this] (Indices indices) {
+                gui->frame.revealCell(indices);
             });
 
             auto update_gui = [this] () {
