@@ -16,9 +16,6 @@ namespace Minus
         Logic(int width=16, int height=9);
         ~Logic(void);
 
-        // TODO cell() should be private
-        CellPtr& cell(int x, int y);
-
         void reset(int width, int height);
         void reveal(const Indices&);
         void autoRevealNeighbors(const Indices&);
@@ -42,6 +39,7 @@ namespace Minus
         std::uniform_int_distribution<int> distrib;
 
         // functions
+        CellPtr& cell(int x, int y);
         CellPtr& cell(const Indices&);
         void reveal(const CellPtr&);
         void firstReveal(const CellPtr& first_cell);

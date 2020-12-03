@@ -202,8 +202,7 @@ void Frame::mouseReleaseEvent(QMouseEvent *e)
     {
         if (w->revealed == false)
         {
-            w->flag = !w->flag;
-            w->setText(w->flag ? Labels::flag : "");
+            w->switchFlag();
             emit setFlag(impl_f.indices[w], w->flag);
         }
     }
@@ -223,7 +222,7 @@ void Frame::onNewCellPressed(CellWidget* w)
     }
     if (impl_f.cell_pressed && impl_f.cell_pressed->revealed == false)
     {
-        impl_f.cell_pressed->raise(CellWidget::Depth::Raised);
+        impl_f.cell_pressed->pushUp();
     }
     impl_f.cell_pressed = w;
 }
