@@ -1,4 +1,5 @@
-#include <vector>
+#pragma once
+
 #include <QLabel>
 
 
@@ -15,6 +16,7 @@ namespace Minus
         void raise(Depth);
         void revealLabel(void);
         void setLabel(bool mine, int neighbor_mines);
+        void setFontSize(int);
 
     signals:
         void reveal(void);
@@ -34,6 +36,7 @@ namespace Minus
         QString label;
         const QColor color, sunken_color;
         QColor label_color { Qt::white };
+        float font_size_digit, font_size_bomb;
 
         enum struct Action : int { Reveal, Flag };
         void onPress(void);
