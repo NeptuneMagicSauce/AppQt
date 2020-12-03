@@ -11,7 +11,7 @@ namespace Minus
     public:
         Frame(const int& width, const int& height);
         void reset(void);
-        void addCell(CellWidget& widget, int row, int column);
+        void addCell(int row, int column);
         void setMineData(const CellStates& data);
         void revealCell(Indices);
 

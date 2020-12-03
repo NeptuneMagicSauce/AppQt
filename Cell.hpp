@@ -1,7 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "CellWidget.hpp"
+#include <memory>
+#include <QPoint>
 
 namespace Minus
 {
@@ -10,13 +11,8 @@ namespace Minus
     class Cell
     {
     public:
-        Cell(const QColor& c, const Indices& indices);
+        Cell(const Indices& indices);
         ~Cell(void);
-
-        // members
-        // TODO do not have widget as member, create and destroy them in Frame
-        // needs more decoupling: between Logic and CellWidget !
-        CellWidget widget;
 
         // state
         const Indices indices;
@@ -29,7 +25,6 @@ namespace Minus
     // types
     using CellPtr = std::shared_ptr<Cell>;
     using Cells = std::vector<CellPtr>;
-
     struct CellState
     {
         bool mine;

@@ -1,5 +1,6 @@
 #include "Frame.hpp"
 
+#include <cmath>
 #include <vector>
 #include <map>
 #include <QGridLayout>
@@ -74,9 +75,19 @@ public:
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
 
-    static QColor color(int column, int row)
+    static QColor color(int column, int row, int width, int height)
     {
-        return Qt::white;
+        constexpr auto max_distance = std::sqrt(2.f);
+        static const QColor
+            color_min(112, 195, 255),
+            color_max(0, 80, 137);
+        auto ratio_x = float(column) / (width - 1);
+        auto ratio_y = float(row) / (height - 1);
+        auto distance =
+            std::sqrt(std::pow(ratio_x, 2.f) +
+                      std::pow(ratio_y, 2.f))
+            / max_distance;
+        return Utils::lerpColor(color_min, color_max, distance);
     }
 } impl_f;
 
@@ -96,6 +107,10 @@ void Frame::reset(void)
     {
         impl_f.layout->takeAt(0);
     }
+    for (auto w: impl_f.indices)
+    {
+        delete w.first;
+    }
     impl_f.cell_pressed = nullptr;
     impl_f.indices.clear();
     impl_f.widgets.resize(width);
@@ -105,12 +120,12 @@ void Frame::reset(void)
     }
 }
 
-void Frame::addCell(CellWidget& widget, int row, int column)
+void Frame::addCell(int row, int column)
 {
-    FrameImpl::color(column, row);
-    impl_f.layout->addWidget(&widget, row, column);
-    impl_f.indices[&widget] = { column, row };
-    impl_f.widgets[column][row] = &widget;
+    auto* widget = new CellWidget(FrameImpl::color(column, row, width, height));
+    impl_f.layout->addWidget(widget, row, column);
+    impl_f.indices[widget] = { column, row };
+    impl_f.widgets[column][row] = widget;
 }
 
 void Frame::resizeEvent(QResizeEvent *event)

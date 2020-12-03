@@ -6,8 +6,7 @@ using namespace Minus;
 
 // TODO move implementations to header
 
-Cell::Cell(const QColor& c, const Indices& indices) :
-    widget(c),
+Cell::Cell(const Indices& indices) :
     indices(indices)
 { }
 
