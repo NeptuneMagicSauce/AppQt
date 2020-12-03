@@ -11,8 +11,6 @@ namespace Minus
         CellWidget(const QColor&);
         virtual ~CellWidget(void);
 
-        static void reset(void);
-
         enum struct Depth : int { Raised, Sunken };
         void raise(Depth);
         void revealLabel(void);

@@ -246,6 +246,7 @@ namespace Minus
 
         void setOneRandomCellToMine(void)
         {
+            assert(cells_empty.size());
             distrib.param(std::uniform_int_distribution<int>::param_type(0, int(cells_empty.size() - 1)));
             const auto mine_index = distrib(gen);
             cells_empty[mine_index]->mine = true;
@@ -262,7 +263,6 @@ namespace Minus
                 frame.layout.takeAt(0);
             }
             cells.clear();
-            CellWidget::reset();
             neighbors.clear();
 
             const auto size = width * height;

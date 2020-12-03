@@ -10,6 +10,8 @@
 #include <QPainter>
 #include <QPaintEvent>
 
+using std::set;
+
 namespace Minus
 {
     /* TODO
@@ -79,6 +81,10 @@ namespace Minus
 
         void onNewCellPressed(CellWidget* w)
         {
+            if (instances.count(cell_pressed) == 0)
+            {
+                cell_pressed = nullptr;
+            }
             if (cell_pressed && cell_pressed->revealed == false)
             {
                 cell_pressed->raise(CellWidget::Depth::Raised);
@@ -96,6 +102,7 @@ namespace Minus
         QFont font;
         const Qt::Alignment alignment { Qt::AlignHCenter | Qt::AlignVCenter };
 
+        set<CellWidget*> instances;
     } impl;
 
     CellWidget::CellWidget(const QColor& color) :
@@ -104,6 +111,7 @@ namespace Minus
         color(impl.processColor(color)),
         sunken_color(Utils::lerpColor(this->color, Qt::white, 0.25f))
     {
+        impl.instances.insert(this);
         setAutoFillBackground(true);
         setAlignment(impl.alignment);
         setFont(impl.font);
@@ -112,11 +120,7 @@ namespace Minus
 
     CellWidget::~CellWidget(void)
     {
-    }
-
-    void CellWidget::reset(void)
-    {
-        impl.cell_pressed = nullptr;
+        impl.instances.erase(this);
     }
 
     void CellWidget::revealLabel(void)
