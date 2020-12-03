@@ -207,7 +207,6 @@ namespace Minus
             if (revealed == false)
             {
                 m_flag = !flag;
-                // TODO set font size smaller for flag same as mine
                 setText(flag ? Labels::flag : "");
             }
         }
