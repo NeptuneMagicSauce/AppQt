@@ -58,7 +58,7 @@ namespace Minus
             }
         virtual QSize minimumSize() const override
             {
-                return QSize { 10 * width, 10 * height };
+                return QSize { Frame::MinimumCellSize * width, Frame::MinimumCellSize * height };
             }
         const int& width;
         const int& height;
@@ -137,6 +137,7 @@ Frame::Frame(const int& width, const int& height) :
     impl_f.pool.reserve(40 * 40);
     setLayout(impl_f.layout);
     setMouseTracking(true);
+
     reset();
 }
 

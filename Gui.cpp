@@ -2,10 +2,65 @@
 
 #include <QToolButton>
 #include <QResizeEvent>
+#include <QScreen>
+#include <QDebug>
 
 #include "Labels.hpp"
 
 using namespace Minus;
+
+class MainEventFilter: public QObject
+{
+public:
+    MainEventFilter(Frame& frame, QToolBar& tool_bar) :
+        frame(frame),
+        tool_bar(tool_bar)
+    { }
+protected:
+    Frame& frame;
+    QToolBar& tool_bar;
+    bool first_run { true };
+    bool eventFilter(QObject *obj, QEvent *event) override
+    {
+        // qDebug() << event->type() << tool_bar.height();
+        if (first_run && event->type() == QEvent::Show)
+        {
+            first_run = false;
+            setInitialWindowSize();
+            tool_bar.removeEventFilter(this);
+        }
+        return QObject::eventFilter(obj, event);
+    }
+
+    void setInitialWindowSize(void)
+    {
+        auto* window = tool_bar.window();
+        if (!window) { return; }
+        auto* screen = window->screen();
+        if (!screen) { return; }
+        auto screen_geom = screen->availableVirtualGeometry();
+        // qDebug() << screen_geom;
+
+        int width = frame.width * Frame::InitialCellSize;
+        int height = tool_bar.height() + frame.height * Frame::InitialCellSize;
+
+        if (width >= screen_geom.width() ||
+            height >= screen_geom.height())
+        {
+            // window->move(screen_geom.topLeft());
+            // window->resize(screen_geom.width(), screen_geom.height());
+            window->showMaximized();
+        } else {
+            auto center = screen_geom.center();
+            window->setGeometry(QRect(
+                center.x() - width / 2,
+                center.y() - height / 2,
+                width,
+                height
+                ));
+        }
+    }
+};
 
 Gui::Gui(const int& width, const int& height) :
     frame(width, height)
@@ -13,6 +68,7 @@ Gui::Gui(const int& width, const int& height) :
     main_window.setCentralWidget(&frame);
     main_window.setWindowTitle("Super Minus");
     main_window.show();
+    tool_bar.installEventFilter(new MainEventFilter(frame, tool_bar));
     createToolBar();
 }
 
