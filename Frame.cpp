@@ -224,6 +224,30 @@ void Frame::revealCell(Indices indices)
     w->reveal();
 }
 
+void Frame::leaveEvent(QEvent*)
+{
+    // qDebug() << "leaveEvent";
+    for (auto* n : impl_f.neighbors_pressed)
+    {
+        n->raise(true);
+    }
+    impl_f.neighbors_pressed.clear();
+    impl_f.key_reveal_pressed = false;
+    if (impl_f.cell_pressed)
+    {
+        if (impl_f.cell_pressed->revealed == false)
+        {
+            impl_f.cell_pressed->raise(true);
+        }
+        impl_f.cell_pressed = nullptr;
+    }
+    if (impl_f.hovered)
+    {
+        impl_f.hovered->hover(false);
+        impl_f.hovered = nullptr;
+    }
+}
+
 void Frame::keyPressEvent(QKeyEvent *event)
 {
     QWidget::keyPressEvent(event);
@@ -241,9 +265,11 @@ void Frame::keyReleaseEvent(QKeyEvent *event)
     QWidget::keyReleaseEvent(event);
     if (event->isAutoRepeat()) { return; }
     auto releasing_reveal = event->key() == impl_f.key_reveal;
+    // qDebug() << "keyReleaseEvent" << releasing_reveal << impl_f.key_reveal_pressed;
+    auto reveal_was_pressed = impl_f.key_reveal_pressed;
     impl_f.key_reveal_pressed &= !releasing_reveal;
     releaseEvent(impl_f.hovered,
-                 releasing_reveal
+                 (reveal_was_pressed && releasing_reveal)
                  ? Qt::LeftButton
                  : (event->key() == impl_f.key_flag)
                  ? Qt::RightButton
@@ -277,8 +303,9 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
     // move over unrevealed neighbor
     // move away 1 cell from over unrevealed neighbor
     // expected : unrevealed neighbor is pressed, color pressed
-    // observered : unrevealed neighbor is pressed, color unpressed
+    // observed : unrevealed neighbor is pressed, color unpressed
     // only with keyboard, not with mouse
+    // unhover fails when going to tool bar
 
     if (pressing_reveal)
     {
