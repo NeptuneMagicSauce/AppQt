@@ -33,6 +33,7 @@ namespace Minus
 
         CellWidget* widgetOfEvent(QMouseEvent* e);
         void onNewCellPressed(CellWidget* w);
+        void hover(CellWidget* w);
     };
 
 };

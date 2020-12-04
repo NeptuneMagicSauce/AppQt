@@ -11,6 +11,7 @@
 
    highlight hovered cell
    highlight auto revealed cell same as hovered maybe ?
+   pre push auto reveal cell same as reveal
 
    allow keyboard for reveal/flag highlighted
    only need to call CellWidget::onRelease(Action)
@@ -39,6 +40,7 @@
    do no react on release where pressed but on press
    but only 1 cell per press, no keep pressed for multi cells
 
+   emacs : save on compile
    emacs : show cmake colors in compile buffer
    emacs : respect my identation style
 

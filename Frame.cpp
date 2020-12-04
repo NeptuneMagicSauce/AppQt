@@ -106,6 +106,7 @@ class FrameImpl
 public:
     Layout* layout;
     CellWidget* cell_pressed { nullptr };
+    CellWidget* hovered { nullptr };
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
     Pool pool;
@@ -135,6 +136,7 @@ Frame::Frame(const int& width, const int& height) :
     impl_f.layout = new Layout(width, height);
     impl_f.pool.reserve(40 * 40);
     setLayout(impl_f.layout);
+    setMouseTracking(true);
     reset();
 }
 
@@ -145,6 +147,7 @@ void Frame::reset(void)
         impl_f.layout->takeAt(0);
     }
     impl_f.cell_pressed = nullptr;
+    impl_f.hovered = nullptr;
     impl_f.indices.clear();
     impl_f.widgets.resize(width);
     for (auto& column: impl_f.widgets)
@@ -218,6 +221,9 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
     if (w && (e->buttons() & Qt::LeftButton))
     {
         w->onPress();
+    } else if (e->buttons() == Qt::NoButton)
+    {
+        hover(w);
     }
 }
 
@@ -260,4 +266,18 @@ void Frame::onNewCellPressed(CellWidget* w)
         impl_f.cell_pressed->pushUp();
     }
     impl_f.cell_pressed = w;
+}
+
+void Frame::hover(CellWidget* w)
+{
+    if (impl_f.hovered == w)
+    {
+        return;
+    }
+    if (impl_f.hovered != nullptr)
+    {
+        impl_f.hovered->hover(false);
+    }
+    impl_f.hovered = w;
+    w->hover(true);
 }
