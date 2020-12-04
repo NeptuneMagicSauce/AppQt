@@ -70,25 +70,31 @@ namespace Minus
             gui(new Gui(logic.width, logic.height))
         {
 
-            QObject::connect(&gui->frame, &Frame::reveal, [this] (const Indices& indices) {
+            QObject::connect(
+                &gui->frame, &Frame::reveal,
+                [this] (const Indices& indices) {
                     logic.reveal(indices);
                 });
 
-            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors, [this] (const Indices& indices) {
-                    logic.autoRevealNeighbors(indices);
-                });
+            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors,
+                             [this] (const Indices& indices) {
+                                 logic.autoRevealNeighbors(indices);
+                             });
 
-            QObject::connect(&gui->frame, &Frame::setFlag, [this] (const Indices& indices, bool flag) {
-                    logic.setFlag(indices, flag);
-                });
+            QObject::connect(&gui->frame, &Frame::setFlag,
+                             [this] (const Indices& indices, bool flag) {
+                                 logic.setFlag(indices, flag);
+                             });
 
-            QObject::connect(&logic, &Logic::setMineData, [this] (const CellStates& data) {
-                gui->frame.setMineData(data);
-            });
+            QObject::connect(&logic, &Logic::setMineData,
+                             [this] (const CellStates& data) {
+                                 gui->frame.setMineData(data);
+                             });
 
-            QObject::connect(&logic, &Logic::setMineRevealed, [this] (const Indices& indices) {
-                gui->frame.revealCell(indices);
-            });
+            QObject::connect(&logic, &Logic::setMineRevealed,
+                             [this] (const Indices& indices) {
+                                 gui->frame.revealCell(indices);
+                             });
 
             auto update_gui = [this] () {
                 for (int x=0; x<logic.width; ++x)
@@ -101,10 +107,11 @@ namespace Minus
                 gui->resizeEvent();
             };
 
-            QObject::connect(gui, &Gui::reset, [this, update_gui] () {
-                logic.reset(logic.width, logic.height);
-                update_gui();
-            });
+            QObject::connect(gui, &Gui::reset,
+                             [this, update_gui] () {
+                                 logic.reset(logic.width, logic.height);
+                                 update_gui();
+                             });
 
             update_gui();
         }
