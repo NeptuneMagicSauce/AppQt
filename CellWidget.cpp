@@ -3,6 +3,7 @@
 #include <random>
 #include <set>
 
+#include <QTimer>
 #include <QDebug>
 #include <QMouseEvent>
 
@@ -35,6 +36,19 @@ struct CellWidgetImpl: public LoadContent
         return QColor(r, g, b);
     }
 
+    void setColor(CellWidget* w, bool up, bool hovered=false)
+    {
+        auto bg_color = (up
+                         ? (hovered
+                            ? w->hovered_color
+                            : w->color)
+                         : w->sunken_color);
+        w->setStyleSheet(
+            "background-color:" + bg_color.name(QColor::HexRgb) + ";"
+            "color:" + w->label_color.name(QColor::HexRgb) + ";"
+            );
+    }
+
     virtual void loadCallback(void) override
     {
         font.setFamily("Verdana");
@@ -51,6 +65,7 @@ CellWidget::CellWidget(const QColor& color) :
     flag(m_flag),
     revealed(m_revealed)
 {
+    setMouseTracking(true);
     setAutoFillBackground(true);
     setAlignment(impl_cw.alignment);
     setFont(impl_cw.font);
@@ -65,11 +80,11 @@ void CellWidget::reset(const QColor& c)
 {
     m_flag = false;
     m_revealed = false;
+    hovered = false;
     color = impl_cw.processColor(c);
     sunken_color = Utils::lerpColor(color, Qt::white, 0.25f);
-    setStyleSheet(
-        "background-color:" +
-        color.name(QColor::HexRgb));
+    hovered_color = Utils::lerpColor(color, Qt::white, 0.18f);
+    impl_cw.setColor(this, true);
     setText("");
     raise(true);
 }
@@ -85,11 +100,7 @@ void CellWidget::raise(bool up)
 {
     setFrameStyle(QFrame::StyledPanel |
                   (up ? QFrame::Raised : QFrame::Sunken));
-    setStyleSheet(
-        "background-color:" +
-        (up ? color : sunken_color).name(QColor::HexRgb) + ";"
-        "color:" + label_color.name(QColor::HexRgb) + ";"
-        );
+    impl_cw.setColor(this, up);
 }
 
 void CellWidget::setLabel(bool mine, int neighbor_mines)
@@ -123,5 +134,25 @@ void CellWidget::onPress(void)
         m_revealed == false)
     {
         raise(false);
+    }
+}
+
+void CellWidget::hover(bool h)
+{
+    if (revealed)
+    {
+        return;
+    }
+    hovered = h;
+    impl_cw.setColor(this, true, hovered);
+    if (hovered)
+    {
+        QTimer::singleShot(100, [this] () {
+            if (hovered && underMouse() == false)
+            {
+                hover(false);
+            }
+        });
+
     }
 }

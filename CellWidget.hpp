@@ -2,8 +2,10 @@
 
 #include <QLabel>
 
+class CellWidgetImpl;
 namespace Minus
 {
+
     class CellWidget: public QLabel
     {
     public:
@@ -17,6 +19,7 @@ namespace Minus
         void reveal(void);
         void onPress(void);
         void switchFlag(void);
+        void hover(bool);
 
     public:
         const bool& flag;
@@ -24,11 +27,13 @@ namespace Minus
     private:
         bool m_flag { false };
         bool m_revealed { false };
-        QColor color, sunken_color;
+        bool hovered { false };
+        QColor color, sunken_color, hovered_color;
         QString label;
         QColor label_color { Qt::white };
         float font_size_digit, font_size_bomb;
         void raise(bool);
+        friend class ::CellWidgetImpl;
     };
 
 };
