@@ -235,6 +235,8 @@ void Frame::leaveEvent(QEvent*)
     impl_f.key_reveal_pressed = false;
     if (impl_f.cell_pressed)
     {
+        // TODO BUG : next condition should not be required
+        // only required for keyboard presses, not mouse
         if (impl_f.cell_pressed->revealed == false)
         {
             impl_f.cell_pressed->raise(true);
@@ -298,7 +300,7 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
     auto pressing_reveal =
         (e->buttons() & Qt::LeftButton) ||
         impl_f.key_reveal_pressed;
-    // TODO bug here :
+    // TODO BUG here :
     // press reveal on revealed cell, keep pressed
     // move over unrevealed neighbor
     // move away 1 cell from over unrevealed neighbor
