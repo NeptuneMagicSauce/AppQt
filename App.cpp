@@ -10,7 +10,6 @@
 /* TODO
 
    highlight auto revealed cell same as hovered maybe ?
-   pre push auto reveal cell same as reveal
 
    allow keyboard for reveal/flag highlighted
    only need to call CellWidget::onRelease(Action)

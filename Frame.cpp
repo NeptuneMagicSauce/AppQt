@@ -107,6 +107,8 @@ public:
     Layout* layout;
     CellWidget* cell_pressed { nullptr };
     CellWidget* hovered { nullptr };
+    vector<CellWidget*> neighbors_pressed;
+
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
     Pool pool;
@@ -124,6 +126,15 @@ public:
                       std::pow(ratio_y, 2.f))
             / max_distance;
         return Utils::lerpColor(color_min, color_max, distance);
+    }
+
+    void raiseAutoNeighbors(void)
+    {
+        for (auto* n: neighbors_pressed)
+        {
+            n->raise(true);
+        }
+        neighbors_pressed.clear();
     }
 
 } impl_f;
@@ -149,6 +160,7 @@ void Frame::reset(void)
     }
     impl_f.cell_pressed = nullptr;
     impl_f.hovered = nullptr;
+    impl_f.neighbors_pressed.clear();
     impl_f.indices.clear();
     impl_f.widgets.resize(width);
     for (auto& column: impl_f.widgets)
@@ -219,7 +231,10 @@ void Frame::mousePressEvent(QMouseEvent *e)
 void Frame::mouseMoveEvent(QMouseEvent *e)
 {
     auto* w = widgetOfEvent(e);
-    onNewCellPressed(w);
+    if (e->buttons() & Qt::LeftButton)
+    {
+        onNewCellPressed(w);
+    }
     if (w && (e->buttons() & Qt::LeftButton))
     {
         w->onPress();
@@ -231,6 +246,8 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
 
 void Frame::mouseReleaseEvent(QMouseEvent *e)
 {
+    impl_f.raiseAutoNeighbors();
+
     auto* w = widgetOfEvent(e);
     if (w && (e->button() == Qt::LeftButton))
     {
@@ -265,9 +282,33 @@ void Frame::onNewCellPressed(CellWidget* w)
     }
     if (impl_f.cell_pressed && impl_f.cell_pressed->revealed == false)
     {
-        impl_f.cell_pressed->pushUp();
+        impl_f.cell_pressed->raise(true);
     }
     impl_f.cell_pressed = w;
+
+    impl_f.raiseAutoNeighbors();
+
+    if (w != nullptr && w->revealed == true)
+    {
+        auto indices = impl_f.indices[w];
+        for (int x=indices.x()-1; x<=indices.x()+1; ++x)
+        {
+            for (int y=indices.y()-1; y<=indices.y()+1; ++y)
+            {
+                if (x < 0 || y < 0 || x >= width || y >= height || Indices(x,y) == indices)
+                {
+                    continue;
+                }
+                auto* n = dynamic_cast<CellWidget*>(impl_f.layout->itemAtPosition(y, x)->widget());
+                // qDebug() << "auto reveal neighbor" << n;
+                if (n->revealed == false && n->flag == false)
+                {
+                    impl_f.neighbors_pressed.emplace_back(n);
+                    n->raise(false);
+                }
+            }
+        }
+    }
 }
 
 void Frame::hover(CellWidget* w)
