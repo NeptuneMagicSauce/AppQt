@@ -9,19 +9,19 @@
 
 /* TODO
 
-   highlight hovered cell
+   auto-maximize when window size is close or bigger than screen size
+   better: re-size to fit on screen with smaller min size
+
    highlight auto revealed cell same as hovered maybe ?
    pre push auto reveal cell same as reveal
 
    allow keyboard for reveal/flag highlighted
    only need to call CellWidget::onRelease(Action)
 
+   setting: size, ratio, color, emojis, keybinds
+
    result modal window : win or lose
    status win/lose: with face emoji
-
-   setting: size, ratio, color, emojis
-
-   auto-maximize when window size is close or bigger than screen size
 
    nicer font as baked resource
 
@@ -34,6 +34,8 @@
    shake viewport
    rebouding particles
    shockwave with cells moving in depth or in XY
+   shockwave: will not work with recursion, could work with async signals
+   if sent in random (precomputed) directions
 
    highlight / specular and/or texture: nice noise or pattern
 

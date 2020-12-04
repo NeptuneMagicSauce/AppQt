@@ -58,7 +58,7 @@ namespace Minus
             }
         virtual QSize minimumSize() const override
             {
-                return QSize { 40 * width, 40 * height };
+                return QSize { 10 * width, 10 * height };
             }
         const int& width;
         const int& height;
@@ -175,6 +175,7 @@ void Frame::resizeEvent(QResizeEvent *event)
         return;
     }
 
+    // auto scale font size
     const auto size = std::min(
         event->size().width() / width,
         event->size().height() / height)
@@ -279,5 +280,8 @@ void Frame::hover(CellWidget* w)
         impl_f.hovered->hover(false);
     }
     impl_f.hovered = w;
-    w->hover(true);
+    if (w != nullptr)
+    {
+        w->hover(true);
+    }
 }
