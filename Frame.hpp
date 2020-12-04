@@ -32,9 +32,13 @@ namespace Minus
         virtual void mousePressEvent(QMouseEvent *e) override;
         virtual void mouseReleaseEvent(QMouseEvent *e) override;
         virtual void mouseMoveEvent(QMouseEvent *e) override;
+        virtual void keyPressEvent(QKeyEvent *event) override;
+        virtual void keyReleaseEvent(QKeyEvent *event) override;
 
     private:
 
+        void pressEvent(CellWidget* w, int button);
+        void releaseEvent(CellWidget* w, int button);
         CellWidget* widgetOfEvent(QMouseEvent* e);
         void onNewCellPressed(CellWidget* w);
         void hover(CellWidget* w);

@@ -109,6 +109,10 @@ public:
     CellWidget* hovered { nullptr };
     vector<CellWidget*> neighbors_pressed;
 
+    int key_reveal { Qt::Key_S };
+    int key_flag { Qt::Key_D };
+    bool key_reveal_pressed { false };
+
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
     Pool pool;
@@ -148,6 +152,7 @@ Frame::Frame(const int& width, const int& height) :
     impl_f.pool.reserve(40 * 40);
     setLayout(impl_f.layout);
     setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
 
     reset();
 }
@@ -167,6 +172,7 @@ void Frame::reset(void)
     {
         column.resize(height);
     }
+    impl_f.key_reveal_pressed = false;
     impl_f.pool.reset();
 }
 
@@ -218,11 +224,43 @@ void Frame::revealCell(Indices indices)
     w->reveal();
 }
 
+void Frame::keyPressEvent(QKeyEvent *event)
+{
+    QWidget::keyPressEvent(event);
+    if (event->isAutoRepeat()) { return; }
+    auto pressing_reveal = event->key() == impl_f.key_reveal;
+    impl_f.key_reveal_pressed = pressing_reveal;
+    if (pressing_reveal)
+    {
+        pressEvent(impl_f.hovered, Qt::LeftButton);
+    }
+}
+
+void Frame::keyReleaseEvent(QKeyEvent *event)
+{
+    QWidget::keyReleaseEvent(event);
+    if (event->isAutoRepeat()) { return; }
+    auto releasing_reveal = event->key() == impl_f.key_reveal;
+    impl_f.key_reveal_pressed &= !releasing_reveal;
+    releaseEvent(impl_f.hovered,
+                 releasing_reveal
+                 ? Qt::LeftButton
+                 : (event->key() == impl_f.key_flag)
+                 ? Qt::RightButton
+                 : Qt::NoButton);
+}
+
 void Frame::mousePressEvent(QMouseEvent *e)
 {
-    auto* w = widgetOfEvent(e);
+    pressEvent(widgetOfEvent(e), e->button());
+    QWidget::mousePressEvent(e);
+}
+
+void Frame::pressEvent(CellWidget* w, int button)
+{
+    // qDebug() << "pressEvent" << w << (button == Qt::LeftButton);
     onNewCellPressed(w);
-    if (w && e->button() == Qt::LeftButton)
+    if (w && button == Qt::LeftButton)
     {
         w->onPress();
     }
@@ -231,14 +269,26 @@ void Frame::mousePressEvent(QMouseEvent *e)
 void Frame::mouseMoveEvent(QMouseEvent *e)
 {
     auto* w = widgetOfEvent(e);
-    if (e->buttons() & Qt::LeftButton)
+    auto pressing_reveal =
+        (e->buttons() & Qt::LeftButton) ||
+        impl_f.key_reveal_pressed;
+    // TODO bug here :
+    // press reveal on revealed cell, keep pressed
+    // move over unrevealed neighbor
+    // move away 1 cell from over unrevealed neighbor
+    // expected : unrevealed neighbor is pressed, color pressed
+    // observered : unrevealed neighbor is pressed, color unpressed
+    // only with keyboard, not with mouse
+
+    if (pressing_reveal)
     {
         onNewCellPressed(w);
     }
-    if (w && (e->buttons() & Qt::LeftButton))
+    if (w && pressing_reveal)
     {
         w->onPress();
-    } else if (e->buttons() == Qt::NoButton)
+    }
+    if (e->buttons() == Qt::NoButton)
     {
         hover(w);
     }
@@ -246,10 +296,15 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
 
 void Frame::mouseReleaseEvent(QMouseEvent *e)
 {
+    releaseEvent(widgetOfEvent(e), e->button());
+    QWidget::mouseReleaseEvent(e);
+}
+
+void Frame::releaseEvent(CellWidget* w, int button)
+{
     impl_f.raiseAutoNeighbors();
 
-    auto* w = widgetOfEvent(e);
-    if (w && (e->button() == Qt::LeftButton))
+    if (w && (button == Qt::LeftButton))
     {
         if (w->revealed)
         {
@@ -258,7 +313,7 @@ void Frame::mouseReleaseEvent(QMouseEvent *e)
         {
             emit reveal(impl_f.indices[w]);
         }
-    } else if (w && (e->button() == Qt::RightButton))
+    } else if (w && (button == Qt::RightButton))
     {
         if (w->revealed == false)
         {
