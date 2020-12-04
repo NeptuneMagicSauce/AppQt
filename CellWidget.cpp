@@ -145,14 +145,4 @@ void CellWidget::hover(bool h)
     }
     hovered = h;
     impl_cw.setColor(this, true, hovered);
-    if (hovered)
-    {
-        QTimer::singleShot(100, [this] () {
-            if (hovered && underMouse() == false)
-            {
-                hover(false);
-            }
-        });
-
-    }
 }
