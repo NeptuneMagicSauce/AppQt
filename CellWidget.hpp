@@ -13,7 +13,7 @@ namespace Minus
         virtual ~CellWidget(void);
 
         void reset(const QColor& color);
-        void pushUp(void) { raise(true); }
+        void raise(bool);
         void setLabel(bool mine, int neighbor_mines);
         void setFontSize(int);
         void reveal(void);
@@ -32,7 +32,6 @@ namespace Minus
         QString label;
         QColor label_color { Qt::white };
         float font_size_digit, font_size_bomb;
-        void raise(bool);
         friend class ::CellWidgetImpl;
     };
 

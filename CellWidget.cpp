@@ -130,8 +130,8 @@ void CellWidget::switchFlag(void)
 
 void CellWidget::onPress(void)
 {
-    if (m_flag == false &&
-        m_revealed == false)
+    if (flag == false &&
+        revealed == false)
     {
         raise(false);
     }
