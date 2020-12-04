@@ -70,11 +70,10 @@ namespace Minus
             gui(new Gui(logic.width, logic.height))
         {
 
-            QObject::connect(
-                &gui->frame, &Frame::reveal,
-                [this] (const Indices& indices) {
-                    logic.reveal(indices);
-                });
+            QObject::connect(&gui->frame, &Frame::reveal,
+                             [this] (const Indices& indices) {
+                                 logic.reveal(indices);
+                             });
 
             QObject::connect(&gui->frame, &Frame::autoRevealNeighbors,
                              [this] (const Indices& indices) {
