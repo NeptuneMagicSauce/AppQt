@@ -9,9 +9,6 @@
 
 /* TODO
 
-   auto-maximize when window size is close or bigger than screen size
-   better: re-size to fit on screen with smaller min size
-
    highlight auto revealed cell same as hovered maybe ?
    pre push auto reveal cell same as reveal
 
