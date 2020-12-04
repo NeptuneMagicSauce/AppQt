@@ -9,11 +9,6 @@
 
 /* TODO
 
-   highlight auto revealed cell same as hovered maybe ?
-
-   allow keyboard for reveal/flag highlighted
-   only need to call CellWidget::onRelease(Action)
-
    setting: size, ratio, color, emojis, keybinds
 
    result modal window : win or lose
@@ -37,6 +32,8 @@
 
    do no react on release where pressed but on press
    but only 1 cell per press, no keep pressed for multi cells
+
+   highlight auto revealed cell same as hovered maybe ?
 
    emacs : save on compile
    emacs : show cmake colors in compile buffer
