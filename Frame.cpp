@@ -226,23 +226,11 @@ void Frame::revealCell(Indices indices)
 
 void Frame::leaveEvent(QEvent*)
 {
-    // qDebug() << "leaveEvent";
-    for (auto* n : impl_f.neighbors_pressed)
-    {
-        n->raise(true);
-    }
-    impl_f.neighbors_pressed.clear();
+    // BUG right click in frame, move, release right click in tool bar
+    // expected : nothing
+    // observed : triggers disabled context menu!
+    onNewCellPressed(nullptr);
     impl_f.key_reveal_pressed = false;
-    if (impl_f.cell_pressed)
-    {
-        // TODO BUG : next condition should not be required
-        // only required for keyboard presses, not mouse
-        if (impl_f.cell_pressed->revealed == false)
-        {
-            impl_f.cell_pressed->raise(true);
-        }
-        impl_f.cell_pressed = nullptr;
-    }
     if (impl_f.hovered)
     {
         impl_f.hovered->hover(false);
@@ -267,7 +255,6 @@ void Frame::keyReleaseEvent(QKeyEvent *event)
     QWidget::keyReleaseEvent(event);
     if (event->isAutoRepeat()) { return; }
     auto releasing_reveal = event->key() == impl_f.key_reveal;
-    // qDebug() << "keyReleaseEvent" << releasing_reveal << impl_f.key_reveal_pressed;
     auto reveal_was_pressed = impl_f.key_reveal_pressed;
     impl_f.key_reveal_pressed &= !releasing_reveal;
     releaseEvent(impl_f.hovered,
@@ -286,7 +273,6 @@ void Frame::mousePressEvent(QMouseEvent *e)
 
 void Frame::pressEvent(CellWidget* w, int button)
 {
-    // qDebug() << "pressEvent" << w << (button == Qt::LeftButton);
     onNewCellPressed(w);
     if (w && button == Qt::LeftButton)
     {
@@ -384,7 +370,6 @@ void Frame::onNewCellPressed(CellWidget* w)
                     continue;
                 }
                 auto* n = dynamic_cast<CellWidget*>(impl_f.layout->itemAtPosition(y, x)->widget());
-                // qDebug() << "auto reveal neighbor" << n;
                 if (n->revealed == false && n->flag == false)
                 {
                     impl_f.neighbors_pressed.emplace_back(n);

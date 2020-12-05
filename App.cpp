@@ -9,6 +9,10 @@
 
 /* TODO
 
+   inits coding style: have consistency
+   auto x = expr;
+   auto x = type { expr };
+
    setting: size, ratio, color, emojis, keybinds
 
    result modal window : win or lose
@@ -38,6 +42,8 @@
    emacs : save on compile
    emacs : show cmake colors in compile buffer
    emacs : respect my identation style
+
+   see how OSS does autowin first reveal: gnome-mines, kmines
 
    emacs theme light = doom-one-light
    https://github.com/hlissner/emacs-doom-themes/blob/master/themes/doom-one-light-theme.el
