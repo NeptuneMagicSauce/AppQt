@@ -31,7 +31,7 @@ namespace Minus
         Cells cells;
         Cells cells_empty;
         std::map<CellPtr, Cells> neighbors; // includes itself as neighbor
-        bool any_reveal { false };
+        bool any_reveal = false;
 
         // random-ness
         std::random_device rd;
