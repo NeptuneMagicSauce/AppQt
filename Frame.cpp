@@ -160,6 +160,11 @@ Frame::Frame(const int& width, const int& height) :
     reset();
 }
 
+CellWidget* Frame::widgetOfEvent(QMouseEvent* e)
+{
+    return dynamic_cast<CellWidget*>(childAt(e->pos()));
+}
+
 void Frame::reset(void)
 {
     impl_f.reset(width, height);
@@ -301,13 +306,7 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
 
     if (pressing_reveal)
     {
-        onNewCellPressed(w);
-        if (w != nullptr)
-        {
-            w->onPress();
-        }
-        // TODO change previous 3 line with 1 next line
-        // pressEvent(w, Qt::LeftButton);
+        pressEvent(w, Qt::LeftButton);
         // TODO have Frame::onNewCellPressed become FrameImpl::onCellPressed
     } else {
         hover(w);
@@ -342,11 +341,6 @@ void Frame::releaseEvent(CellWidget* w, int button)
         }
     }
     impl_f.cell_pressed = nullptr;
-}
-
-CellWidget* Frame::widgetOfEvent(QMouseEvent* e)
-{
-    return dynamic_cast<CellWidget*>(childAt(e->pos()));
 }
 
 void Frame::onNewCellPressed(CellWidget* w)
