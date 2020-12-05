@@ -23,7 +23,6 @@ namespace Minus
     private:
         QMainWindow main_window;
         QToolBar tool_bar;
-        void createToolBar(void);
 
     };
 };

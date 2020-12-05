@@ -72,8 +72,7 @@ public:
         std::function<void()> callback,
         const QString& label,
         const QString& tool_tip,
-        const QKeySequence& shortcut,
-        bool auto_raise)
+        const QKeySequence& shortcut)
     {
         auto* action = tool_bar->addAction(label, callback);
         action->setShortcut(shortcut);
@@ -86,7 +85,7 @@ public:
             auto* button = dynamic_cast<QToolButton*>(w);
             if (button != nullptr)
             {
-                button->setAutoRaise(auto_raise);
+                button->setAutoRaise(false);
             }
         }
     }
@@ -100,14 +99,11 @@ Gui::Gui(const int& width, const int& height) :
     main_window.setCentralWidget(&frame);
     main_window.setWindowTitle("Super Minus");
     main_window.show();
-    tool_bar.installEventFilter(new MainEventFilter(frame, tool_bar));
-    createToolBar();
-}
 
-void Gui::createToolBar(void)
-{
+    tool_bar.installEventFilter(new MainEventFilter(frame, tool_bar));
     tool_bar.setFloatable(false);
     tool_bar.setMovable(false);
+
     auto* spacer_left = new QWidget;
     spacer_left->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     auto* spacer_right = new QWidget;
@@ -120,10 +116,17 @@ void Gui::createToolBar(void)
         },
         Labels::reset,
         "Reset",
-        QKeySequence::Refresh,
-        false);
-
+        QKeySequence::Refresh);
     tool_bar.addWidget(spacer_right);
+    impl_g.addButton(
+        [this]() {
+            // frame.reset();
+            // emit reset();
+        },
+        Labels::settings,
+        "Settings",
+        QKeySequence::Preferences);
+
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
     main_window.addToolBar(Qt::TopToolBarArea, &tool_bar);
