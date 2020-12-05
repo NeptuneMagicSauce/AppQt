@@ -5,6 +5,7 @@
 #include <QScreen>
 #include <QDebug>
 
+#include "Utils.hpp"
 #include "Labels.hpp"
 
 using namespace Minus;
@@ -62,9 +63,40 @@ protected:
     }
 };
 
+class GuiImpl
+{
+public:
+    QToolBar* tool_bar = nullptr;
+
+    void addButton(
+        std::function<void()> callback,
+        const QString& label,
+        const QString& tool_tip,
+        const QKeySequence& shortcut,
+        bool auto_raise)
+    {
+        auto* action = tool_bar->addAction(label, callback);
+        action->setShortcut(shortcut);
+        action->setToolTip(tool_tip + " (" + action->shortcut().toString() + ")");
+        auto font = action->font();
+        font.setPointSize(16);
+        action->setFont(font);
+        for (auto* w: action->associatedWidgets())
+        {
+            auto* button = dynamic_cast<QToolButton*>(w);
+            if (button != nullptr)
+            {
+                button->setAutoRaise(auto_raise);
+            }
+        }
+    }
+} impl_g;
+
 Gui::Gui(const int& width, const int& height) :
     frame(width, height)
 {
+    Utils::assertSingleton(typeid(*this));
+    impl_g.tool_bar = &tool_bar;
     main_window.setCentralWidget(&frame);
     main_window.setWindowTitle("Super Minus");
     main_window.show();
@@ -81,34 +113,25 @@ void Gui::createToolBar(void)
     auto* spacer_right = new QWidget;
     spacer_right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     tool_bar.addWidget(spacer_left);
-    auto* action_reset = tool_bar.addAction(
-        Labels::reset,
+    impl_g.addButton(
         [this]() {
             frame.reset();
             emit reset();
-        });
+        },
+        Labels::reset,
+        "Reset",
+        QKeySequence::Refresh,
+        false);
+
     tool_bar.addWidget(spacer_right);
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
-    action_reset->setShortcut(QKeySequence::Refresh);
-    action_reset->setToolTip("Reset (" + action_reset->shortcut().toString() + ")");
-    auto font = action_reset->font();
-    font.setPointSize(16);
-    action_reset->setFont(font);
-    for (auto* w: action_reset->associatedWidgets())
-    {
-        auto* reset_button = dynamic_cast<QToolButton*>(w);
-        if (reset_button != nullptr)
-        {
-            reset_button->setAutoRaise(false);
-        }
-    }
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
     main_window.addToolBar(Qt::TopToolBarArea, &tool_bar);
 }
 
 void Gui::resizeEvent(void)
 {
-    // emit resize event
+    // trigger resize event in Frame
     QResizeEvent e { frame.size(), QSize(0, 0) };
     frame.resizeEvent(&e);
 }

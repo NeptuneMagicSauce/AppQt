@@ -21,6 +21,8 @@
    use a QGraphicsView instead of QFrame ?
    cf https://stackoverflow.com/a/13990849
 
+   outline text of neighbor count
+
    reveal cells with nice animation
    shake viewport
    rebouding particles
