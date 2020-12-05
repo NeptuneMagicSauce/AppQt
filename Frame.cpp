@@ -163,6 +163,7 @@ Frame::Frame(const int& width, const int& height) :
     setLayout(impl_f.layout);
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
+    setContextMenuPolicy(Qt::PreventContextMenu);
 
     reset();
 }
@@ -265,10 +266,6 @@ void Frame::revealCell(Indices indices)
 
 void Frame::leaveEvent(QEvent*)
 {
-    // TODO BUG : right click in frame, move, release right click in tool bar
-    // expected : nothing
-    // observed : triggers disabled context menu!
-    // maybe fix = do not send event to parent
     impl_f.onCellPressed(nullptr);
     impl_f.key_reveal_pressed = false;
     impl_f.under_mouse = nullptr;
