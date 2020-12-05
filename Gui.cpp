@@ -79,6 +79,12 @@ private:
 
         state = !state;
         settings_button->setDown(state);
+        if (state)
+        {
+            gui->settings.show();
+        } else {
+            gui->settings.hide();
+        }
     }
 
     void setInitialWindowSize(void)
@@ -125,15 +131,19 @@ GuiImpl::GuiImpl(Gui* gui)
 {
     this->gui = gui;
 
-    // auto* widget = new QWidget;
-    // auto* layout = new QHBoxLayout;
-    // layout->setContentsMargins(0, 0, 0, 0);
-    // layout->setSpacing(0);
-    // widget->setLayout(layout);
-    // layout->addWidget(&gui->frame);
-    // main_window.setCentralWidget(widget);
+    auto* widget = new QWidget;
+    // TODO do not have box layout
+    // rather, have Settings Pane above Frame
+    // and darken frame for feedback on modality
+    auto* layout = new QHBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    widget->setLayout(layout);
+    layout->addWidget(&gui->frame);
+    layout->addWidget(&gui->settings);
+    main_window.setCentralWidget(widget);
 
-    main_window.setCentralWidget(&gui->frame);
+    // main_window.setCentralWidget(&gui->frame);
     main_window.setWindowTitle("Super Minus");
     main_window.show();
 
