@@ -66,9 +66,11 @@ protected:
 class GuiImpl
 {
 public:
+    Gui* gui = nullptr;
     QToolBar* tool_bar = nullptr;
+    QToolButton* settings_button = nullptr;
 
-    void addButton(
+    auto* addButton(
         std::function<void()> callback,
         const QString& label,
         const QString& tool_tip,
@@ -80,6 +82,7 @@ public:
         auto font = action->font();
         font.setPointSize(16);
         action->setFont(font);
+        QToolButton* ret = nullptr;
         for (auto* w: action->associatedWidgets())
         {
             auto* button = dynamic_cast<QToolButton*>(w);
@@ -87,7 +90,18 @@ public:
             {
                 button->setAutoRaise(false);
             }
+            if (!ret) { ret = button; }
         }
+        return ret;
+    }
+
+    void switchSettings(void)
+    {
+        static bool state = false;
+
+        state = !state;
+        settings_button->setDown(state);
+        emit gui->showSettings(state);
     }
 } impl_g;
 
@@ -95,6 +109,7 @@ Gui::Gui(const int& width, const int& height) :
     frame(width, height)
 {
     Utils::assertSingleton(typeid(*this));
+    impl_g.gui = this;
     impl_g.tool_bar = &tool_bar;
     main_window.setCentralWidget(&frame);
     main_window.setWindowTitle("Super Minus");
@@ -118,14 +133,13 @@ Gui::Gui(const int& width, const int& height) :
         "Reset",
         QKeySequence::Refresh);
     tool_bar.addWidget(spacer_right);
-    impl_g.addButton(
-        [this]() {
-            // frame.reset();
-            // emit reset();
-        },
+    impl_g.settings_button = impl_g.addButton(
+        []() { impl_g.switchSettings(); },
         Labels::settings,
         "Settings",
-        QKeySequence::Preferences);
+        Qt::Key_F2);
+    // MacOS: prefer standard shortcut Preferences, it does not exist on Windows
+    // QKeySequence::Preferences);
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
