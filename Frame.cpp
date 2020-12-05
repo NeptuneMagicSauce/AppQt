@@ -104,9 +104,10 @@ using namespace Minus;
 class FrameImpl
 {
 public:
-    Layout* layout;
-    CellWidget* cell_pressed { nullptr };
-    CellWidget* hovered { nullptr };
+    Frame* frame = nullptr;
+    Layout* layout = nullptr;
+    CellWidget* cell_pressed = nullptr;
+    CellWidget* hovered = nullptr;
     CellWidget* under_mouse = nullptr;
     vector<CellWidget*> neighbors_pressed;
 
@@ -145,6 +146,9 @@ public:
 
     void reset(int widh, int height);
     void onCellPressed(CellWidget* w);
+    void pressEvent(CellWidget* w, int button);
+    void releaseEvent(CellWidget* w, int button);
+    void hover(CellWidget* w);
 
 } impl_f;
 
@@ -153,6 +157,7 @@ Frame::Frame(const int& width, const int& height) :
     height(height)
 {
     Utils::assertSingleton(typeid(*this));
+    impl_f.frame = this;
     impl_f.layout = new Layout(width, height);
     impl_f.pool.reserve(40 * 40);
     setLayout(impl_f.layout);
@@ -282,7 +287,7 @@ void Frame::keyPressEvent(QKeyEvent *event)
     impl_f.key_reveal_pressed = pressing_reveal;
     if (pressing_reveal)
     {
-        pressEvent(impl_f.under_mouse, Qt::LeftButton);
+        impl_f.pressEvent(impl_f.under_mouse, Qt::LeftButton);
     }
 }
 
@@ -293,7 +298,7 @@ void Frame::keyReleaseEvent(QKeyEvent *event)
     auto releasing_reveal = event->key() == impl_f.key_reveal;
     auto reveal_was_pressed = impl_f.key_reveal_pressed;
     impl_f.key_reveal_pressed &= !releasing_reveal;
-    releaseEvent(impl_f.under_mouse,
+    impl_f.releaseEvent(impl_f.under_mouse,
                  (reveal_was_pressed && releasing_reveal)
                  ? Qt::LeftButton
                  : (event->key() == impl_f.key_flag)
@@ -303,15 +308,15 @@ void Frame::keyReleaseEvent(QKeyEvent *event)
 
 void Frame::mousePressEvent(QMouseEvent *e)
 {
-    pressEvent(widgetOfEvent(e), e->button());
+    impl_f.pressEvent(widgetOfEvent(e), e->button());
     QWidget::mousePressEvent(e);
 }
 
-void Frame::pressEvent(CellWidget* w, int button)
+void FrameImpl::pressEvent(CellWidget* w, int button)
 {
     if (button == Qt::LeftButton)
     {
-        impl_f.onCellPressed(w);
+        onCellPressed(w);
         if (w)
         {
             w->onPress();
@@ -329,40 +334,40 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
 
     if (pressing_reveal)
     {
-        pressEvent(w, Qt::LeftButton);
+        impl_f.pressEvent(w, Qt::LeftButton);
     } else {
-        hover(w);
+        impl_f.hover(w);
     }
 }
 
 void Frame::mouseReleaseEvent(QMouseEvent *e)
 {
-    releaseEvent(widgetOfEvent(e), e->button());
+    impl_f.releaseEvent(widgetOfEvent(e), e->button());
     QWidget::mouseReleaseEvent(e);
 }
 
-void Frame::releaseEvent(CellWidget* w, int button)
+void FrameImpl::releaseEvent(CellWidget* w, int button)
 {
-    impl_f.raiseAutoNeighbors();
+    raiseAutoNeighbors();
 
     if (w && (button == Qt::LeftButton))
     {
         if (w->revealed)
         {
-            emit autoRevealNeighbors(impl_f.indices[w]);
+            emit frame->autoRevealNeighbors(indices[w]);
         } else if (w->flag == false)
         {
-            emit reveal(impl_f.indices[w]);
+            emit frame->reveal(indices[w]);
         }
     } else if (w && (button == Qt::RightButton))
     {
         if (w->revealed == false)
         {
             w->switchFlag();
-            emit setFlag(impl_f.indices[w], w->flag);
+            emit frame->setFlag(indices[w], w->flag);
         }
     }
-    impl_f.cell_pressed = nullptr;
+    cell_pressed = nullptr;
 }
 
 void FrameImpl::onCellPressed(CellWidget* w)
@@ -397,17 +402,17 @@ void FrameImpl::onCellPressed(CellWidget* w)
     }
 }
 
-void Frame::hover(CellWidget* w)
+void FrameImpl::hover(CellWidget* w)
 {
-    if (impl_f.hovered == w)
+    if (hovered == w)
     {
         return;
     }
-    if (impl_f.hovered != nullptr)
+    if (hovered != nullptr)
     {
-        impl_f.hovered->hover(false);
+        hovered->hover(false);
     }
-    impl_f.hovered = w;
+    hovered = w;
     if (w != nullptr)
     {
         w->hover(true);
