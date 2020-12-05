@@ -13,56 +13,26 @@
 
 using namespace Minus;
 
-class MainEventFilter: public QObject
+class EventFilterFirstShow: public QObject
 {
 public:
-    MainEventFilter(Frame& frame, QToolBar& tool_bar) :
-        frame(frame),
-        tool_bar(tool_bar)
-    { }
+    using Callback = std::function<void()>;
+    Callback callback;
+    EventFilterFirstShow(Callback callback=nullptr) : callback(callback) { }
 protected:
-    Frame& frame;
-    QToolBar& tool_bar;
-    bool first_run = true;
+    bool has_run = false;
     bool eventFilter(QObject *obj, QEvent *event) override
     {
-        // qDebug() << event->type() << tool_bar.height();
-        if (first_run && event->type() == QEvent::Show)
+        // qDebug() << event->type();
+        if (has_run == false && event->type() == QEvent::Show)
         {
-            first_run = false;
-            setInitialWindowSize();
-            tool_bar.removeEventFilter(this);
+            has_run = true;
+            if (callback != nullptr)
+            {
+                callback();
+            }
         }
         return QObject::eventFilter(obj, event);
-    }
-
-    void setInitialWindowSize(void)
-    {
-        auto* window = tool_bar.window();
-        if (!window) { return; }
-        auto* screen = window->screen();
-        if (!screen) { return; }
-        auto screen_geom = screen->availableVirtualGeometry();
-        // qDebug() << screen_geom;
-
-        int width = frame.width * Frame::InitialCellSize;
-        int height = tool_bar.height() + frame.height * Frame::InitialCellSize;
-
-        if (width >= screen_geom.width() ||
-            height >= screen_geom.height())
-        {
-            // window->move(screen_geom.topLeft());
-            // window->resize(screen_geom.width(), screen_geom.height());
-            window->showMaximized();
-        } else {
-            auto center = screen_geom.center();
-            window->setGeometry(QRect(
-                center.x() - width / 2,
-                center.y() - height / 2,
-                width,
-                height
-                ));
-        }
     }
 };
 
@@ -73,6 +43,7 @@ public:
 private:
     Gui* gui = nullptr;
     QToolButton* settings_button = nullptr;
+    EventFilterFirstShow filter;
 
     QMainWindow main_window;
     QToolBar tool_bar;
@@ -108,7 +79,38 @@ private:
 
         state = !state;
         settings_button->setDown(state);
-        emit gui->showSettings(state);
+    }
+
+    void setInitialWindowSize(void)
+    {
+        auto* window = tool_bar.window();
+        if (!window) { return; }
+        auto* screen = window->screen();
+        if (!screen) { return; }
+        auto screen_geom = screen->availableVirtualGeometry();
+        // qDebug() << screen_geom;
+
+        int width = gui->frame.width * Frame::InitialCellSize;
+        // tool_bar.height() does not have correct value
+        // before first Show event
+        int height = tool_bar.height() + gui->frame.height * Frame::InitialCellSize;
+
+        if (width >= screen_geom.width() ||
+            height >= screen_geom.height())
+        {
+            // window->move(screen_geom.topLeft());
+            // window->resize(screen_geom.width(), screen_geom.height());
+            window->showMaximized();
+        } else {
+            auto center = screen_geom.center();
+            window->setGeometry(QRect(
+                center.x() - width / 2,
+                center.y() - height / 2,
+                width,
+                height
+                ));
+        }
+        tool_bar.removeEventFilter(&filter);
     }
 };
 
@@ -135,7 +137,8 @@ GuiImpl::GuiImpl(Gui* gui)
     main_window.setWindowTitle("Super Minus");
     main_window.show();
 
-    tool_bar.installEventFilter(new MainEventFilter(gui->frame, tool_bar));
+    filter.callback = [this] () { setInitialWindowSize(); };
+    tool_bar.installEventFilter(&filter);
     tool_bar.setFloatable(false);
     tool_bar.setMovable(false);
 

@@ -15,7 +15,6 @@ namespace Minus
 
     signals:
         void reset(void);
-        void showSettings(bool);
 
     public:
         Frame frame;
