@@ -9,6 +9,7 @@
 
 #include "Utils.hpp"
 #include "Labels.hpp"
+#include "Pool.hpp"
 
 using std::vector;
 
@@ -63,40 +64,6 @@ namespace Minus
         const int& width;
         const int& height;
     };
-
-    class Pool
-    {
-    public:
-        void reserve(int count)
-        {
-            instances.resize(count);
-            for (auto& i: instances)
-            {
-                i = new CellWidget;
-            }
-        }
-        auto* get(void)
-        {
-            if (index >= instances.size())
-            {
-                instances.resize(instances.size() + instances.size() / 2);
-                for (unsigned int i=index; i<instances.size(); ++i)
-                {
-                    instances[i] = new CellWidget;
-                }
-            }
-            assert(index < instances.size());
-            return instances[index++];
-        }
-        void reset(void)
-        {
-            index = 0;
-        }
-
-    private:
-        std::vector<CellWidget*> instances;
-        unsigned int index = 0;
-    };
 };
 
 using namespace Minus;
@@ -118,7 +85,7 @@ public:
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
     vector<vector<vector<Indices>>> neighbors;
-    Pool pool;
+    Pool<CellWidget> pool;
 
     static QColor color(int column, int row, int width, int height)
     {
