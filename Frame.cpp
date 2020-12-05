@@ -286,24 +286,15 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
     auto pressing_reveal =
         (e->buttons() & Qt::LeftButton) ||
         impl_f.key_reveal_pressed;
-    // TODO BUG : press reveal on revealed cell, keep pressed
-    // move over unrevealed neighbor
-    // move away 1 cell from over unrevealed neighbor
-    // expected : unrevealed neighbor is pressed, color pressed
-    // observed : unrevealed neighbor is pressed, color unpressed
-    // only with keyboard, not with mouse
-    // unhover fails when going to tool bar
 
     if (pressing_reveal)
     {
         onNewCellPressed(w);
-    }
-    if (w && pressing_reveal)
-    {
-        w->onPress();
-    }
-    if (e->buttons() == Qt::NoButton)
-    {
+        if (w != nullptr)
+        {
+            w->onPress();
+        }
+    } else {
         hover(w);
     }
 }
