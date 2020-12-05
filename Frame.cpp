@@ -226,7 +226,7 @@ void Frame::revealCell(Indices indices)
 
 void Frame::leaveEvent(QEvent*)
 {
-    // BUG right click in frame, move, release right click in tool bar
+    // TODO BUG : right click in frame, move, release right click in tool bar
     // expected : nothing
     // observed : triggers disabled context menu!
     onNewCellPressed(nullptr);
@@ -286,8 +286,7 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
     auto pressing_reveal =
         (e->buttons() & Qt::LeftButton) ||
         impl_f.key_reveal_pressed;
-    // TODO BUG here :
-    // press reveal on revealed cell, keep pressed
+    // TODO BUG : press reveal on revealed cell, keep pressed
     // move over unrevealed neighbor
     // move away 1 cell from over unrevealed neighbor
     // expected : unrevealed neighbor is pressed, color pressed
