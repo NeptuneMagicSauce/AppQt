@@ -1,8 +1,11 @@
 #include "Gui.hpp"
 
+#include <QMainWindow>
+#include <QToolBar>
 #include <QToolButton>
 #include <QResizeEvent>
 #include <QScreen>
+#include <QHBoxLayout>
 #include <QDebug>
 
 #include "Utils.hpp"
@@ -66,9 +69,13 @@ protected:
 class GuiImpl
 {
 public:
+    GuiImpl(Gui* gui);
+private:
     Gui* gui = nullptr;
-    QToolBar* tool_bar = nullptr;
     QToolButton* settings_button = nullptr;
+
+    QMainWindow main_window;
+    QToolBar tool_bar;
 
     auto* addButton(
         std::function<void()> callback,
@@ -76,7 +83,7 @@ public:
         const QString& tool_tip,
         const QKeySequence& shortcut)
     {
-        auto* action = tool_bar->addAction(label, callback);
+        auto* action = tool_bar.addAction(label, callback);
         action->setShortcut(shortcut);
         action->setToolTip(tool_tip + " (" + action->shortcut().toString() + ")");
         auto font = action->font();
@@ -103,19 +110,32 @@ public:
         settings_button->setDown(state);
         emit gui->showSettings(state);
     }
-} impl_g;
+};
 
 Gui::Gui(const int& width, const int& height) :
     frame(width, height)
 {
     Utils::assertSingleton(typeid(*this));
-    impl_g.gui = this;
-    impl_g.tool_bar = &tool_bar;
-    main_window.setCentralWidget(&frame);
+    new GuiImpl(this);
+}
+
+GuiImpl::GuiImpl(Gui* gui)
+{
+    this->gui = gui;
+
+    // auto* widget = new QWidget;
+    // auto* layout = new QHBoxLayout;
+    // layout->setContentsMargins(0, 0, 0, 0);
+    // layout->setSpacing(0);
+    // widget->setLayout(layout);
+    // layout->addWidget(&gui->frame);
+    // main_window.setCentralWidget(widget);
+
+    main_window.setCentralWidget(&gui->frame);
     main_window.setWindowTitle("Super Minus");
     main_window.show();
 
-    tool_bar.installEventFilter(new MainEventFilter(frame, tool_bar));
+    tool_bar.installEventFilter(new MainEventFilter(gui->frame, tool_bar));
     tool_bar.setFloatable(false);
     tool_bar.setMovable(false);
 
@@ -124,17 +144,17 @@ Gui::Gui(const int& width, const int& height) :
     auto* spacer_right = new QWidget;
     spacer_right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     tool_bar.addWidget(spacer_left);
-    impl_g.addButton(
-        [this]() {
-            frame.reset();
-            emit reset();
+    addButton(
+        [gui]() {
+            gui->frame.reset();
+            emit gui->reset();
         },
         Labels::reset,
         "Reset",
         QKeySequence::Refresh);
     tool_bar.addWidget(spacer_right);
-    impl_g.settings_button = impl_g.addButton(
-        []() { impl_g.switchSettings(); },
+    settings_button = addButton(
+        [this] () { switchSettings(); },
         Labels::settings,
         "Settings",
         Qt::Key_F2);

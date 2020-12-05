@@ -1,7 +1,6 @@
 #pragma once
 
-#include <QMainWindow>
-#include <QToolBar>
+#include <QObject>
 
 #include "Frame.hpp"
 
@@ -20,9 +19,6 @@ namespace Minus
 
     public:
         Frame frame;
-    private:
-        QMainWindow main_window;
-        QToolBar tool_bar;
 
     };
 };
