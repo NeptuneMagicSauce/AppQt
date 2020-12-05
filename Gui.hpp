@@ -3,6 +3,7 @@
 #include <QObject>
 
 #include "Frame.hpp"
+#include "SettingsPane.hpp"
 
 namespace Minus
 {
@@ -18,6 +19,7 @@ namespace Minus
 
     public:
         Frame frame;
+        SettingsPane settings;
 
     };
 };
