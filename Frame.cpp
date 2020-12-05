@@ -142,6 +142,8 @@ public:
         neighbors_pressed.clear();
     }
 
+    void reset(int widh, int height);
+
 } impl_f;
 
 Frame::Frame(const int& width, const int& height) :
@@ -160,22 +162,27 @@ Frame::Frame(const int& width, const int& height) :
 
 void Frame::reset(void)
 {
-    while (impl_f.layout->count())
+    impl_f.reset(width, height);
+}
+
+void FrameImpl::reset(int width, int height)
+{
+    while (layout->count())
     {
-        impl_f.layout->takeAt(0);
+        layout->takeAt(0);
     }
-    impl_f.cell_pressed = nullptr;
-    impl_f.hovered = nullptr;
-    impl_f.under_mouse = nullptr;
-    impl_f.neighbors_pressed.clear();
-    impl_f.indices.clear();
-    impl_f.widgets.resize(width);
-    for (auto& column: impl_f.widgets)
+    cell_pressed = nullptr;
+    hovered = nullptr;
+    under_mouse = nullptr;
+    neighbors_pressed.clear();
+    indices.clear();
+    widgets.resize(width);
+    for (auto& column: widgets)
     {
         column.resize(height);
     }
-    impl_f.key_reveal_pressed = false;
-    impl_f.pool.reset();
+    key_reveal_pressed = false;
+    pool.reset();
 }
 
 void Frame::addCell(int row, int column)
@@ -231,6 +238,7 @@ void Frame::leaveEvent(QEvent*)
     // TODO BUG : right click in frame, move, release right click in tool bar
     // expected : nothing
     // observed : triggers disabled context menu!
+    // maybe fix = do not send event to parent
     onNewCellPressed(nullptr);
     impl_f.key_reveal_pressed = false;
     impl_f.under_mouse = nullptr;
