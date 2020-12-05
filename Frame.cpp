@@ -75,7 +75,7 @@ namespace Minus
                 i = new CellWidget;
             }
         }
-        CellWidget* get(void)
+        auto* get(void)
         {
             if (index >= instances.size())
             {
