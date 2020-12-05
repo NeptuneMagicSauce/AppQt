@@ -116,6 +116,7 @@ public:
 
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
+    vector<vector<vector<Indices>>> neighbors;
     Pool pool;
 
     static QColor color(int column, int row, int width, int height)
@@ -143,6 +144,7 @@ public:
     }
 
     void reset(int widh, int height);
+    void onCellPressed(CellWidget* w);
 
 } impl_f;
 
@@ -186,6 +188,11 @@ void FrameImpl::reset(int width, int height)
     {
         column.resize(height);
     }
+    neighbors.resize(width);
+    for (auto& column: neighbors)
+    {
+        column.resize(height);
+    }
     key_reveal_pressed = false;
     pool.reset();
 }
@@ -197,6 +204,19 @@ void Frame::addCell(int row, int column)
     impl_f.layout->addWidget(widget, row, column);
     impl_f.indices[widget] = { column, row };
     impl_f.widgets[column][row] = widget;
+
+    // compute neighbors
+    auto& n = impl_f.neighbors[column][row];
+    for (int x = column - 1; x <= column + 1; ++x)
+    {
+        for (int y = row - 1; y <= row + 1; ++y)
+        {
+            if (x >= 0 && y >= 0 && x < width && y <= height)
+            {
+                n.emplace_back(x, y);
+            }
+        }
+    }
 }
 
 void Frame::resizeEvent(QResizeEvent *event)
@@ -244,7 +264,7 @@ void Frame::leaveEvent(QEvent*)
     // expected : nothing
     // observed : triggers disabled context menu!
     // maybe fix = do not send event to parent
-    onNewCellPressed(nullptr);
+    impl_f.onCellPressed(nullptr);
     impl_f.key_reveal_pressed = false;
     impl_f.under_mouse = nullptr;
     if (impl_f.hovered)
@@ -289,10 +309,13 @@ void Frame::mousePressEvent(QMouseEvent *e)
 
 void Frame::pressEvent(CellWidget* w, int button)
 {
-    onNewCellPressed(w);
-    if (w && button == Qt::LeftButton)
+    if (button == Qt::LeftButton)
     {
-        w->onPress();
+        impl_f.onCellPressed(w);
+        if (w)
+        {
+            w->onPress();
+        }
     }
 }
 
@@ -307,7 +330,6 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
     if (pressing_reveal)
     {
         pressEvent(w, Qt::LeftButton);
-        // TODO have Frame::onNewCellPressed become FrameImpl::onCellPressed
     } else {
         hover(w);
     }
@@ -343,37 +365,33 @@ void Frame::releaseEvent(CellWidget* w, int button)
     impl_f.cell_pressed = nullptr;
 }
 
-void Frame::onNewCellPressed(CellWidget* w)
+void FrameImpl::onCellPressed(CellWidget* w)
 {
-    if (w == impl_f.cell_pressed)
+    if (w == cell_pressed)
     {
         return;
     }
-    if (impl_f.cell_pressed && impl_f.cell_pressed->revealed == false)
+    if (cell_pressed && cell_pressed->revealed == false)
     {
-        impl_f.cell_pressed->raise(true);
+        cell_pressed->raise(true);
     }
-    impl_f.cell_pressed = w;
+    cell_pressed = w;
 
-    // auto reveal neighbors: raise old neighbors, then depress new neighbors
-    impl_f.raiseAutoNeighbors();
+    // auto reveal : raise old neighbors
+    raiseAutoNeighbors();
+    // auto reveal : push new neighbors
     if (w != nullptr && w->revealed == true)
     {
-        auto indices = impl_f.indices[w];
-        for (int x=indices.x()-1; x<=indices.x()+1; ++x)
+        auto w_indices = indices[w];
+        auto wx = w_indices.x(), wy = w_indices.y();
+        for (auto& neighbor_indices: neighbors[wx][wy])
         {
-            for (int y=indices.y()-1; y<=indices.y()+1; ++y)
+            auto x = neighbor_indices.x(), y = neighbor_indices.y();
+            auto* n = dynamic_cast<CellWidget*>(layout->itemAtPosition(y, x)->widget());
+            if (n->revealed == false && n->flag == false)
             {
-                if (x < 0 || y < 0 || x >= width || y >= height || Indices(x,y) == indices)
-                {
-                    continue;
-                }
-                auto* n = dynamic_cast<CellWidget*>(impl_f.layout->itemAtPosition(y, x)->widget());
-                if (n->revealed == false && n->flag == false)
-                {
-                    impl_f.neighbors_pressed.emplace_back(n);
-                    n->raise(false);
-                }
+                neighbors_pressed.emplace_back(n);
+                n->raise(false);
             }
         }
     }

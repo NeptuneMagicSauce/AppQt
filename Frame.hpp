@@ -37,10 +37,10 @@ namespace Minus
         virtual void leaveEvent(QEvent *event) override;
     private:
 
+        // TODO move all 4 private functions to FrameImpl
         void pressEvent(CellWidget* w, int button);
         void releaseEvent(CellWidget* w, int button);
         CellWidget* widgetOfEvent(QMouseEvent* e);
-        void onNewCellPressed(CellWidget* w);
         void hover(CellWidget* w);
     };
 
