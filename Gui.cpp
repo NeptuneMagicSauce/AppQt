@@ -19,7 +19,7 @@ public:
 protected:
     Frame& frame;
     QToolBar& tool_bar;
-    bool first_run { true };
+    bool first_run = true;
     bool eventFilter(QObject *obj, QEvent *event) override
     {
         // qDebug() << event->type() << tool_bar.height();

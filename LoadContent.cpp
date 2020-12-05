@@ -7,7 +7,7 @@ class LoadContentImpl
 {
 public:
     std::vector<LoadContent*> instances;
-    bool loaded { false };
+    bool loaded = false;
 } impl_lc;
 
 

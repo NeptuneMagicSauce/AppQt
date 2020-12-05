@@ -63,7 +63,7 @@ void Logic::reveal(const CellPtr& cell)
 void Logic::autoRevealNeighbors(const Indices& indices)
 {
     const auto& c = cell(indices);
-    int flagged_neighbors { 0 };
+    int flagged_neighbors = 0;
     Cells to_reveal;
     for (auto& n: neighbors[c])
     {

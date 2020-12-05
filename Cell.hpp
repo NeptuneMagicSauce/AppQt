@@ -17,10 +17,10 @@ namespace Minus
 
         // state
         const Indices indices;
-        bool revealed { false };
-        bool flag { false };
-        bool mine { false };
-        int neighbor_mines { 0 };
+        bool revealed = false;
+        bool flag = false;
+        bool mine = false;
+        int neighbor_mines = 0;
     };
 
     // types

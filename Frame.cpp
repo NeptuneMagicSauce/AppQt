@@ -95,7 +95,7 @@ namespace Minus
 
     private:
         std::vector<CellWidget*> instances;
-        unsigned int index { 0 };
+        unsigned int index = 0;
     };
 };
 
@@ -111,9 +111,9 @@ public:
     CellWidget* under_mouse = nullptr;
     vector<CellWidget*> neighbors_pressed;
 
-    int key_reveal { Qt::Key_S };
-    int key_flag { Qt::Key_D };
-    bool key_reveal_pressed { false };
+    int key_reveal = Qt::Key_S;
+    int key_flag = Qt::Key_D;
+    bool key_reveal_pressed = false;
 
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;

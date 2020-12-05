@@ -25,12 +25,12 @@ namespace Minus
         const bool& flag;
         const bool& revealed;
     private:
-        bool m_flag { false };
-        bool m_revealed { false };
-        bool hovered { false };
+        bool m_flag = false;
+        bool m_revealed = false;
+        bool hovered = false;
         QColor color, sunken_color, hovered_color;
         QString label;
-        QColor label_color { Qt::white };
+        QColor label_color = Qt::white;
         float font_size_digit, font_size_bomb;
         friend class ::CellWidgetImpl;
     };

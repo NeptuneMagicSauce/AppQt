@@ -9,10 +9,6 @@
 
 /* TODO
 
-   inits coding style: have consistency
-   auto x = expr;
-   auto x = type { expr };
-
    setting: size, ratio, color, emojis, keybinds
 
    result modal window : win or lose
