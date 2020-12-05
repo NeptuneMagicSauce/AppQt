@@ -107,6 +107,7 @@ public:
     Layout* layout;
     CellWidget* cell_pressed { nullptr };
     CellWidget* hovered { nullptr };
+    CellWidget* under_mouse = nullptr;
     vector<CellWidget*> neighbors_pressed;
 
     int key_reveal { Qt::Key_S };
@@ -165,6 +166,7 @@ void Frame::reset(void)
     }
     impl_f.cell_pressed = nullptr;
     impl_f.hovered = nullptr;
+    impl_f.under_mouse = nullptr;
     impl_f.neighbors_pressed.clear();
     impl_f.indices.clear();
     impl_f.widgets.resize(width);
@@ -231,6 +233,7 @@ void Frame::leaveEvent(QEvent*)
     // observed : triggers disabled context menu!
     onNewCellPressed(nullptr);
     impl_f.key_reveal_pressed = false;
+    impl_f.under_mouse = nullptr;
     if (impl_f.hovered)
     {
         impl_f.hovered->hover(false);
@@ -246,7 +249,7 @@ void Frame::keyPressEvent(QKeyEvent *event)
     impl_f.key_reveal_pressed = pressing_reveal;
     if (pressing_reveal)
     {
-        pressEvent(impl_f.hovered, Qt::LeftButton);
+        pressEvent(impl_f.under_mouse, Qt::LeftButton);
     }
 }
 
@@ -257,7 +260,7 @@ void Frame::keyReleaseEvent(QKeyEvent *event)
     auto releasing_reveal = event->key() == impl_f.key_reveal;
     auto reveal_was_pressed = impl_f.key_reveal_pressed;
     impl_f.key_reveal_pressed &= !releasing_reveal;
-    releaseEvent(impl_f.hovered,
+    releaseEvent(impl_f.under_mouse,
                  (reveal_was_pressed && releasing_reveal)
                  ? Qt::LeftButton
                  : (event->key() == impl_f.key_flag)
@@ -283,6 +286,7 @@ void Frame::pressEvent(CellWidget* w, int button)
 void Frame::mouseMoveEvent(QMouseEvent *e)
 {
     auto* w = widgetOfEvent(e);
+    impl_f.under_mouse = w;
     auto pressing_reveal =
         (e->buttons() & Qt::LeftButton) ||
         impl_f.key_reveal_pressed;
@@ -294,6 +298,9 @@ void Frame::mouseMoveEvent(QMouseEvent *e)
         {
             w->onPress();
         }
+        // TODO change previous 3 line with 1 next line
+        // pressEvent(w, Qt::LeftButton);
+        // TODO have Frame::onNewCellPressed become FrameImpl::onCellPressed
     } else {
         hover(w);
     }
@@ -346,8 +353,8 @@ void Frame::onNewCellPressed(CellWidget* w)
     }
     impl_f.cell_pressed = w;
 
+    // auto reveal neighbors: raise old neighbors, then depress new neighbors
     impl_f.raiseAutoNeighbors();
-
     if (w != nullptr && w->revealed == true)
     {
         auto indices = impl_f.indices[w];
