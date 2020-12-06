@@ -159,8 +159,7 @@ GuiImpl::GuiImpl(Gui& gui) :
     tool_bar.addWidget(spacer_left);
     addButton(
         [&gui]() {
-            gui.frame.reset();
-            emit gui.reset();
+            emit gui.reset_signal();
         },
         Labels::reset,
         "Reset",
@@ -177,6 +176,19 @@ GuiImpl::GuiImpl(Gui& gui) :
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
     main_window.addToolBar(Qt::TopToolBarArea, &tool_bar);
+
+}
+
+void Gui::reset(void)
+{
+    frame.reset();
+    for (int x=0; x<frame.width; ++x)
+    {
+        for (int y=0; y<frame.height; ++y)
+        {
+            frame.addCell(y, x);
+        }
+    }
 }
 
 void Gui::resizeEvent(void)

@@ -12,10 +12,11 @@ namespace Minus
         Q_OBJECT
     public:
         Gui(const int& width, const int& height);
+        void reset(void);
         void resizeEvent(void);
 
     signals:
-        void reset(void);
+        void reset_signal(void);
 
     public:
         Frame frame;
