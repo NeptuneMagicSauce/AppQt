@@ -19,8 +19,7 @@ namespace Minus
         {
             if (index >= instances.size())
             {
-                // TODO (size*3)/2
-                instances.resize(instances.size() + instances.size() / 2);
+                instances.resize((instances.size() * 3) / 2);
                 for (unsigned int i=index; i<instances.size(); ++i)
                 {
                     instances[i] = new T;
