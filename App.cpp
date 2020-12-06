@@ -1,9 +1,8 @@
 #include <iostream>
 
-#include <QApplication>
 #include <QDebug>
 
-#include "LoadContent.hpp"
+#include "Application.hpp"
 #include "Logic.hpp"
 #include "Gui.hpp"
 
@@ -60,71 +59,55 @@
 
 namespace Minus
 {
-    class App : public QApplication
+
+    class App : public Application
     {
     public:
         App(int argc, char** argv) :
-            QApplication(argc, argv),
-            gui(new Gui(logic.width, logic.height))
+            Application(argc, argv),
+            gui_ptr(new Gui(logic.width, logic.height)),
+            gui(*gui_ptr)
         {
 
-            QObject::connect(&gui->frame, &Frame::reveal,
+            QObject::connect(&gui.frame, &Frame::reveal,
                              [this] (const Indices& indices) {
                                  logic.reveal(indices);
                              });
 
-            QObject::connect(&gui->frame, &Frame::autoRevealNeighbors,
+            QObject::connect(&gui.frame, &Frame::autoRevealNeighbors,
                              [this] (const Indices& indices) {
                                  logic.autoRevealNeighbors(indices);
                              });
 
-            QObject::connect(&gui->frame, &Frame::setFlag,
+            QObject::connect(&gui.frame, &Frame::setFlag,
                              [this] (const Indices& indices, bool flag) {
                                  logic.setFlag(indices, flag);
                              });
 
             QObject::connect(&logic, &Logic::setMineData,
                              [this] (const CellStates& data) {
-                                 gui->frame.setMineData(data);
+                                 gui.frame.setMineData(data);
                              });
 
             QObject::connect(&logic, &Logic::setMineRevealed,
                              [this] (const Indices& indices) {
-                                 gui->frame.revealCell(indices);
+                                 gui.frame.revealCell(indices);
                              });
 
-            auto update_gui = [this] () {
-                for (int x=0; x<logic.width; ++x)
-                {
-                    for (int y=0; y<logic.height; ++y)
-                    {
-                        gui->frame.addCell(y, x);
-                    }
-                }
-                gui->resizeEvent();
-            };
+            QObject::connect(&gui, &Gui::reset_signal, [this] () {
+                logic.reset(logic.width, logic.height);
+                gui.reset();
+            });
 
-            QObject::connect(gui, &Gui::reset,
-                             [this, update_gui] () {
-                                 logic.reset(logic.width, logic.height);
-                                 update_gui();
-                             });
-
-            update_gui();
+            emit gui.reset_signal();
+            // gui.resizeEvent(); // no longer needed because we do a first resize
         }
     private:
-        class Loader
-        {
-        public:
-            Loader()
-            {
-                LoadContent::doLoad();
-            }
-        } loader;
         Logic logic;
-        Gui* gui;
+        Gui* gui_ptr;
+        Gui& gui;
         // gui must be dynamic allocated so that it is not destructed
-        // auto destruction on quit fails with silent error
+        // because auto destruction on quit fails with silent error
         // maybe because QApplication is being destructed
     };
 };
