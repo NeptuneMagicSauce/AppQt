@@ -124,9 +124,6 @@ Frame::Frame(const int& width, const int& height) :
     width(width),
     height(height)
 {
-    // TODO same mechanism as GuiImpl : auto instantiate 1 instance
-    // do we need to delete default constructor ?
-    // then it allows Pool ctor to call Pool::reserve()
     Utils::assertSingleton(typeid(*this));
     impl_f.frame = this;
     impl_f.layout = new Layout(width, height);
