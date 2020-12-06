@@ -71,7 +71,6 @@ using namespace Minus;
 class FrameImpl
 {
 public:
-    // TODO member frame : ref not pointer
     Frame* frame = nullptr;
     Layout* layout = nullptr;
     CellWidget* cell_pressed = nullptr;
