@@ -71,6 +71,7 @@ using namespace Minus;
 class FrameImpl
 {
 public:
+    // TODO member frame : ref not pointer
     Frame* frame = nullptr;
     Layout* layout = nullptr;
     CellWidget* cell_pressed = nullptr;
@@ -123,6 +124,9 @@ Frame::Frame(const int& width, const int& height) :
     width(width),
     height(height)
 {
+    // TODO same mechanism as GuiImpl : auto instantiate 1 instance
+    // do we need to delete default constructor ?
+    // then it allows Pool ctor to call Pool::reserve()
     Utils::assertSingleton(typeid(*this));
     impl_f.frame = this;
     impl_f.layout = new Layout(width, height);
@@ -165,6 +169,10 @@ void FrameImpl::reset(int width, int height)
     for (auto& column: neighbors)
     {
         column.resize(height);
+        for (auto& neighbors_vec: column)
+        {
+            neighbors_vec.clear();
+        }
     }
     key_reveal_pressed = false;
     pool.reset();
@@ -184,12 +192,13 @@ void Frame::addCell(int row, int column)
     {
         for (int y = row - 1; y <= row + 1; ++y)
         {
-            if (x >= 0 && y >= 0 && x < width && y <= height)
+            if (x >= 0 && y >= 0 && x < width && y < height)
             {
                 n.emplace_back(x, y);
             }
         }
     }
+    assert(n.size() <= 9);
 }
 
 void Frame::resizeEvent(QResizeEvent *event)
@@ -353,9 +362,14 @@ void FrameImpl::onCellPressed(CellWidget* w)
     {
         auto w_indices = indices[w];
         auto wx = w_indices.x(), wy = w_indices.y();
+        assert(neighbors[wx][wy].size() <= 9);
+
         for (auto& neighbor_indices: neighbors[wx][wy])
         {
             auto x = neighbor_indices.x(), y = neighbor_indices.y();
+            // TODO install crash handler with stack trace, prompt for attach dbg
+            assert(y < layout->rowCount());
+            assert(x < layout->columnCount());
             auto* n = dynamic_cast<CellWidget*>(layout->itemAtPosition(y, x)->widget());
             if (n->revealed == false && n->flag == false)
             {

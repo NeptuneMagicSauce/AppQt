@@ -41,6 +41,7 @@ class GuiImpl
 public:
     GuiImpl(Gui* gui);
 private:
+    // TODO member gui: ref not pointer
     Gui* gui = nullptr;
     QToolButton* settings_button = nullptr;
     EventFilterFirstShow filter;
