@@ -1,6 +1,7 @@
 #include "Application.hpp"
 
 #include <vector>
+#include <cmath>
 
 #include <QMessageBox>
 #include <QMainWindow>
@@ -8,6 +9,8 @@
 #include <QAction>
 #include <QPushButton>
 #include <QDebug>
+
+#include "CrashHandler.hpp"
 
 class ApplicationImpl
 {
@@ -54,6 +57,18 @@ public:
             v.resize(0);
             qDebug() << v.at(0);
         });
+        install_button("integer div by zero", []() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiv-by-zero"
+            qDebug() << 1 / 0;
+#pragma GCC diagnostic pop
+        });
+        install_button("float div by zero", []() {
+            qDebug() << 1.0f / 0.0f;
+        });
+        install_button("sqrt(-1)", []() {
+            qDebug() << std::sqrt(-1.0);
+        });
     }
 } impl_app;
 
@@ -61,6 +76,8 @@ Application::Application(int argc, char** argv) :
     QApplication(argc, argv)
 {
     impl_app.installDebugWindow();
+    CrashHandler::attach();
+
     cb.setSingleShot(false);
     cb.setInterval(100);
     connect(&cb, &QTimer::timeout, [this] () {
