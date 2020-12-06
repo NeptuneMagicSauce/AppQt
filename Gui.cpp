@@ -39,10 +39,9 @@ protected:
 class GuiImpl
 {
 public:
-    GuiImpl(Gui* gui);
+    GuiImpl(Gui& gui);
 private:
-    // TODO member gui: ref not pointer
-    Gui* gui = nullptr;
+    Gui& gui;
     QToolButton* settings_button = nullptr;
     EventFilterFirstShow filter;
 
@@ -82,9 +81,9 @@ private:
         settings_button->setDown(state);
         if (state)
         {
-            gui->settings.show();
+            gui.settings.show();
         } else {
-            gui->settings.hide();
+            gui.settings.hide();
         }
     }
 
@@ -97,10 +96,10 @@ private:
         auto screen_geom = screen->availableVirtualGeometry();
         // qDebug() << screen_geom;
 
-        int width = gui->frame.width * Frame::InitialCellSize;
+        int width = gui.frame.width * Frame::InitialCellSize;
         // tool_bar.height() does not have correct value
         // before first Show event
-        int height = tool_bar.height() + gui->frame.height * Frame::InitialCellSize;
+        int height = tool_bar.height() + gui.frame.height * Frame::InitialCellSize;
 
         if (width >= screen_geom.width() ||
             height >= screen_geom.height())
@@ -125,26 +124,26 @@ Gui::Gui(const int& width, const int& height) :
     frame(width, height)
 {
     Utils::assertSingleton(typeid(*this));
-    new GuiImpl(this);
+    new GuiImpl(*this);
 }
 
-GuiImpl::GuiImpl(Gui* gui)
+GuiImpl::GuiImpl(Gui& gui) :
+    gui(gui)
 {
-    this->gui = gui;
-
     auto* widget = new QWidget;
-    // TODO do not have box layout
+    // TODO do not have box layout ..
     // rather, have Settings Pane above Frame
-    // and darken frame for feedback on modality
+    // and maybe darken frame for feedback on modality
+    // or small part above screen, in corner
     auto* layout = new QHBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     widget->setLayout(layout);
-    layout->addWidget(&gui->frame);
-    layout->addWidget(&gui->settings);
+    layout->addWidget(&gui.frame);
+    layout->addWidget(&gui.settings);
     main_window.setCentralWidget(widget);
 
-    // main_window.setCentralWidget(&gui->frame);
+    // main_window.setCentralWidget(&gui.frame);
     main_window.setWindowTitle("Super Minus");
     main_window.show();
 
@@ -159,9 +158,9 @@ GuiImpl::GuiImpl(Gui* gui)
     spacer_right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     tool_bar.addWidget(spacer_left);
     addButton(
-        [gui]() {
-            gui->frame.reset();
-            emit gui->reset();
+        [&gui]() {
+            gui.frame.reset();
+            emit gui.reset();
         },
         Labels::reset,
         "Reset",
