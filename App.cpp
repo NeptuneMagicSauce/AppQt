@@ -38,7 +38,8 @@
    highlight auto revealed cell same as hovered maybe ?
 
    emacs : save on compile
-   emacs : show cmake colors in compile buffer
+   emacs : default compile command = make -j -C `directory of current file`/
+   emacs : show cmake colors in compile buffer : is it modified in .emacs ?
    emacs : respect my identation style
 
    see how OSS does autowin first reveal: gnome-mines, kmines
