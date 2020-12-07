@@ -85,40 +85,46 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     }
     stack_label.setText(stack_text);
     QScrollArea stack_area;
+    // TODO QScrollArea should have size policy expanding
     stack_area.setWidget(&stack_label);
     layout_root.addWidget(&stack_area);
     dialog.resize(600, 300);
     dialog.exec();
 }
 
+// TODO coding style: lambdas should be camelCase()
+
 CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
 {
-    auto format_location = [] (const QString& l) {
-        auto ret = l;
-        ret.replace("c:/Devel/Workspace/", "", Qt::CaseInsensitive);
-        ret.replace("c:/Devel/Tools/", "", Qt::CaseInsensitive);
-        return ret;
-    };
-
     Stack ret;
-    for (auto& s: stack)
+    for (auto s: stack)
     {
         StackInfo info;
-        auto split_addr = s.split(": ");
-        if (split_addr.size() <= 1)
-        {
-            info.address = format_location(s.trimmed());
-            continue;
-        }
-        info.address = split_addr[0].trimmed();
-        auto split_function_location = split_addr[1].split(" at ");
-        if (split_function_location.size() <= 1)
-        {
-            info.function = format_location(split_addr[1].trimmed());
-        } else {
-            info.function = split_function_location[0].trimmed();
-            info.location = "at " + format_location(split_function_location[1].trimmed());
-        }
+
+        auto take_before = [] (QString& s, const QString& pattern) {
+            auto pattern_len = pattern.size();
+            auto len =
+                pattern_len
+                ? s.indexOf(pattern)
+                : s.size();
+            if (len == -1)
+            {
+                auto ret = s;
+                s.resize(0);
+                return ret.trimmed();
+            }
+            auto ret = s.left(len).trimmed();
+            s.remove(0, len + pattern_len);
+            return ret;
+        };
+
+        info.address = take_before(s, ":");
+        info.function = take_before(s, " at ");
+        info.location = take_before(s, "");
+
+        info.location.replace("c:/Devel/Workspace/", "", Qt::CaseInsensitive);
+        info.location.replace("c:/Devel/Tools/", "", Qt::CaseInsensitive);
+
         ret << info;
     }
     return ret;
@@ -126,13 +132,21 @@ CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
 
 QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll) const
 {
+    // TODO check a function or location with "at" does not get splitted
+
     auto length = address.size() + function.size() + location.size();
+    auto has_location = !location.isEmpty();
     if (length <= 80)
     {
-        return address + ": " + function + " at " + location;
+        auto ret = address + ": " + function;
+        if (has_location)
+        {
+            ret.append(" at " + location);
+        }
+        return ret;
     }
 
-    auto split_length = [] (const QString& s) {
+    static auto split_length = [] (const QString& s) {
         QStringList ret;
         auto tmp = s;
         while (!tmp.isEmpty())
@@ -146,9 +160,11 @@ QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll) const
     auto ret = address + "\n";
     if (has_horizontal_scroll)
     {
-        ret +=
-            "\t" + function + "\n" +
-            "\t" + location;
+        ret.append("\t" + function + "\n");
+        if (has_location)
+        {
+            ret.append("\t" + location);
+        }
     } else {
         for (auto& f: split_length(function))
         {
