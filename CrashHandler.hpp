@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class CrashHandler
 {
 private:
@@ -10,6 +12,8 @@ private:
     };
 #endif
 public:
+    static bool hasAlreadyCrashed(void);
+    static void showDialog(const std::string& error, const std::string& stack);
     static void attach(void)
     {
 #if _WIN64

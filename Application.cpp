@@ -53,6 +53,8 @@ public:
             });
         };
 
+        // TODO catch all these errors in CrashHandler
+
         install_button("nullptr", []() {
             qDebug() << *(QPoint*)nullptr;
         });
