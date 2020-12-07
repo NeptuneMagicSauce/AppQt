@@ -44,6 +44,7 @@ endforeach()
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${BINARY_OUTPUT_DIR})
 
 if (WIN32)
+  set(CMAKE_CXX_STANDARD_LIBRARIES "-limagehlp") # SymInitialize()
   set (dllpath "")
   foreach(dll stdc++-6 gcc_s_seh-1 winpthread-1)
     set(dllpath ${dllpath} ${QT5_MINGW}/bin/lib${dll}.dll)
