@@ -60,6 +60,7 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
         nullptr,
         Qt::WindowTitleHint
         | Qt::WindowSystemMenuHint
+        | Qt::WindowMaximizeButtonHint
         | Qt::WindowCloseButtonHint };
     dialog.setWindowTitle("Crash");
     QVBoxLayout layout_root;
@@ -83,7 +84,7 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     stack_area.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     stack_area.setWidget(&stack_label);
     layout_root.addWidget(&stack_area);
-    dialog.resize(600, 300);
+    dialog.resize(800, 500);
     dialog.exec();
 }
 
