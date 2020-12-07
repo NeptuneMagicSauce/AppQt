@@ -61,6 +61,11 @@ public:
         // TODO what about other threads, do they need to enable these 2:
         // crash handler and floating point exception disabler
 
+        // TODO check other return values
+        // https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setunhandledexceptionfilter
+        // EXCEPTION_CONTINUE_EXECUTION
+        // EXCEPTION_CONTINUE_SEARCH
+
         return EXCEPTION_EXECUTE_HANDLER;
     }
 
@@ -68,6 +73,7 @@ public:
     {
         // TODO check addr2line is in path
         // TODO xor ship addr2line in application dir with cmake
+        // really ship addr2line? it is for developer only!
 
         QProcess p;
         QStringList args =
