@@ -4,13 +4,17 @@
 #include <windows.h>
 #include <imagehlp.h> // SymInitialize() needs linker flag -limagehlp
 #include <string>
+#include <vector>
 #include <iostream>
 #include <QDebug>
+#include <QProcess>
+#include <QCoreApplication>
 
 #include "Utils.hpp"
 #include "WindowsErrorCodes.hpp"
 
 using std::string;
+using std::vector;
 
 class CrashHandlerImpl
 {
@@ -62,21 +66,35 @@ public:
         return EXCEPTION_EXECUTE_HANDLER;
     }
 
-    static string addr2line(const std::string& addr)
+    static string addr2line(const vector<void*>& addr)
     {
-        // TODO addr2line
-        // return addr;
-        QString s = addr.c_str();
-        QString ret;
-        for (auto& a: s.split(' ', Qt::SkipEmptyParts))
+        // TODO check addr2line is in path
+
+        QProcess p;
+        QStringList args =
         {
-            ret.append(a
-                       + " fshjehgilhfdgdshgjkfgjfdsjghshgfdshgjfdlhjgl"
-                       + " fshjehgilhfdgdshgjkfgjfdsjghshgfdshgjfdlhjgl"
-                       + " fshjehgilhfdgdshgjkfgjfdsjghshgfdshgjfdlhjgl"
-                       + "\n");
+            "-C", // --demangle
+            // "-s" // --basenames
+            "-a", // --addresses
+            "-f", // --functions
+            "-p", // --pretty-print
+            "-e",
+            QCoreApplication::applicationFilePath(),
+        };
+        for (auto& a: addr)
+        {
+            args << QString::fromStdString(Utils::toHexa(a));
         }
-        return ret.toStdString();
+        std::cout << std::endl;
+
+        p.start("addr2line", args);
+        if (!p.waitForStarted())
+        {
+            return "addr2line failed";
+        }
+        p.waitForFinished();
+        auto result = p.readAll();
+        return QString(result).toStdString();
     }
 
     static void printStackTrace(EXCEPTION_POINTERS* exception, std::ostringstream& ss)
@@ -103,7 +121,7 @@ public:
             // If this is a stack overflow then we can't walk the stack
             // so just show where the error happened
 
-            ss << addr2line(Utils::toHexa((void*)context->Rip));
+            ss << addr2line({(void*)context->Rip});
             return;
         }
         if (context == nullptr)
@@ -111,7 +129,7 @@ public:
             ss << "context is null";
             return;
         }
-        std::ostringstream s_addresses;
+
         auto handle = GetCurrentProcess();
         SymInitialize(handle, 0, true);
 #pragma GCC diagnostic push
@@ -125,6 +143,7 @@ public:
         frame.AddrFrame.Offset      = context->Rbp;
         frame.AddrFrame.Mode        = AddrModeFlat;
 
+        vector<void*> addr;
         while (StackWalk(
                    IMAGE_FILE_MACHINE_AMD64,
                    GetCurrentProcess(),
@@ -136,11 +155,10 @@ public:
                    SymGetModuleBase,
                    0))
         {
-            auto* address = (void*)frame.AddrPC.Offset;
-            s_addresses << Utils::toHexa(address) << " ";
+            addr.emplace_back((void*)frame.AddrPC.Offset);
         }
         SymCleanup(GetCurrentProcess());
-        ss << addr2line(s_addresses.str()) << std::endl;
+        ss << addr2line(addr) << std::endl;
     }
 };
 

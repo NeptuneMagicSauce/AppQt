@@ -44,7 +44,6 @@ bool CrashHandler::hasAlreadyCrashed(void)
 void CrashHandler::showDialog(const string& error, const string& stack)
 {
     // TODO with bold / color / markdown for easier parsing: same as cgdb
-    // TODO critical icon same as QMessageBox ?
 
     QDialog dialog {
         nullptr,
