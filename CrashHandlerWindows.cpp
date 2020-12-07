@@ -23,6 +23,7 @@ public:
     {
         SetUnhandledExceptionFilter(windows_exception_handler);
     }
+
     static LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS* exception)
     {
         // TODO port FloatingPointExceptions::Disabler
@@ -39,7 +40,7 @@ public:
             Utils::exceptionCode(ex_code) + " " +
             Utils::toHexa(ex_code);
 
-        QStringList stack;
+        CrashHandler::Stack stack;
         if (CrashHandler::hasAlreadyCrashed())
         {
             error_message += " double crash";
@@ -47,9 +48,7 @@ public:
             // TODO build stack trace in background thread maybe ?
             // with QProcess signals
             // also do stack unwalking in the same background thread
-            stack = printStackTrace(exception);
-            // TODO replace C:/Devel/Workspace/ and C:/Devel/Tools/ with empty
-            // TODO split long lines in addr/function/location with start tabs
+            stack = CrashHandler::formatStack(printStackTrace(exception));
         }
 
         CrashHandler::showTerminal(error_message, stack);
@@ -98,8 +97,7 @@ public:
             return ret;
         }
         p.waitForFinished();
-        // return p.readAll();
-        return QString(p.readAll()).split("\n", Qt::SkipEmptyParts);
+        return QString(p.readAll()).split("\r\n", Qt::SkipEmptyParts);
     }
 
     static QStringList printStackTrace(EXCEPTION_POINTERS* exception)
