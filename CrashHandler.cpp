@@ -88,8 +88,6 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     dialog.exec();
 }
 
-// TODO coding style: lambdas should be camelCase()
-
 CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
 {
     Stack ret;
@@ -97,7 +95,7 @@ CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
     {
         StackInfo info;
 
-        auto take_before = [] (QString& s, const QString& pattern) {
+        auto takeBefore = [] (QString& s, const QString& pattern) {
             auto pattern_len = pattern.size();
             auto len =
                 pattern_len
@@ -114,9 +112,9 @@ CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
             return ret;
         };
 
-        info.address = take_before(s, ":");
-        info.function = take_before(s, " at ");
-        info.location = take_before(s, "");
+        info.address = takeBefore(s, ":");
+        info.function = takeBefore(s, " at ");
+        info.location = takeBefore(s, "");
 
         info.location.replace("c:/Devel/Workspace/", "", Qt::CaseInsensitive);
         info.location.replace("c:/Devel/Tools/", "", Qt::CaseInsensitive);
@@ -140,7 +138,7 @@ QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll) const
         return ret;
     }
 
-    static auto split_length = [] (const QString& s) {
+    static auto splitLength = [] (const QString& s) {
         QStringList ret;
         auto tmp = s;
         while (!tmp.isEmpty())
@@ -160,11 +158,11 @@ QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll) const
             ret.append("\t" + location);
         }
     } else {
-        for (auto& f: split_length(function))
+        for (auto& f: splitLength(function))
         {
             ret += "\t" + f + "\n";
         }
-        for (auto& l: split_length(location))
+        for (auto& l: splitLength(location))
         {
             ret += "\t" + l + "\n";
         }
