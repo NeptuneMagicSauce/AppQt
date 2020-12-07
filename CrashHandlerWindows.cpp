@@ -42,8 +42,13 @@ public:
         }
 
         // TODO custom message box with scroll area for stack trace
+        // with bold / color / markdown for easier parsing: same as cgdb
         // and prompt close
         std::cerr << ss.str() << std::endl;
+
+        // TODO namespace Utils for classes if not in namespace Minus
+
+        // TODO catch exceptions at top level, they are not caught by CrashHandler
 
         return EXCEPTION_EXECUTE_HANDLER;
     }
