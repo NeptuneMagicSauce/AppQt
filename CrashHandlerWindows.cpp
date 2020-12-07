@@ -103,7 +103,6 @@ public:
     static QStringList printStackTrace(EXCEPTION_POINTERS* exception)
     {
         QStringList ret;
-        ret << "Stack Trace ";
         if (exception == nullptr)
         {
             ret << "exception is null";
