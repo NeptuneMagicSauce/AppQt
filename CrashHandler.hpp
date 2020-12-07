@@ -23,6 +23,8 @@ public:
     using Stack = QList<StackInfo>;
     static bool hasAlreadyCrashed(void);
     static void showDialog(const std::string& error, const QStringList& stack);
+    static void showTerminal(const std::string& error, const QStringList& stack);
+
     static void attach(void)
     {
 #if _WIN64
