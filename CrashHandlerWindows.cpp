@@ -28,9 +28,8 @@ public:
 
         auto ex_code = exception ? exception->ExceptionRecord->ExceptionCode : 0;
         auto error_message =
-            Utils::toHexa(ex_code) + " " +
             Utils::exceptionCode(ex_code) + " " +
-            Utils::statusCode(ex_code) + " ";
+            Utils::toHexa(ex_code) + " ";
 
         std::ostringstream ss;
         ss << error_message << std::endl;
