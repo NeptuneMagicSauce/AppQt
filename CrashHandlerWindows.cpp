@@ -52,17 +52,7 @@ public:
             // TODO split long lines in addr/function/location with start tabs
         }
 
-        std::cerr << error_message << std::endl;
-        if (!stack.isEmpty())
-        {
-            auto debug = qDebug();
-            debug.noquote();
-            debug.nospace();
-            for (const auto& s : stack)
-            {
-                debug << s << "\n";
-            }
-        }
+        CrashHandler::showTerminal(error_message, stack);
         CrashHandler::showDialog(error_message, stack);
 
         // TODO namespace Utils for classes if not in namespace Minus

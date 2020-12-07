@@ -1,11 +1,13 @@
 #include "CrashHandler.hpp"
 
+#include <iostream>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QDebug>
 
 using std::string;
 
@@ -39,6 +41,18 @@ bool CrashHandler::hasAlreadyCrashed(void)
     }
     has_crashed = true;
     return false;
+}
+
+void CrashHandler::showTerminal(const std::string& error, const QStringList& stack)
+{
+    std::cerr << error << std::endl;
+    auto qdebug = qDebug();
+    qdebug.noquote();
+    qdebug.nospace();
+    for (const auto& s : stack)
+    {
+        qdebug << s << "\n";
+    }
 }
 
 void CrashHandler::showDialog(const string& error, const QStringList& stack)
