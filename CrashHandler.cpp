@@ -128,8 +128,6 @@ CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
 
 QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll) const
 {
-    // TODO check a function or location with "at" does not get splitted
-
     auto length = address.size() + function.size() + location.size();
     auto has_location = !location.isEmpty();
     if (length <= 80)
