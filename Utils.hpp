@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <set>
 #include <cxxabi.h>
 #include <QColor>
@@ -29,5 +30,12 @@ namespace Utils
             throw std::runtime_error("only one instance supported of " + class_name);
         }
         classes.insert(class_name);
+    }
+
+    template<class T> std::string toHexa(const T &value)
+    {
+        std::ostringstream oss;
+        oss << std::hex << value;
+        return oss.str();
     }
 };
