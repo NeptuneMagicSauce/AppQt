@@ -31,19 +31,26 @@ public:
             Utils::exceptionCode(ex_code) + " " +
             Utils::toHexa(ex_code) + " ";
 
-        std::ostringstream ss;
-        ss << error_message << std::endl;
-        if (setHasCrashed())
+        // TODO work with QString rather than std::string to no have conversions
+
+        std::ostringstream stack_trace_stream;
+        if (CrashHandler::hasAlreadyCrashed())
         {
-            ss << "double crash";
+            std::ostringstream message_stream;
+            message_stream << error_message << std::endl;
+            message_stream << "double crash";
         } else {
-            printStackTrace(exception, ss);
+            // TODO build stack trace in background thread maybe ?
+            printStackTrace(exception, stack_trace_stream);
         }
 
-        // TODO custom message box with scroll area for stack trace
-        // with bold / color / markdown for easier parsing: same as cgdb
-        // and prompt close
-        std::cerr << ss.str() << std::endl;
+        std::cerr << error_message << std::endl;
+        const auto stack_trace = stack_trace_stream.str();
+        if (stack_trace.size())
+        {
+            std::cerr << stack_trace << std::endl;
+        }
+        CrashHandler::showDialog(error_message, stack_trace);
 
         // TODO namespace Utils for classes if not in namespace Minus
 
@@ -55,21 +62,19 @@ public:
         return EXCEPTION_EXECUTE_HANDLER;
     }
 
-    static bool setHasCrashed(void)
-    {
-        static bool has_crashed = false;
-        if (has_crashed)
-        {
-            return true;
-        }
-        has_crashed = true;
-        return false;
-    }
-
     static string addr2line(const std::string& addr)
     {
         // TODO addr2line
-        return addr;
+        // return addr;
+        QString s = addr.c_str();
+        QString ret;
+        for (auto& a: s.split(' '))
+        {
+            ret.append(a
+                       + " fshjehgilhfdgdshgjkfgjfdsjghshgfdshgjfdlhjgl"
+                       + "\n");
+        }
+        return ret.toStdString();
     }
 
     static void printStackTrace(EXCEPTION_POINTERS* exception, std::ostringstream& ss)
