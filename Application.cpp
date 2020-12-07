@@ -69,6 +69,9 @@ public:
         install_button("sqrt(-1)", []() {
             qDebug() << std::sqrt(-1.0);
         });
+        install_button("throw", []() {
+            throw std::runtime_error("debug throw");
+        });
     }
 } impl_app;
 
