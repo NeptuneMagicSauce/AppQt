@@ -3,9 +3,9 @@
 #include <vector>
 #include <cmath>
 
-#include <QMessageBox>
+#include <QDialog>
 #include <QMainWindow>
-#include <QVBoxLayout>
+#include <QGridLayout>
 #include <QAction>
 #include <QPushButton>
 #include <QDebug>
@@ -15,7 +15,8 @@
 class ApplicationImpl
 {
 public:
-    QMessageBox* debug_window;
+    QDialog* debug_window;
+
     void installDebugActions(QWidget* w)
     {
         auto* a = new QAction;
@@ -28,18 +29,24 @@ public:
     }
     void installDebugWindow(void)
     {
-        debug_window = new QMessageBox;
+        debug_window = new QDialog(
+            nullptr,
+            Qt::WindowTitleHint
+            | Qt::WindowSystemMenuHint
+            | Qt::WindowCloseButtonHint);
         debug_window->hide();
         debug_window->setWindowTitle("Debug");
-        debug_window->setStandardButtons(QMessageBox::Close);
-        debug_window->setEscapeButton(QMessageBox::Close);//nullptr);
-        auto install_button = [this] (
+        auto* layout = new QGridLayout;
+        debug_window->setLayout(layout);
+        auto install_button = [this, layout] (
             const QString& label,
             std::function<void()> cb) {
+            static int index = 0;
+            const int columns = 3;
             auto* button = new QPushButton;
             button->setText(label);
-            // layout->addWidget(button);
-            debug_window->addButton(button, QMessageBox::DestructiveRole);
+            layout->addWidget(button, index / columns, index % columns);
+            ++index;
             QObject::connect(button, &QAbstractButton::released, [=](){
                 qDebug() << "Debug" << label;
                 cb();
