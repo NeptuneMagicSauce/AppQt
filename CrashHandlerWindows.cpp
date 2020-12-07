@@ -27,8 +27,12 @@ public:
     {
         // TODO port FloatingPointExceptions::Disabler
         // FloatingPointExceptions::Disabler fpe;
+
         // TODO port my assert with line function info
 // #define ASSERT(check, message) Assert::Assert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
+
+        // TODO find if we can attach debugger on crash handler
+        // does it need a button to trigger another catchable signal ?
 
         auto ex_code = exception ? exception->ExceptionRecord->ExceptionCode : 0;
         auto error_message =
@@ -42,6 +46,7 @@ public:
         } else {
             // TODO build stack trace in background thread maybe ?
             // with QProcess signals
+            // also do stack unwalking in the same background thread
             stack = printStackTrace(exception);
             // TODO replace C:/Devel/Workspace/ and C:/Devel/Tools/ with empty
             // TODO split long lines in addr/function/location with start tabs
@@ -94,8 +99,13 @@ public:
         p.start("addr2line", args);
         if (!p.waitForStarted())
         {
-            // TODO on addr2line fail, print addresses
-            return { "addr2line failed" };
+            QStringList ret;
+            ret << "addr2line failed";
+            for (auto& a: addr)
+            {
+                ret << QString::fromStdString(Utils::toHexa(a));
+            }
+            return ret;
         }
         p.waitForFinished();
         // return p.readAll();
