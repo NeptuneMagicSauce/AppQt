@@ -19,11 +19,14 @@ public:
         QString address;
         QString function;
         QString location;
+        QString prettyPrint(bool has_horizontal_scroll) const;
     };
     using Stack = QList<StackInfo>;
+
+    static Stack formatStack(const QStringList& stack);
     static bool hasAlreadyCrashed(void);
-    static void showDialog(const std::string& error, const QStringList& stack);
-    static void showTerminal(const std::string& error, const QStringList& stack);
+    static void showDialog(const std::string& error, const Stack& stack);
+    static void showTerminal(const std::string& error, const Stack& stack);
 
     static void attach(void)
     {

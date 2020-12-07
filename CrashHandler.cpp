@@ -43,7 +43,7 @@ bool CrashHandler::hasAlreadyCrashed(void)
     return false;
 }
 
-void CrashHandler::showTerminal(const std::string& error, const QStringList& stack)
+void CrashHandler::showTerminal(const std::string& error, const Stack& stack)
 {
     std::cerr << error << std::endl;
     auto qdebug = qDebug();
@@ -51,11 +51,11 @@ void CrashHandler::showTerminal(const std::string& error, const QStringList& sta
     qdebug.nospace();
     for (const auto& s : stack)
     {
-        qdebug << s << "\n";
+        qdebug << s.prettyPrint(false) << "\n";
     }
 }
 
-void CrashHandler::showDialog(const string& error, const QStringList& stack)
+void CrashHandler::showDialog(const string& error, const Stack& stack)
 {
     // TODO with bold / color / markdown for easier parsing: same as cgdb
     // also same color and splitting for terminal output
@@ -81,7 +81,7 @@ void CrashHandler::showDialog(const string& error, const QStringList& stack)
     QString stack_text;
     for (const auto& s: stack)
     {
-        stack_text += s + "\n";
+        stack_text += s.prettyPrint(true) + "\n";
     }
     stack_label.setText(stack_text);
     QScrollArea stack_area;
@@ -89,4 +89,75 @@ void CrashHandler::showDialog(const string& error, const QStringList& stack)
     layout_root.addWidget(&stack_area);
     dialog.resize(600, 300);
     dialog.exec();
+}
+
+CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
+{
+    auto format_location = [] (const QString& l) {
+        auto ret = l;
+        ret.replace("c:/Devel/Workspace/", "", Qt::CaseInsensitive);
+        ret.replace("c:/Devel/Tools/", "", Qt::CaseInsensitive);
+        return ret;
+    };
+
+    Stack ret;
+    for (auto& s: stack)
+    {
+        StackInfo info;
+        auto split_addr = s.split(": ");
+        if (split_addr.size() <= 1)
+        {
+            info.address = format_location(s.trimmed());
+            continue;
+        }
+        info.address = split_addr[0].trimmed();
+        auto split_function_location = split_addr[1].split(" at ");
+        if (split_function_location.size() <= 1)
+        {
+            info.function = format_location(split_addr[1].trimmed());
+        } else {
+            info.function = split_function_location[0].trimmed();
+            info.location = "at " + format_location(split_function_location[1].trimmed());
+        }
+        ret << info;
+    }
+    return ret;
+}
+
+QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll) const
+{
+    auto length = address.size() + function.size() + location.size();
+    if (length <= 80)
+    {
+        return address + ": " + function + " at " + location;
+    }
+
+    auto split_length = [] (const QString& s) {
+        QStringList ret;
+        auto tmp = s;
+        while (!tmp.isEmpty())
+        {
+            ret << tmp.left(80);
+            tmp.remove(0, 80);
+        }
+        return ret;
+    };
+
+    auto ret = address + "\n";
+    if (has_horizontal_scroll)
+    {
+        ret +=
+            "\t" + function + "\n" +
+            "\t" + location;
+    } else {
+        for (auto& f: split_length(function))
+        {
+            ret += "\t" + f + "\n";
+        }
+        for (auto& l: split_length(location))
+        {
+            ret += "\t" + l + "\n";
+        }
+    }
+    return ret.trimmed();
 }
