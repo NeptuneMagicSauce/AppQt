@@ -68,9 +68,11 @@ public:
         // return addr;
         QString s = addr.c_str();
         QString ret;
-        for (auto& a: s.split(' '))
+        for (auto& a: s.split(' ', Qt::SkipEmptyParts))
         {
             ret.append(a
+                       + " fshjehgilhfdgdshgjkfgjfdsjghshgfdshgjfdlhjgl"
+                       + " fshjehgilhfdgdshgjkfgjfdsjghshgfdshgjfdlhjgl"
                        + " fshjehgilhfdgdshgjkfgjfdsjghshgfdshgjfdlhjgl"
                        + "\n");
         }
