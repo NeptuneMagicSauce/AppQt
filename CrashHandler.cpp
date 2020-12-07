@@ -43,14 +43,6 @@ void CrashHandler::showTerminal(const std::string& error, const Stack& stack)
 
 void CrashHandler::showDialog(const string& error, const Stack& stack)
 {
-    // TODO with bold / color / markdown for easier parsing: same as cgdb
-    // also same color and splitting for terminal output
-    // special color if location is in c:/Devel/Workspace
-    // xor special color for first directory of location
-
-    // TODO crash dialog is much slower than crash terminal -> pre allocate objects
-    // or would it just slow down start time?
-
     auto widgetCentered = [] (QWidget* w)
     {
         auto* layout = new QHBoxLayout;
