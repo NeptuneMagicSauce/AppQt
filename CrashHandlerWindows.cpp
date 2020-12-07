@@ -33,28 +33,32 @@ public:
         auto ex_code = exception ? exception->ExceptionRecord->ExceptionCode : 0;
         auto error_message =
             Utils::exceptionCode(ex_code) + " " +
-            Utils::toHexa(ex_code) + " ";
+            Utils::toHexa(ex_code);
 
-        // TODO work with QString rather than std::string to no have conversions
-
-        std::ostringstream stack_trace_stream;
+        QStringList stack;
         if (CrashHandler::hasAlreadyCrashed())
         {
-            std::ostringstream message_stream;
-            message_stream << error_message << std::endl;
-            message_stream << "double crash";
+            error_message += " double crash";
         } else {
             // TODO build stack trace in background thread maybe ?
-            printStackTrace(exception, stack_trace_stream);
+            // with QProcess signals
+            stack = printStackTrace(exception);
+            // TODO replace C:/Devel/Workspace/ and C:/Devel/Tools/ with empty
+            // TODO split long lines in addr/function/location with start tabs
         }
 
         std::cerr << error_message << std::endl;
-        const auto stack_trace = stack_trace_stream.str();
-        if (stack_trace.size())
+        if (!stack.isEmpty())
         {
-            std::cerr << stack_trace << std::endl;
+            auto debug = qDebug();
+            debug.noquote();
+            debug.nospace();
+            for (const auto& s : stack)
+            {
+                debug << s << "\n";
+            }
         }
-        CrashHandler::showDialog(error_message, stack_trace);
+        CrashHandler::showDialog(error_message, stack);
 
         // TODO namespace Utils for classes if not in namespace Minus
 
@@ -66,9 +70,10 @@ public:
         return EXCEPTION_EXECUTE_HANDLER;
     }
 
-    static string addr2line(const vector<void*>& addr)
+    static QStringList addr2line(const vector<void*>& addr)
     {
         // TODO check addr2line is in path
+        // TODO xor ship addr2line in application dir with cmake
 
         QProcess p;
         QStringList args =
@@ -89,44 +94,47 @@ public:
         p.start("addr2line", args);
         if (!p.waitForStarted())
         {
-            return "addr2line failed";
+            // TODO on addr2line fail, print addresses
+            return { "addr2line failed" };
         }
         p.waitForFinished();
-        auto result = p.readAll();
-        return QString(result).toStdString();
+        // return p.readAll();
+        return QString(p.readAll()).split("\n", Qt::SkipEmptyParts);
     }
 
-    static void printStackTrace(EXCEPTION_POINTERS* exception, std::ostringstream& ss)
+    static QStringList printStackTrace(EXCEPTION_POINTERS* exception)
     {
-        ss << "Stack Trace" << std::endl;
+        QStringList ret;
+        ret << "Stack Trace ";
         if (exception == nullptr)
         {
-            ss << "exception is null";
-            return;
+            ret << "exception is null";
+            return ret;
         }
         auto* ex_record = exception->ExceptionRecord;
         if (ex_record == nullptr)
         {
-            ss << "exception record is null";
-            return;
+            ret << "exception record is null";
+            return ret;
         }
         auto* context = exception->ContextRecord;
         if (ex_record->ExceptionCode == DWORD(EXCEPTION_STACK_OVERFLOW))
         {
             if (context == nullptr)
             {
-                ss << "context is null";
+                ret << "context is null";
+            return ret;
             }
             // If this is a stack overflow then we can't walk the stack
             // so just show where the error happened
 
-            ss << addr2line({(void*)context->Rip});
-            return;
+            ret << addr2line({(void*)context->Rip});
+            return ret;
         }
         if (context == nullptr)
         {
-            ss << "context is null";
-            return;
+            ret << "context is null";
+            return ret;
         }
 
         auto handle = GetCurrentProcess();
@@ -157,7 +165,8 @@ public:
             addr.emplace_back((void*)frame.AddrPC.Offset);
         }
         SymCleanup(GetCurrentProcess());
-        ss << addr2line(addr) << std::endl;
+        ret << addr2line(addr);
+        return ret;
     }
 };
 

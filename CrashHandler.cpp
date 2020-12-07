@@ -41,7 +41,7 @@ bool CrashHandler::hasAlreadyCrashed(void)
     return false;
 }
 
-void CrashHandler::showDialog(const string& error, const string& stack)
+void CrashHandler::showDialog(const string& error, const QStringList& stack)
 {
     // TODO with bold / color / markdown for easier parsing: same as cgdb
 
@@ -62,7 +62,13 @@ void CrashHandler::showDialog(const string& error, const string& stack)
         dialog.accept();
     });
     layout_root.addWidget(CrashHandlerImpl::widgetCentered(&button_quit));
-    QLabel stack_label { stack.c_str() };
+    QLabel stack_label;
+    QString stack_text;
+    for (const auto& s: stack)
+    {
+        stack_text += s + "\n";
+    }
+    stack_label.setText(stack_text);
     QScrollArea stack_area;
     stack_area.setWidget(&stack_label);
     layout_root.addWidget(&stack_area);
