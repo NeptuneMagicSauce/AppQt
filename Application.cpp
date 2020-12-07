@@ -38,7 +38,7 @@ public:
         debug_window->setWindowTitle("Debug");
         auto* layout = new QGridLayout;
         debug_window->setLayout(layout);
-        auto install_button = [this, layout] (
+        auto installButton = [this, layout] (
             const QString& label,
             std::function<void()> cb) {
             static int index = 0;
@@ -55,30 +55,30 @@ public:
 
         // TODO catch all these errors in CrashHandler
 
-        install_button("nullptr", []() {
+        installButton("nullptr", []() {
             qDebug() << *(QPoint*)nullptr;
         });
-        install_button("assert(false)", []() {
+        installButton("assert(false)", []() {
             assert(false);
         });
-        install_button("vector.at()", []() {
+        installButton("vector.at()", []() {
             std::vector<int> v;
             v.resize(0);
             qDebug() << v.at(0);
         });
-        install_button("integer div by zero", []() {
+        installButton("integer div by zero", []() {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdiv-by-zero"
             qDebug() << 1 / 0;
 #pragma GCC diagnostic pop
         });
-        install_button("float div by zero", []() {
+        installButton("float div by zero", []() {
             qDebug() << 1.0f / 0.0f;
         });
-        install_button("sqrt(-1)", []() {
+        installButton("sqrt(-1)", []() {
             qDebug() << std::sqrt(-1.0);
         });
-        install_button("throw", []() {
+        installButton("throw", []() {
             throw std::runtime_error("debug throw");
         });
     }
