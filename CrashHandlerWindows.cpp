@@ -85,7 +85,6 @@ public:
         {
             args << QString::fromStdString(Utils::toHexa(a));
         }
-        std::cout << std::endl;
 
         p.start("addr2line", args);
         if (!p.waitForStarted())
