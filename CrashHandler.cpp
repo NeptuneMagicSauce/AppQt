@@ -11,27 +11,6 @@
 
 using std::string;
 
-class CrashHandlerImpl
-{
-public:
-    static QWidget* widgetCentered(QWidget* w)
-    {
-        auto* layout = new QHBoxLayout;
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(0);
-        auto* base = new QWidget;
-        base->setLayout(layout);
-        auto* spacer_left = new QWidget;
-        spacer_left->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        auto* spacer_right = new QWidget;
-        spacer_right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        layout->addWidget(spacer_left);
-        layout->addWidget(w);
-        layout->addWidget(spacer_right);
-        return base;
-    }
-};
-
 bool CrashHandler::hasAlreadyCrashed(void)
 {
     static bool has_crashed = false;
@@ -60,6 +39,23 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     // TODO with bold / color / markdown for easier parsing: same as cgdb
     // also same color and splitting for terminal output
 
+    auto widgetCentered = [] (QWidget* w)
+    {
+        auto* layout = new QHBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+        auto* base = new QWidget;
+        base->setLayout(layout);
+        auto* spacer_left = new QWidget;
+        spacer_left->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        auto* spacer_right = new QWidget;
+        spacer_right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        layout->addWidget(spacer_left);
+        layout->addWidget(w);
+        layout->addWidget(spacer_right);
+        return base;
+    };
+
     QDialog dialog {
         nullptr,
         Qt::WindowTitleHint
@@ -69,14 +65,13 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     QVBoxLayout layout_root;
     dialog.setLayout(&layout_root);
     QLabel error_label { error.c_str() };
-    layout_root.addWidget(CrashHandlerImpl::widgetCentered(&error_label));
+    layout_root.addWidget(widgetCentered(&error_label));
     QPushButton button_quit { "Quit" };
     button_quit.setDefault(true);
-    button_quit.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QObject::connect(&button_quit, &QPushButton::released, [&dialog](){
         dialog.accept();
     });
-    layout_root.addWidget(CrashHandlerImpl::widgetCentered(&button_quit));
+    layout_root.addWidget(widgetCentered(&button_quit));
     QLabel stack_label;
     QString stack_text;
     for (const auto& s: stack)
@@ -85,7 +80,7 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     }
     stack_label.setText(stack_text);
     QScrollArea stack_area;
-    // TODO QScrollArea should have size policy expanding
+    stack_area.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     stack_area.setWidget(&stack_label);
     layout_root.addWidget(&stack_area);
     dialog.resize(600, 300);
