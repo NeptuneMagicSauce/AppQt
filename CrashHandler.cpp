@@ -44,6 +44,7 @@ bool CrashHandler::hasAlreadyCrashed(void)
 void CrashHandler::showDialog(const string& error, const QStringList& stack)
 {
     // TODO with bold / color / markdown for easier parsing: same as cgdb
+    // also same color and splitting for terminal output
 
     QDialog dialog {
         nullptr,

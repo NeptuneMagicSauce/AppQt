@@ -363,7 +363,6 @@ void FrameImpl::onCellPressed(CellWidget* w)
         for (auto& neighbor_indices: neighbors[wx][wy])
         {
             auto x = neighbor_indices.x(), y = neighbor_indices.y();
-            // TODO install crash handler with stack trace, prompt for attach dbg
             assert(y < layout->rowCount());
             assert(x < layout->columnCount());
             auto* n = dynamic_cast<CellWidget*>(layout->itemAtPosition(y, x)->widget());

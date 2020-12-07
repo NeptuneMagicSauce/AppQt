@@ -13,6 +13,14 @@ private:
     };
 #endif
 public:
+    class StackInfo
+    {
+    public:
+        QString address;
+        QString function;
+        QString location;
+    };
+    using Stack = QList<StackInfo>;
     static bool hasAlreadyCrashed(void);
     static void showDialog(const std::string& error, const QStringList& stack);
     static void attach(void)
