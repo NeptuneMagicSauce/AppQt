@@ -45,6 +45,8 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
 {
     // TODO with bold / color / markdown for easier parsing: same as cgdb
     // also same color and splitting for terminal output
+    // special color if location is in c:/Devel/Workspace
+    // xor special color for first directory of location
 
     // TODO crash dialog is much slower than crash terminal -> pre allocate objects
     // or would it just slow down start time?
@@ -90,6 +92,7 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     {
         stack_text += s.prettyPrint(true, true) + "<br>";
     }
+    // TODO monospace font for stack area
     stack_label.setText(stack_text);
     QScrollArea stack_area;
     stack_area.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -137,18 +140,43 @@ CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
 
 QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll, bool rich_text) const
 {
-    enum struct Type: int { Address, Function, Location };
+    enum struct Type: int { Address, Function, Unknown, Location };
     static auto formatItem = [] (const QString& item, Type type, bool rich_text) {
         if (!rich_text)
         {
             return item;
         }
+        static auto marker = [] (const QString& weight, const QString& color_hexa) {
+            std::pair<QString, QString> ret;
+            auto has_weight = weight.size() == 1;
+            auto has_color = color_hexa.size() == 6;
+            if (has_weight)
+            {
+                ret.first = "<" + weight + ">";
+            }
+            if (has_color)
+            {
+                ret.first += "<span b style=\"color:#" + color_hexa + "\";>";
+                ret.second = "</span>";
+            }
+            if (has_weight)
+            {
+                ret.second += "</" + weight + ">";
+            }
+            return ret;
+        };
+
         static const std::map<Type, std::pair<QString, QString>> marks =
         {
-            { Type::Address , { "<b>", "</b>" } },
-            { Type::Function, { "<i>", "</i>" } },
-            { Type::Location, { "", "" } },
+            { Type::Address , marker("b", "3465A4") },
+            { Type::Function, marker("i", "D85D00") },
+            { Type::Unknown,  marker("i", ""      ) },
+            { Type::Location, marker("b", "4E9A06") },
         };
+        if (type == Type::Function && item.startsWith("??"))
+        {
+            type = Type::Unknown;
+        }
         auto& mark = marks.at(type);
         return mark.first + item + mark.second;// + "<br>";// + "\n";
     };
@@ -173,7 +201,7 @@ QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll, bool ri
     static const QString location_prefix = "at ";
 
     auto has_location = !location.isEmpty();
-    auto ret = a + ": ";
+    auto ret = "[" + a + "] ";
     if (address.size() + function.size() + location.size() <= 80)
     {
         ret += f + " ";
@@ -195,15 +223,15 @@ QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll, bool ri
         return ret;
     };
 
-    ret += br;
     if (has_horizontal_scroll)
     {
-        ret += tab + f + br;
+        ret += f + br;
         if (has_location)
         {
             ret += tab + location_prefix + l;
         }
     } else {
+        ret += br;
         for (auto& f: splitLength(f))
         {
             ret += tab + f + br;
