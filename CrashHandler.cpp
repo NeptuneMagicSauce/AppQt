@@ -1,11 +1,13 @@
 #include "CrashHandler.hpp"
 
 #include <iostream>
+#include <map>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QGroupBox>
 #include <QScrollArea>
 #include <QDebug>
 
@@ -25,12 +27,17 @@ bool CrashHandler::hasAlreadyCrashed(void)
 void CrashHandler::showTerminal(const std::string& error, const Stack& stack)
 {
     std::cerr << error << std::endl;
+    if (stack.isEmpty())
+    {
+        return;
+    }
+    std::cerr << "Stack Trace" << std::endl;
     auto qdebug = qDebug();
     qdebug.noquote();
     qdebug.nospace();
     for (const auto& s : stack)
     {
-        qdebug << s.prettyPrint(false) << "\n";
+        qdebug << s.prettyPrint() << "\n";
     }
 }
 
@@ -38,6 +45,9 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
 {
     // TODO with bold / color / markdown for easier parsing: same as cgdb
     // also same color and splitting for terminal output
+
+    // TODO crash dialog is much slower than crash terminal -> pre allocate objects
+    // or would it just slow down start time?
 
     auto widgetCentered = [] (QWidget* w)
     {
@@ -74,10 +84,11 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     });
     layout_root.addWidget(widgetCentered(&button_quit));
     QLabel stack_label;
-    QString stack_text;
+    stack_label.setTextFormat(Qt::RichText);
+    QString stack_text = "<b>Stack Trace</b><br><br>";
     for (const auto& s: stack)
     {
-        stack_text += s.prettyPrint(true) + "\n";
+        stack_text += s.prettyPrint(true, true) + "<br>";
     }
     stack_label.setText(stack_text);
     QScrollArea stack_area;
@@ -124,16 +135,51 @@ CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
     return ret;
 }
 
-QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll) const
+QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll, bool rich_text) const
 {
-    auto length = address.size() + function.size() + location.size();
+    enum struct Type: int { Address, Function, Location };
+    static auto formatItem = [] (const QString& item, Type type, bool rich_text) {
+        if (!rich_text)
+        {
+            return item;
+        }
+        static const std::map<Type, std::pair<QString, QString>> marks =
+        {
+            { Type::Address , { "<b>", "</b>" } },
+            { Type::Function, { "<i>", "</i>" } },
+            { Type::Location, { "", "" } },
+        };
+        auto& mark = marks.at(type);
+        return mark.first + item + mark.second;// + "<br>";// + "\n";
+    };
+
+    auto a = formatItem(address, Type::Address, rich_text);
+    auto f = formatItem(function, Type::Function, rich_text);
+    auto l = formatItem(location, Type::Location, rich_text);
+
+    static const std::map<bool, QString> brs =
+        {
+            { true, "<br>" },
+            { false, "\n" },
+        };
+    static const std::map<bool, QString> tabs =
+        {
+            { true, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" },
+            { false, "\t" },
+        };
+
+    const auto br = brs.at(rich_text);
+    const auto tab = tabs.at(rich_text);
+    static const QString location_prefix = "at ";
+
     auto has_location = !location.isEmpty();
-    if (length <= 80)
+    auto ret = a + ": ";
+    if (address.size() + function.size() + location.size() <= 80)
     {
-        auto ret = address + ": " + function;
+        ret += f + " ";
         if (has_location)
         {
-            ret.append(" at " + location);
+            ret += location_prefix + l;
         }
         return ret;
     }
@@ -149,22 +195,29 @@ QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll) const
         return ret;
     };
 
-    auto ret = address + "\n";
+    ret += br;
     if (has_horizontal_scroll)
     {
-        ret.append("\t" + function + "\n");
+        ret += tab + f + br;
         if (has_location)
         {
-            ret.append("\t" + location);
+            ret += tab + location_prefix + l;
         }
     } else {
-        for (auto& f: splitLength(function))
+        for (auto& f: splitLength(f))
         {
-            ret += "\t" + f + "\n";
+            ret += tab + f + br;
         }
-        for (auto& l: splitLength(location))
+        auto first_location = true;
+        for (auto& l: splitLength(l))
         {
-            ret += "\t" + l + "\n";
+            ret += tab;
+            if (first_location)
+            {
+                ret += location_prefix;
+                first_location = false;
+            }
+            ret += l + br;
         }
     }
     return ret.trimmed();

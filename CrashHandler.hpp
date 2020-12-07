@@ -19,7 +19,7 @@ public:
         QString address;
         QString function;
         QString location;
-        QString prettyPrint(bool has_horizontal_scroll) const;
+        QString prettyPrint(bool has_horizontal_scroll=false, bool rich_text=false) const;
     };
     using Stack = QList<StackInfo>;
 
