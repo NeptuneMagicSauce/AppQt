@@ -10,6 +10,8 @@
 
    setting: size, ratio, color, emojis, keybinds
 
+   namespace Utils for classes if not in namespace Minus
+
    result modal window : win or lose
    status win/lose: with face emoji
 

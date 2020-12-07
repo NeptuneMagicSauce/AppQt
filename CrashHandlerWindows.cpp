@@ -26,14 +26,16 @@ public:
 
     static LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS* exception)
     {
-        // TODO port FloatingPointExceptions::Disabler
-        // FloatingPointExceptions::Disabler fpe;
+        // TODO port FloatingPointExceptions::Disabler, disable fpe in excpt handler
 
         // TODO port my assert with line function info
 // #define ASSERT(check, message) Assert::Assert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
         // TODO find if we can attach debugger on crash handler
         // does it need a button to trigger another catchable signal ?
+
+        // TODO what about other threads, do they need to enable these 2:
+        // crash handler and floating point exception disabler
 
         auto ex_code = exception ? exception->ExceptionRecord->ExceptionCode : 0;
         auto error_message =
@@ -51,28 +53,11 @@ public:
         CrashHandler::showTerminal(error_message, stack);
         CrashHandler::showDialog(error_message, stack);
 
-        // TODO namespace Utils for classes if not in namespace Minus
-
-        // TODO catch exceptions at top level, they are not caught by CrashHandler
-
-        // TODO what about other threads, do they need to enable these 2:
-        // crash handler and floating point exception disabler
-
-        // TODO check other return values
-        // https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setunhandledexceptionfilter
-        // EXCEPTION_CONTINUE_EXECUTION
-        // EXCEPTION_CONTINUE_SEARCH
-
         return EXCEPTION_EXECUTE_HANDLER;
     }
 
     static QStringList addr2line(const vector<void*>& addr)
     {
-        // TODO check addr2line with other build types
-        // TODO check addr2line is in path
-        // TODO xor ship addr2line in application dir with cmake
-        // really ship addr2line? it is for developer only!
-
         QProcess p;
         QStringList args =
         {

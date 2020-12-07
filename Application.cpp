@@ -54,6 +54,7 @@ public:
         };
 
         // TODO catch all these errors in CrashHandler
+        // TODO catch exceptions at top level, they are not caught by CrashHandler
 
         installButton("nullptr", []() {
             qDebug() << *(QPoint*)nullptr;
