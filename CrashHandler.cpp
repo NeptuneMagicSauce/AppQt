@@ -87,7 +87,6 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     {
         stack_text += s.prettyPrint(true, true) + "<br>";
     }
-    // TODO monospace font for stack area
     stack_label.setText(stack_text);
     QScrollArea stack_area;
     stack_area.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
