@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <QString>
 
 class CrashHandler
 {
@@ -13,7 +14,7 @@ private:
 #endif
 public:
     static bool hasAlreadyCrashed(void);
-    static void showDialog(const std::string& error, const std::string& stack);
+    static void showDialog(const std::string& error, const QStringList& stack);
     static void attach(void)
     {
 #if _WIN64
