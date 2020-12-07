@@ -72,6 +72,7 @@ public:
 
     static QStringList addr2line(const vector<void*>& addr)
     {
+        // TODO check addr2line with other build types
         // TODO check addr2line is in path
         // TODO xor ship addr2line in application dir with cmake
         // really ship addr2line? it is for developer only!

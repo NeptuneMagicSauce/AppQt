@@ -86,6 +86,9 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     });
     layout_root.addWidget(widgetCentered(&button_quit));
     QLabel stack_label;
+    auto stack_font = QFont{"Consolas"};
+    stack_font.setPointSizeF(8.5f);
+    stack_label.setFont(stack_font);
     stack_label.setTextFormat(Qt::RichText);
     QString stack_text = "<b>Stack Trace</b><br><br>";
     for (const auto& s: stack)
@@ -166,11 +169,10 @@ QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll, bool ri
             return ret;
         };
 
-        // TODO test colors in dark mode
         static const std::map<Type, std::pair<QString, QString>> marks =
         {
             { Type::Address , marker("b", "0075DA") },
-            { Type::Function, marker("b", "ED9600") },
+            { Type::Function, marker("b", "DB3DED") },
             { Type::Unknown,  marker("i", ""      ) },
             { Type::Location, marker("b", "007F0E") },
         };
