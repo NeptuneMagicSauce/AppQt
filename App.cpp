@@ -36,6 +36,8 @@
 
    highlight auto revealed cell same as hovered maybe ?
 
+   check Linux compatibility, port printStackTrace
+
    emacs : save on compile
    emacs : default compile command = make -j -C `directory of current file`/
    emacs : show cmake colors in compile buffer : is it modified in .emacs ?

@@ -50,6 +50,9 @@ public:
 
         // TODO catch exceptions at top level, they are not caught by CrashHandler
 
+        // TODO what about other threads, do they need to enable these 2:
+        // crash handler and floating point exception disabler
+
         return EXCEPTION_EXECUTE_HANDLER;
     }
 
