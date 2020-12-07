@@ -166,12 +166,13 @@ QString CrashHandler::StackInfo::prettyPrint(bool has_horizontal_scroll, bool ri
             return ret;
         };
 
+        // TODO test colors in dark mode
         static const std::map<Type, std::pair<QString, QString>> marks =
         {
-            { Type::Address , marker("b", "3465A4") },
-            { Type::Function, marker("i", "D85D00") },
+            { Type::Address , marker("b", "0075DA") },
+            { Type::Function, marker("b", "ED9600") },
             { Type::Unknown,  marker("i", ""      ) },
-            { Type::Location, marker("b", "4E9A06") },
+            { Type::Location, marker("b", "007F0E") },
         };
         if (type == Type::Function && item.startsWith("??"))
         {

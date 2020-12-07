@@ -48,6 +48,7 @@ public:
             // TODO build stack trace in background thread maybe ?
             // with QProcess signals
             // also do stack unwalking in the same background thread
+            // measure what is slow?
             stack = CrashHandler::formatStack(printStackTrace(exception));
         }
 
