@@ -11,6 +11,7 @@
 #include <QDebug>
 
 #include "CrashHandler.hpp"
+#include "Utils.hpp"
 
 class ApplicationImpl
 {

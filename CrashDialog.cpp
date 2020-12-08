@@ -37,10 +37,7 @@ void CrashDialog::panic(
     impl_cd.showTerminal(error, stack);
     impl_cd.showDialog(error, stack);
 
-    // TODO call app.quit() ! maybe its faster than finishing error with windows
-    // qDebug() << "QCoreApplication::quit() called";
-    // QCoreApplication::quit();
-    // qDebug() << "QCoreApplication::quit() returned";
+    std::exit(1);
 }
 
 void CrashDialogImpl::showTerminal(const string& error, const Stack& stack)

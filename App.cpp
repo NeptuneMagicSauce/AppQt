@@ -125,7 +125,5 @@ int main(int argc, char **argv)
     // qDebug()  << "__cplusplus" << __cplusplus;
     // qDebug() << "__VERSION__" << __VERSION__;
 
-    Minus::App(argc, argv).exec();
-
-    return 0;
+    return Minus::App(argc, argv).exec();
 }
