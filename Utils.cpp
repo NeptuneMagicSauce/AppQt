@@ -32,9 +32,8 @@ void Utils::doAssert(
         return;
     }
 
-    // TODO also better presentation on Dialog
     std::ostringstream ss;
-    ss << "assert failed: '" << literal << "'";
+    ss << "Assertion not verified: ' " << literal << " '";
     if (message.size())
     {
         ss << std::endl << message;
