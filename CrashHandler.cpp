@@ -89,17 +89,17 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
         dialog.accept();
     });
     auto pid_string = QString::number(QCoreApplication::applicationPid());
-    QPushButton button_dbg { "Attach GDB" };
+    QPushButton button_gdb { "Attach GDB" };
     auto deferred_gdb = false;
-    QObject::connect(&button_dbg, &QPushButton::released, [&deferred_gdb, &dialog](){
+    QObject::connect(&button_gdb, &QPushButton::released, [&deferred_gdb, &dialog](){
         deferred_gdb = true;
         dialog.accept();
     });
-    layout_root.addWidget(widgetCentered({&button_quit, &button_dbg}));
+    layout_root.addWidget(widgetCentered({&button_quit, &button_gdb}));
 
 
     auto has_gdb = QProcess::startDetached("gdb", { "-q", "-ex", "quit" });
-    button_dbg.setEnabled(has_gdb);
+    button_gdb.setEnabled(has_gdb);
 
     QLabel stack_label;
     auto stack_font = QFont{"Consolas"};
@@ -123,15 +123,6 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
 
     if (deferred_gdb)
     {
-        // TODO disable auto handler on attach dbg
-        // or tell gdb to continue if breakpoint = ...
-
-        // TODO test, then if compatible, add option -tui and/or cgdb
-        // cf WindowsSpecifics_LoadContent_HideConsole()
-
-        // TODO have launcher be platform specific
-        // because Linux gdb will need to be inside a terminal
-
         QProcess::startDetached(
             "gdb",
             { "-quiet" , "-ex", "\"attach " + pid_string + "\"" });
