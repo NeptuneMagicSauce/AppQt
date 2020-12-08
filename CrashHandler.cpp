@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <map>
+#include <QDebug>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -9,7 +10,8 @@
 #include <QPushButton>
 #include <QGroupBox>
 #include <QScrollArea>
-#include <QDebug>
+#include <QTimer>
+#include <QCoreApplication>
 
 using std::string;
 
@@ -43,7 +45,7 @@ void CrashHandler::showTerminal(const std::string& error, const Stack& stack)
 
 void CrashHandler::showDialog(const string& error, const Stack& stack)
 {
-    auto widgetCentered = [] (QWidget* w)
+    auto widgetCentered = [] (QList<QWidget*> widgets)
     {
         auto* layout = new QHBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
@@ -55,7 +57,14 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
         auto* spacer_right = new QWidget;
         spacer_right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         layout->addWidget(spacer_left);
-        layout->addWidget(w);
+        for (auto* w: widgets)
+        {
+            layout->addWidget(w);
+            if (w != widgets.back())
+            {
+                layout->addSpacing(20);
+            }
+        }
         layout->addWidget(spacer_right);
         return base;
     };
@@ -70,19 +79,33 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     QVBoxLayout layout_root;
     dialog.setLayout(&layout_root);
     QLabel error_label { error.c_str() };
-    layout_root.addWidget(widgetCentered(&error_label));
+    layout_root.addWidget(widgetCentered({&error_label}));
+
     QPushButton button_quit { "Quit" };
     button_quit.setDefault(true);
     QObject::connect(&button_quit, &QPushButton::released, [&dialog](){
         dialog.accept();
     });
-    layout_root.addWidget(widgetCentered(&button_quit));
+    QPushButton button_dbg { "Break debugger" };
+    bool deferred_break_dbg = false;
+    QObject::connect(&button_dbg, &QPushButton::released, [&deferred_break_dbg, &dialog](){
+        deferred_break_dbg = true;
+        dialog.accept();
+    });
+    layout_root.addWidget(widgetCentered({&button_quit, &button_dbg}));
+
+
     QLabel stack_label;
     auto stack_font = QFont{"Consolas"};
     stack_font.setPointSizeF(8.5f);
     stack_label.setFont(stack_font);
     stack_label.setTextFormat(Qt::RichText);
-    QString stack_text = "<b>Stack Trace</b><br><br>";
+    QString stack_text;
+    stack_text +=
+        "<b>Process ID</b> " +
+        QString::number(QCoreApplication::applicationPid()) +
+        "<br><br>";
+    stack_text += "<b>Stack Trace</b><br><br>";
     for (const auto& s: stack)
     {
         stack_text += s.prettyPrint(true, true) + "<br>";
@@ -94,6 +117,13 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     layout_root.addWidget(&stack_area);
     dialog.resize(800, 500);
     dialog.exec();
+
+    if (deferred_break_dbg)
+    {
+        // TODO launch gdb if in path with my pid
+        // TODO disable auto handler on attach dbg
+        breakDebugger();
+    }
 }
 
 CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
@@ -124,6 +154,7 @@ CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
         info.function = takeBefore(s, " at ");
         info.location = takeBefore(s, "");
 
+        // TODO if startWith() remove(0,len)
         info.location.replace("c:/Devel/Workspace/", "", Qt::CaseInsensitive);
         info.location.replace("c:/Devel/Tools/", "", Qt::CaseInsensitive);
 
