@@ -48,4 +48,5 @@ namespace Utils
         const std::string& function);
 };
 
+// TODO have assert work without message
 #define Assert(check, message) Utils::doAssert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)

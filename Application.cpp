@@ -56,16 +56,14 @@ public:
 
         // TODO catch all these errors in CrashHandler
         // TODO catch exceptions at top level, they are not caught by CrashHandler
-        // allow step reverse to error throw
-        // TODO port my assert with line function info
-// #define ASSERT(check, message) Assert::Assert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
-        // for it to be fatal ->
-        // needs either crash dialog be modal
-        // or CrashDialog quits appli
-        // or throw exception or break debugger: only if arch supports catching these
+        // find stack trace on exception
+        // find stack trace on assert ?
 
         installButton("nullptr", []() {
             qDebug() << *(QPoint*)nullptr;
+        });
+        installButton("Assert(false)", []() {
+            Assert(false, "");
         });
         installButton("assert(false)", []() {
             assert(false);
