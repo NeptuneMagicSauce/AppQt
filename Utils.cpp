@@ -33,7 +33,6 @@ void Utils::doAssert(
     }
 
     // TODO also better presentation on Dialog
-    // TODO no [] if unique and empty?
     std::ostringstream ss;
     ss << "assert failed: '" << literal << "'";
     if (message.size())
