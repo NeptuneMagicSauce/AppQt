@@ -108,7 +108,7 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
         dialog.accept();
     });
     layout_root.addWidget(widgetCentered({&button_quit, &button_gdb}));
-    button_gdb.setEnabled(CrashHandler::instance().canAttachGDB());
+    button_gdb.setEnabled(CrashHandler::instance().canAttachDebugger());
 
     QLabel stack_label;
     auto stack_font = QFont{"Consolas"};
@@ -132,7 +132,7 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
 
     if (deferred_gdb)
     {
-        CrashHandler::instance().attachGDB();
+        CrashHandler::instance().attachDebugger();
     }
 }
 
