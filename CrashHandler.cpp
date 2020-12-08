@@ -22,15 +22,9 @@
 using std::string;
 using std::vector;
 
-// CrashHandler* CrashHandler::instance = nullptr;
-
 // TODO port FloatingPointExceptions::Disabler, disable fpe in excpt handler
 
-// TODO port my assert with line function info
-// #define ASSERT(check, message) Assert::Assert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
-
-// TODO what about other threads, do they need to enable these 2:
-// crash handler and floating point exception disabler
+// TODO other threads: do they need to attach crash handler and disable FPE ?
 
 namespace CrashHandlerImpl
 {
