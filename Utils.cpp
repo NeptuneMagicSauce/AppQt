@@ -2,7 +2,7 @@
 
 using namespace Utils;
 
-void doAssert(
+void Utils::doAssert(
         bool condition,
         const std::string& literal,
         const std::string& message,

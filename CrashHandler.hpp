@@ -8,12 +8,14 @@
 class CrashHandler
 {
 public:
-    // TODO rename first Attach()
-    // TODO move these 4 static functions to instance functions
-    static void Attach(void);
-    static void BreakDebugger(void);
-    static void AttachGDB(void);
-    static bool CanAttachGDB(void);
+    static void install(void);
+    static CrashHandler& instance(void);
+
+    // rename with consistency next 4
+    virtual bool canAttachGDB(void) const  = 0;
+    virtual bool isDebuggerAttached(void) const = 0;
+    virtual void attachGDB(void) const = 0;
+    virtual void breakDebugger(bool force=false) const = 0;
 
     class StackInfo
     {
@@ -30,9 +32,4 @@ protected:
     bool hasAlreadyCrashed(void);
     void finishPanic(const std::string& error, const Stack& stack);
 
-protected:
-    virtual bool isDebuggerAttached(void) const = 0;
-    virtual void breakDebugger(bool force=false) const = 0;
-    virtual void attachGDB(void) const = 0;
-    virtual bool canAttachGDB(void) const  = 0;
 };
