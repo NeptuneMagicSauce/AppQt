@@ -42,6 +42,7 @@
 
    check Linux compatibility, port printStackTrace
 
+   emacs : have an easier keybind for previous buffer C-x b
    emacs : integrate zeal doc https://github.com/jinzhu/zeal-at-point/
    emacs : save on compile
    emacs : default compile command = make -j -C `directory of current file`/
