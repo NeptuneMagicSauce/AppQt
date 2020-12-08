@@ -22,34 +22,31 @@ namespace CrashHandlerImpl
     CrashHandler* instance = nullptr;
 };
 
-void CrashHandler::Attach(void)
+class CrashHandlerNotImplemented: public CrashHandler
 {
+public:
+    virtual bool canAttachGDB(void) const { return false; }
+    virtual bool isDebuggerAttached(void) const { return false; }
+    virtual void attachGDB(void) const { }
+    virtual void breakDebugger(bool) const { }
+};
+
+void CrashHandler::install(void)
+{
+    // TODO test path instance = not implemented
 #if _WIN64
     CrashHandlerImpl::instance = new CrashHandlerWin64;
 #else
 #warning "CrashHandler not implemened"
+    CrashHandlerImpl::instance = new CrashHandlerNotImplemented;
 #endif
 }
 
-void CrashHandler::BreakDebugger(void)
+CrashHandler& CrashHandler::instance(void)
 {
-    if (CrashHandlerImpl::instance)
-    {
-        CrashHandlerImpl::instance->breakDebugger(true);
-    }
-}
-
-void CrashHandler::AttachGDB(void)
-{
-    if (CrashHandlerImpl::instance)
-    {
-        CrashHandlerImpl::instance->attachGDB();
-    }
-}
-
-bool CrashHandler::CanAttachGDB(void)
-{
-    return CrashHandlerImpl::instance && CrashHandlerImpl::instance->canAttachGDB();
+    // TODO test tricky path: fail here without crash handler instance for failing
+    Assert(CrashHandlerImpl::instance, "");
+    return *CrashHandlerImpl::instance;
 }
 
 bool CrashHandler::hasAlreadyCrashed(void)

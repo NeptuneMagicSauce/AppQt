@@ -99,7 +99,7 @@ Application::Application(int argc, char** argv) :
     QApplication(argc, argv)
 {
     impl_app.installDebugWindow();
-    CrashHandler::Attach();
+    CrashHandler::install();
 
     cb.setSingleShot(false);
     cb.setInterval(100);

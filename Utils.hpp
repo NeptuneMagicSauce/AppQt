@@ -39,7 +39,6 @@ namespace Utils
         return oss.str();
     }
 
-#define Assert(check, message) doAssert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
     void doAssert(
         bool condition,
         const std::string& literal,
@@ -48,3 +47,5 @@ namespace Utils
         int line,
         const std::string& function);
 };
+
+#define Assert(check, message) Utils::doAssert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
