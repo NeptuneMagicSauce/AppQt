@@ -128,7 +128,13 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     {
         QProcess::startDetached(
             "gdb",
-            { "-quiet" , "-ex", "\"attach " + pid_string + "\"" });
+            { "-quiet" ,
+              "-ex", "\"attach " + pid_string + "\"",
+              // continue on first breakpoint because
+              // windows breaks on attach at DbgUiRemoteBreakin
+              // TODO linux check if continue command next line should be removed
+              "-ex", "continue"
+            });
 
         for (int i=0; i<100; ++i)
         {

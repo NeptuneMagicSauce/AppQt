@@ -129,9 +129,6 @@ void CrashHandler::Win64::attach(void)
     // TODO have launcher be platform specific
     // because Linux gdb will need to be inside a terminal
 
-    // TODO (win64) disable auto handler on attach dbg
-    // or tell gdb to continue if breakpoint = ...
-
     // TODO (win64) ship mintty, gdb with tui, cgdb
 
     // TODO (win64) hide console on start, show console on crash
