@@ -1,6 +1,7 @@
 #if _WIN64
 #include "CrashHandler.hpp"
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <imagehlp.h> // SymInitialize() needs linker flag -limagehlp
 #include <string>
@@ -159,6 +160,16 @@ public:
 void CrashHandler::Win64::attach(void)
 {
     new CrashHandlerImpl;
+}
+
+bool CrashHandler::Win64::isDebuggerAttached(void)
+{
+    return IsDebuggerPresent();
+}
+
+void CrashHandler::Win64::breakDebugger(void)
+{
+    asm volatile ("int3");
 }
 
 #endif

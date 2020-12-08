@@ -10,6 +10,8 @@ private:
     struct Win64
     {
         static void attach(void);
+        static bool isDebuggerAttached(void);
+        static void breakDebugger(void);
     };
 #endif
 public:
@@ -28,12 +30,34 @@ public:
     static void showDialog(const std::string& error, const Stack& stack);
     static void showTerminal(const std::string& error, const Stack& stack);
 
+    // TODO interface and implementor
     static void attach(void)
     {
 #if _WIN64
         Win64::attach();
 #else
 #warning "Crash Handler not implemented"
+#endif
+    }
+    static bool isDebuggerAttached(void)
+    {
+#if _WIN64
+        return Win64::isDebuggerAttached();
+#else
+#warning "isDebuggerAttached not implemented"
+        return false;
+#endif
+    }
+    static void breakDebugger(void)
+    {
+        if (isDebuggerAttached() == false)
+        {
+            return;
+        }
+#if _WIN64
+        Win64::breakDebugger();
+#else
+#warning "breakDebugger not implemented"
 #endif
     }
 };
