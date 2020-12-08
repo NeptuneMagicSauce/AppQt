@@ -23,6 +23,7 @@ class CrashHandlerWin64Impl
 public:
     static CrashHandlerWin64* instance;
     static LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS* exception);
+    // TODO no state: remove can_attach, cache result
     static bool can_attach_gdb;
 };
 

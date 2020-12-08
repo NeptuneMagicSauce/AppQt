@@ -38,6 +38,7 @@ void CrashDialog::panic(
     impl_cd.showDialog(error, stack);
 
     // TODO call app.quit() ! maybe its faster than finishing error with windows
+    QCoreApplication::quit();
 }
 
 void CrashDialogImpl::showTerminal(const string& error, const Stack& stack)
@@ -108,7 +109,9 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
         dialog.accept();
     });
     layout_root.addWidget(widgetCentered({&button_quit, &button_gdb}));
-    button_gdb.setEnabled(CrashHandler::instance().canAttachDebugger());
+    button_gdb.setEnabled(
+        CrashHandler::isInit() &&
+        CrashHandler::instance().canAttachDebugger());
 
     QLabel stack_label;
     auto stack_font = QFont{"Consolas"};
