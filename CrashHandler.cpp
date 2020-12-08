@@ -133,7 +133,7 @@ CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
     {
         StackInfo info;
 
-        auto takeBefore = [] (QString& s, const QString& pattern) {
+        static auto takeBefore = [] (QString& s, const QString& pattern) {
             auto pattern_len = pattern.size();
             auto len =
                 pattern_len
@@ -154,9 +154,14 @@ CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
         info.function = takeBefore(s, " at ");
         info.location = takeBefore(s, "");
 
-        // TODO if startWith() remove(0,len)
-        info.location.replace("c:/Devel/Workspace/", "", Qt::CaseInsensitive);
-        info.location.replace("c:/Devel/Tools/", "", Qt::CaseInsensitive);
+        static auto removePrefix = [] (QString& s, const QString& prefix) {
+            if (s.startsWith(prefix, Qt::CaseInsensitive))
+            {
+                s.remove(0, prefix.size());
+            }
+        };
+        removePrefix(info.location, "c:/Devel/Workspace/");
+        removePrefix(info.location, "c:/Devel/Tools/");
 
         ret << info;
     }
