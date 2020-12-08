@@ -98,6 +98,9 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     layout_root.addWidget(widgetCentered({&button_quit, &button_dbg}));
 
 
+    auto has_gdb = QProcess::startDetached("gdb", { "-q", "-ex", "quit" });
+    button_dbg.setEnabled(has_gdb);
+
     QLabel stack_label;
     auto stack_font = QFont{"Consolas"};
     stack_font.setPointSizeF(8.5f);
@@ -125,6 +128,9 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
 
         // TODO test, then if compatible, add option -tui and/or cgdb
         // cf WindowsSpecifics_LoadContent_HideConsole()
+
+        // TODO have launcher be platform specific
+        // because Linux gdb will need to be inside a terminal
 
         QProcess::startDetached(
             "gdb",
