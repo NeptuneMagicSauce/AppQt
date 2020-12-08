@@ -55,7 +55,9 @@ public:
 
         // TODO catch all these errors in CrashHandler
         // TODO catch exceptions at top level, they are not caught by CrashHandler
-        // have exception catcher be able to frame-backward to error
+        // allow step reverse to error throw
+        // TODO port my assert with line function info
+// #define ASSERT(check, message) Assert::Assert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
         installButton("nullptr", []() {
             qDebug() << *(QPoint*)nullptr;
