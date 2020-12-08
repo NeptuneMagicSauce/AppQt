@@ -83,6 +83,9 @@ public:
         installButton("throw", []() {
             throw std::runtime_error("debug throw");
         });
+        installButton("break debugger", []() {
+            asm volatile ("int3");
+        });
     }
 } impl_app;
 
@@ -90,7 +93,7 @@ Application::Application(int argc, char** argv) :
     QApplication(argc, argv)
 {
     impl_app.installDebugWindow();
-    CrashHandler::attach();
+    CrashHandler::Attach();
 
     cb.setSingleShot(false);
     cb.setInterval(100);
