@@ -14,11 +14,45 @@
 #include <QCoreApplication>
 #include <QProcess>
 #include <QThread>
-
 #include "Utils.hpp"
+#if _WIN64
+#include "CrashHandlerWindows.hpp"
+#endif
 
 using std::string;
 using std::vector;
+
+// CrashHandler* CrashHandler::instance = nullptr;
+
+// TODO port FloatingPointExceptions::Disabler, disable fpe in excpt handler
+
+// TODO port my assert with line function info
+// #define ASSERT(check, message) Assert::Assert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
+
+// TODO what about other threads, do they need to enable these 2:
+// crash handler and floating point exception disabler
+
+namespace CrashHandlerImpl
+{
+    CrashHandler* instance = nullptr;
+};
+
+void CrashHandler::Attach(void)
+{
+#if _WIN64
+    CrashHandlerImpl::instance = new CrashHandlerWin64;
+#else
+#warning "CrashHandler not implemened"
+#endif
+}
+
+void CrashHandler::BreakDebugger(void)
+{
+    if (CrashHandlerImpl::instance)
+    {
+        CrashHandlerImpl::instance->breakDebugger(true);
+    }
+}
 
 bool CrashHandler::hasAlreadyCrashed(void)
 {
@@ -133,6 +167,7 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
               // continue on first breakpoint because
               // windows breaks on attach at DbgUiRemoteBreakin
               // TODO linux check if continue command next line should be removed
+              // TODO linux gdb will need to be inside a terminal
               "-ex", "continue"
             });
 
@@ -187,7 +222,7 @@ QStringList CrashHandler::addr2line(const vector<void*>& addr)
     return QString(p.readAll()).split("\r\n", Qt::SkipEmptyParts);
 }
 
-CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
+CrashHandler::Stack CrashHandler::parseStack(const QStringList& stack)
 {
     Stack ret;
     for (auto s: stack)
