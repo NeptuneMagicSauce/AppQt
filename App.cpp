@@ -8,6 +8,8 @@
 
 /* TODO
 
+   port Linux
+
    setting: size, ratio, color, emojis, keybinds
 
    namespace Utils for classes if not in namespace Minus
@@ -40,6 +42,7 @@
 
    check Linux compatibility, port printStackTrace
 
+   emacs : integrate zeal doc https://github.com/jinzhu/zeal-at-point/
    emacs : save on compile
    emacs : default compile command = make -j -C `directory of current file`/
    emacs : show cmake colors in compile buffer : is it modified in .emacs ?
