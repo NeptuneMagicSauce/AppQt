@@ -179,8 +179,6 @@ QString CrashDialogImpl::prettyPrintStack(
             return ret;
         };
 
-        // TODO BUG function name is lost after special chars like '<'
-        // ApplicationImpl::installDebugWindow()::<lambda()>
         static const std::map<Type, std::pair<QString, QString>> marks =
         {
             { Type::Address , marker("b", "0075DA") },
@@ -193,7 +191,13 @@ QString CrashDialogImpl::prettyPrintStack(
             type = Type::Unknown;
         }
         auto& mark = marks.at(type);
-        return mark.first + item + mark.second;// + "<br>";// + "\n";
+        auto item_safe = item;
+        item_safe.replace("&", "&amp;");
+        item_safe.replace("<", "&lt;");
+        item_safe.replace(">", "&gt;");
+        item_safe.replace("\"", "&quot;");
+        item_safe.replace("'", "&apos;");
+        return mark.first + item_safe + mark.second;
     };
 
     auto a = formatItem(address, Type::Address, rich_text);
