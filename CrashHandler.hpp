@@ -11,10 +11,9 @@ public:
     static void install(void);
     static CrashHandler& instance(void);
 
-    // rename with consistency next 4
-    virtual bool canAttachGDB(void) const  = 0;
+    virtual bool canAttachDebugger(void) const  = 0;
     virtual bool isDebuggerAttached(void) const = 0;
-    virtual void attachGDB(void) const = 0;
+    virtual void attachDebugger(void) const = 0;
     virtual void breakDebugger(bool force=false) const = 0;
 
     class StackInfo

@@ -151,12 +151,12 @@ void CrashHandlerWin64::breakDebugger(bool force) const
     }
 }
 
-bool CrashHandlerWin64::canAttachGDB(void) const
+bool CrashHandlerWin64::canAttachDebugger(void) const
 {
     return CrashHandlerWin64Impl::can_attach_gdb;
 }
 
-void CrashHandlerWin64::attachGDB(void) const
+void CrashHandlerWin64::attachDebugger(void) const
 {
     auto pid_string = QString::number(QCoreApplication::applicationPid());
     QProcess::startDetached(

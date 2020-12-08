@@ -25,14 +25,15 @@ namespace CrashHandlerImpl
 class CrashHandlerNotImplemented: public CrashHandler
 {
 public:
-    virtual bool canAttachGDB(void) const { return false; }
+    virtual bool canAttachDebugger(void) const { return false; }
     virtual bool isDebuggerAttached(void) const { return false; }
-    virtual void attachGDB(void) const { }
+    virtual void attachDebugger(void) const { }
     virtual void breakDebugger(bool) const { }
 };
 
 void CrashHandler::install(void)
 {
+#warning w1
     // TODO test path instance = not implemented
 #if _WIN64
     CrashHandlerImpl::instance = new CrashHandlerWin64;
@@ -44,6 +45,7 @@ void CrashHandler::install(void)
 
 CrashHandler& CrashHandler::instance(void)
 {
+#warning w2
     // TODO test tricky path: fail here without crash handler instance for failing
     Assert(CrashHandlerImpl::instance, "");
     return *CrashHandlerImpl::instance;
