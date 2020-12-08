@@ -37,6 +37,9 @@ void CrashDialog::panic(
     impl_cd.showTerminal(error, stack);
     impl_cd.showDialog(error, stack);
 
+    // exit as fast as possible, no deferral
+    // because we can't expect other systems to work
+    // QCoreApplication::quit() with the event loop does not work
     std::exit(1);
 }
 
