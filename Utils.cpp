@@ -1,5 +1,6 @@
 #include "Utils.hpp"
 
+#include <sstream>
 #include <QString>
 
 #include "CrashDialog.hpp"
@@ -10,9 +11,9 @@ using namespace Utils;
 namespace UtilsImpl
 {
     string sourceLocation(
-        const std::string& file,
+        const string& file,
         int line,
-        const std::string& function="")
+        const string& function="")
     {
         return file + ":" + std::to_string(line) + " " + function;
     }
@@ -20,26 +21,26 @@ namespace UtilsImpl
 
 void Utils::doAssert(
         bool condition,
-        const std::string& literal,
-        const std::string& message,
-        const std::string& file,
+        const string& literal,
+        const string& message,
+        const string& file,
         int line,
-        const std::string& function)
+        const string& function)
 {
     if (condition)
     {
         return;
     }
 
-    // TODO build error message, call CrashDialog::Panic
-    // TODO too much blank space before at
-    // TODO format assert: newlines and tabs
     // TODO also better presentation on Dialog
-    auto error =
-        "assert failed: " + literal + " " +
-        message +
-        " at " + UtilsImpl::sourceLocation(file, line, function);
-    CrashDialog::panic(error, { {
+    // TODO no [] if unique and empty?
+    std::ostringstream ss;
+    ss << "assert failed: '" << literal << "'";
+    if (message.size())
+    {
+        ss << std::endl << message;
+    }
+    CrashDialog::panic(ss.str(), { {
                 "",
                 function.c_str(),
                 UtilsImpl::sourceLocation(file, line).c_str() } });
