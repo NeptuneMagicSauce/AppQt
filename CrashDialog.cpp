@@ -38,7 +38,9 @@ void CrashDialog::panic(
     impl_cd.showDialog(error, stack);
 
     // TODO call app.quit() ! maybe its faster than finishing error with windows
-    QCoreApplication::quit();
+    // qDebug() << "QCoreApplication::quit() called";
+    // QCoreApplication::quit();
+    // qDebug() << "QCoreApplication::quit() returned";
 }
 
 void CrashDialogImpl::showTerminal(const string& error, const Stack& stack)
@@ -113,7 +115,8 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
         CrashHandler::isInit() &&
         CrashHandler::instance().canAttachDebugger());
 
-    QLabel stack_label;
+    auto& stack_label = *(new QLabel);
+    // stack_label will be destroyed by its parent stack_area -> dyn alloc
     auto stack_font = QFont{"Consolas"};
     stack_font.setPointSizeF(8.5f);
     stack_label.setFont(stack_font);
@@ -126,10 +129,12 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
         stack_text += impl_cd.prettyPrintStack(s, true, true) + "<br>";
     }
     stack_label.setText(stack_text);
+
     QScrollArea stack_area;
     stack_area.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     stack_area.setWidget(&stack_label);
     layout_root.addWidget(&stack_area);
+
     dialog.resize(800, 500);
     dialog.exec();
 
