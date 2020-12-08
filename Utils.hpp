@@ -38,4 +38,13 @@ namespace Utils
         oss << std::hex << value;
         return oss.str();
     }
+
+#define Assert(check, message) doAssert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
+    void doAssert(
+        bool condition,
+        const std::string& literal,
+        const std::string& message,
+        const std::string& file,
+        int line,
+        const std::string& function);
 };

@@ -58,6 +58,10 @@ public:
         // allow step reverse to error throw
         // TODO port my assert with line function info
 // #define ASSERT(check, message) Assert::Assert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
+        // for it to be fatal ->
+        // needs either crash dialog be modal
+        // or CrashDialog quits appli
+        // or throw exception or break debugger: only if arch supports catching these
 
         installButton("nullptr", []() {
             qDebug() << *(QPoint*)nullptr;
