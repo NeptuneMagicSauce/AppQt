@@ -9,6 +9,7 @@
 #include <iostream>
 #include <QDebug>
 #include <QProcess>
+#include <QThread>
 #include <QCoreApplication>
 
 #include "Utils.hpp"
@@ -22,9 +23,11 @@ class CrashHandlerWin64Impl
 public:
     static CrashHandlerWin64* instance;
     static LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS* exception);
+    static bool can_attach_gdb;
 };
 
 CrashHandlerWin64* CrashHandlerWin64Impl::instance = nullptr;
+bool CrashHandlerWin64Impl::can_attach_gdb = false;
 
 LONG WINAPI CrashHandlerWin64Impl::windows_exception_handler(EXCEPTION_POINTERS* exception)
 {
@@ -55,8 +58,7 @@ void CrashHandlerWin64::handle(void* exception_void)
         stack = parseStack(walkStack(exception_void));
     }
 
-    showTerminal(error_message, stack);
-    showDialog(error_message, stack);
+    finishPanic(error_message, stack);
 }
 
 QStringList CrashHandlerWin64::walkStack(void* exception_void)
@@ -129,6 +131,9 @@ QStringList CrashHandlerWin64::walkStack(void* exception_void)
 
 CrashHandlerWin64::CrashHandlerWin64(void)
 {
+    // TODO check next line works as intended
+    CrashHandlerWin64Impl::can_attach_gdb =
+        QProcess::startDetached("gdb", { "-q", "-ex", "quit" });
     CrashHandlerWin64Impl::instance = this;
     SetUnhandledExceptionFilter(CrashHandlerWin64Impl::windows_exception_handler);
 }
@@ -144,6 +149,41 @@ void CrashHandlerWin64::breakDebugger(bool force) const
     {
         DebugBreak(); // windows api call is more portable than asm int3 maybe ?
         // asm volatile ("int3");
+    }
+}
+
+bool CrashHandlerWin64::canAttachGDB(void) const
+{
+    return CrashHandlerWin64Impl::can_attach_gdb;
+}
+
+void CrashHandlerWin64::attachGDB(void) const
+{
+    auto pid_string = QString::number(QCoreApplication::applicationPid());
+    QProcess::startDetached(
+        "gdb",
+        { "-quiet" ,
+          "-ex", "\"attach " + pid_string + "\"",
+          // continue on first breakpoint because
+          // windows breaks on attach at DbgUiRemoteBreakin
+          // TODO linux check if continue command next line should be removed
+          // TODO linux gdb will need to be inside a terminal
+          "-ex", "continue"
+        });
+
+    for (int i=0; i<100; ++i)
+    {
+        if (isDebuggerAttached())
+        {
+            breakDebugger();
+            break;
+        } else {
+            if (i > 0)
+            {
+                qDebug() << "GDB not ready";
+            }
+            QThread::msleep(100);
+        }
     }
 }
 
