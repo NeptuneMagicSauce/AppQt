@@ -31,4 +31,8 @@ protected:
     bool hasAlreadyCrashed(void);
     void finishPanic(const std::string& error, const Stack& stack);
 
+private:
+    friend class CrashDialogImpl;
+    static bool isInit(void); // in case there's an panic before init
+
 };

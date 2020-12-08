@@ -1,6 +1,22 @@
 #include "Utils.hpp"
 
+#include <QString>
+
+#include "CrashDialog.hpp"
+
+using std::string;
 using namespace Utils;
+
+namespace UtilsImpl
+{
+    string sourceLocation(
+        const std::string& file,
+        int line,
+        const std::string& function)
+    {
+        return file + ":" + std::to_string(line) + " " + function;
+    }
+};
 
 void Utils::doAssert(
         bool condition,
@@ -16,4 +32,11 @@ void Utils::doAssert(
     }
 
     // TODO build error message, call CrashDialog::Panic
+    // TODO too much blank space before at
+    // TODO format assert: newlines and tabs
+    auto error =
+        "assert failed: " + literal + " " +
+        message +
+        " at " + UtilsImpl::sourceLocation(file, line, function);
+    CrashDialog::panic(error);
 }

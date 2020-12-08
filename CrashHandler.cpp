@@ -33,8 +33,6 @@ public:
 
 void CrashHandler::install(void)
 {
-#warning w1
-    // TODO test path instance = not implemented
 #if _WIN64
     CrashHandlerImpl::instance = new CrashHandlerWin64;
 #else
@@ -43,10 +41,13 @@ void CrashHandler::install(void)
 #endif
 }
 
+bool CrashHandler::isInit(void)
+{
+    return CrashHandlerImpl::instance != nullptr;
+}
+
 CrashHandler& CrashHandler::instance(void)
 {
-#warning w2
-    // TODO test tricky path: fail here without crash handler instance for failing
     Assert(CrashHandlerImpl::instance, "");
     return *CrashHandlerImpl::instance;
 }
