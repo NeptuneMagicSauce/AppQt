@@ -12,6 +12,8 @@
 #include <QScrollArea>
 #include <QTimer>
 #include <QCoreApplication>
+#include <QProcess>
+#include <QThread>
 
 using std::string;
 
@@ -86,10 +88,11 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     QObject::connect(&button_quit, &QPushButton::released, [&dialog](){
         dialog.accept();
     });
-    QPushButton button_dbg { "Break debugger" };
-    bool deferred_break_dbg = false;
-    QObject::connect(&button_dbg, &QPushButton::released, [&deferred_break_dbg, &dialog](){
-        deferred_break_dbg = true;
+    auto pid_string = QString::number(QCoreApplication::applicationPid());
+    QPushButton button_dbg { "Attach GDB" };
+    auto deferred_gdb = false;
+    QObject::connect(&button_dbg, &QPushButton::released, [&deferred_gdb, &dialog](){
+        deferred_gdb = true;
         dialog.accept();
     });
     layout_root.addWidget(widgetCentered({&button_quit, &button_dbg}));
@@ -101,10 +104,7 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     stack_label.setFont(stack_font);
     stack_label.setTextFormat(Qt::RichText);
     QString stack_text;
-    stack_text +=
-        "<b>Process ID</b> " +
-        QString::number(QCoreApplication::applicationPid()) +
-        "<br><br>";
+    stack_text += "<b>Process ID</b> " + pid_string + "<br><br>";
     stack_text += "<b>Stack Trace</b><br><br>";
     for (const auto& s: stack)
     {
@@ -118,11 +118,32 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
     dialog.resize(800, 500);
     dialog.exec();
 
-    if (deferred_break_dbg)
+    if (deferred_gdb)
     {
-        // TODO launch gdb if in path with my pid
         // TODO disable auto handler on attach dbg
-        breakDebugger();
+        // or tell gdb to continue if breakpoint = ...
+
+        // TODO test, then if compatible, add option -tui and/or cgdb
+        // cf WindowsSpecifics_LoadContent_HideConsole()
+
+        QProcess::startDetached(
+            "gdb",
+            { "-quiet" , "-ex", "\"attach " + pid_string + "\"" });
+
+        for (int i=0; i<100; ++i)
+        {
+            if (isDebuggerAttached())
+            {
+                breakDebugger();
+                break;
+            } else {
+                if (i > 0)
+                {
+                    qDebug() << "GDB not ready";
+                }
+                QThread::msleep(100);
+            }
+        }
     }
 }
 
