@@ -15,7 +15,10 @@
 #include <QProcess>
 #include <QThread>
 
+#include "Utils.hpp"
+
 using std::string;
+using std::vector;
 
 bool CrashHandler::hasAlreadyCrashed(void)
 {
@@ -142,6 +145,40 @@ void CrashHandler::showDialog(const string& error, const Stack& stack)
             }
         }
     }
+}
+
+QStringList CrashHandler::addr2line(const vector<void*>& addr)
+{
+    QProcess p;
+    QStringList args =
+        {
+            "-C", // --demangle
+            // "-s" // --basenames
+            "-a", // --addresses
+            "-f", // --functions
+            "-p", // --pretty-print
+            "-e",
+            QCoreApplication::applicationFilePath(),
+        };
+    for (auto& a: addr)
+    {
+        args << QString::fromStdString(Utils::toHexa(a));
+    }
+
+    p.start("addr2line", args);
+    if (!p.waitForStarted())
+    {
+        QStringList ret;
+        ret << "addr2line failed";
+        for (auto& a: addr)
+        {
+            ret << QString::fromStdString(Utils::toHexa(a));
+        }
+        return ret;
+    }
+    p.waitForFinished();
+    // TODO check split(\r\n) on Linux
+    return QString(p.readAll()).split("\r\n", Qt::SkipEmptyParts);
 }
 
 CrashHandler::Stack CrashHandler::formatStack(const QStringList& stack)
