@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <QString>
 
 class CrashHandler
@@ -25,8 +26,10 @@ public:
     };
     using Stack = QList<StackInfo>;
 
+    static QStringList addr2line(const std::vector<void*>& addr);
     static Stack formatStack(const QStringList& stack);
     static bool hasAlreadyCrashed(void);
+
     static void showDialog(const std::string& error, const Stack& stack);
     static void showTerminal(const std::string& error, const Stack& stack);
 

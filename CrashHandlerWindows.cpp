@@ -57,40 +57,6 @@ public:
         return EXCEPTION_EXECUTE_HANDLER;
     }
 
-    static QStringList addr2line(const vector<void*>& addr)
-    {
-        // TODO addr2line is not platform specific
-        QProcess p;
-        QStringList args =
-        {
-            "-C", // --demangle
-            // "-s" // --basenames
-            "-a", // --addresses
-            "-f", // --functions
-            "-p", // --pretty-print
-            "-e",
-            QCoreApplication::applicationFilePath(),
-        };
-        for (auto& a: addr)
-        {
-            args << QString::fromStdString(Utils::toHexa(a));
-        }
-
-        p.start("addr2line", args);
-        if (!p.waitForStarted())
-        {
-            QStringList ret;
-            ret << "addr2line failed";
-            for (auto& a: addr)
-            {
-                ret << QString::fromStdString(Utils::toHexa(a));
-            }
-            return ret;
-        }
-        p.waitForFinished();
-        return QString(p.readAll()).split("\r\n", Qt::SkipEmptyParts);
-    }
-
     static QStringList printStackTrace(EXCEPTION_POINTERS* exception)
     {
         QStringList ret;
@@ -116,7 +82,7 @@ public:
             // If this is a stack overflow then we can't walk the stack
             // so just show where the error happened
 
-            ret << addr2line({(void*)context->Rip});
+            ret << CrashHandler::addr2line({(void*)context->Rip});
             return ret;
         }
         if (context == nullptr)
@@ -153,7 +119,7 @@ public:
             addr.emplace_back((void*)frame.AddrPC.Offset);
         }
         SymCleanup(GetCurrentProcess());
-        ret << addr2line(addr);
+        ret << CrashHandler::addr2line(addr);
         return ret;
     }
 };
