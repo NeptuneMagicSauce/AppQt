@@ -131,7 +131,6 @@ QStringList CrashHandlerWin64::walkStack(void* exception_void)
 
 CrashHandlerWin64::CrashHandlerWin64(void)
 {
-    // TODO check next line works as intended
     CrashHandlerWin64Impl::can_attach_gdb =
         QProcess::startDetached("gdb", { "-q", "-ex", "quit" });
     CrashHandlerWin64Impl::instance = this;
