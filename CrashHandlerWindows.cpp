@@ -147,7 +147,8 @@ bool CrashHandler::Win64::isDebuggerAttached(void)
 
 void CrashHandler::Win64::breakDebugger(void)
 {
-    asm volatile ("int3");
+    DebugBreak(); // windows api call is safer than asm int3
+    // asm volatile ("int3");
 }
 
 #endif
