@@ -55,10 +55,8 @@ public:
             });
         };
 
-        // TODO catch all these errors in CrashHandler
-        // TODO catch exceptions at top level, they are not caught by CrashHandler
-        // find stack trace on exception
-        // find stack trace on assert ?
+        // TODO find stack trace on exception
+        // TODO find stack trace on assert ?
 
         installButton("nullptr", []() {
             qDebug() << *(QPoint*)nullptr;
@@ -66,10 +64,7 @@ public:
         installButton("Assert(false)", []() {
             Assert(false);
         });
-        installButton("assert(false)", []() {
-            assert(false);
-        });
-        installButton("vector.at()", []() {
+        installButton("vector.at(invalid)", []() {
             std::vector<int> v;
             v.resize(0);
             qDebug() << v.at(0);
@@ -80,10 +75,10 @@ public:
             qDebug() << 1 / 0;
 #pragma GCC diagnostic pop
         });
-        installButton("float div by zero", []() {
+        installButton("inf", []() {
             qDebug() << 1.0f / 0.0f;
         });
-        installButton("sqrt(-1)", []() {
+        installButton("nan", []() {
             qDebug() << std::sqrt(-1.0);
         });
         installButton("throw", []() {
@@ -98,23 +93,39 @@ public:
 Application::Application(int argc, char** argv) :
     QApplication(argc, argv)
 {
-    impl_app.installDebugWindow();
+    try
+    {
+        impl_app.installDebugWindow();
 
-    // TODO linux: is dark mode respected without specifying theme Fusion ?
-    // qApp->setStyle(QStyleFactory::create("Fusion"));
+        // TODO linux: is dark mode respected without specifying theme Fusion ?
+        // qApp->setStyle(QStyleFactory::create("Fusion"));
 
-    cb.setSingleShot(false);
-    cb.setInterval(100);
-    connect(&cb, &QTimer::timeout, [this] () {
-        for (auto* w: topLevelWidgets())
-        {
-            if (dynamic_cast<QMainWindow*>(w))
+        cb.setSingleShot(false);
+        cb.setInterval(100);
+        connect(&cb, &QTimer::timeout, [this] () {
+            for (auto* w: topLevelWidgets())
             {
-                impl_app.installDebugActions(w);
-                cb.stop();
-                break;
+                if (dynamic_cast<QMainWindow*>(w))
+                {
+                    impl_app.installDebugActions(w);
+                    cb.stop();
+                    break;
+                }
             }
-        }
-    });
-    cb.start();
+        });
+        cb.start();
+    } catch (std::exception& e) {
+        PanicException(e);
+    }
+}
+
+bool Application::notify(QObject *receiver, QEvent *event)
+{
+    try
+    {
+        return QApplication::notify(receiver, event);
+    } catch (std::exception& e) {
+        PanicException(e);
+    }
+    return true;
 }
