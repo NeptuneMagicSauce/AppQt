@@ -79,8 +79,14 @@ public:
         installButton("nan", []() {
             qDebug() << std::sqrt(-1.0);
         });
-        installButton("throw", []() {
+        installButton("throw empty", []() {
+            throw;
+        });
+        installButton("throw exception", []() {
             throw std::runtime_error("debug throw");
+        });
+        installButton("terminate", []() {
+            std::terminate();
         });
         installButton("break debugger", []() {
             asm volatile ("int3");
