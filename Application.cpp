@@ -1,7 +1,9 @@
 #include "Application.hpp"
 
 #include <vector>
+#include <map>
 #include <cmath>
+#include <csignal>
 
 #include <QDebug>
 #include <QDialog>
@@ -13,6 +15,8 @@
 
 #include "CrashHandler.hpp"
 #include "Utils.hpp"
+
+using namespace Utils;
 
 class ApplicationImpl
 {
@@ -45,7 +49,7 @@ public:
             const QString& label,
             std::function<void()> cb) {
             static int index = 0;
-            const int columns = 2;
+            const int columns = 3;
             auto* button = new QPushButton;
             button->setText(label);
             layout->addWidget(button, index / columns, index % columns);
@@ -91,6 +95,23 @@ public:
         installButton("terminate", []() {
             std::terminate();
         });
+        auto sigs = std::map<int, QString> {
+            { SIGABRT, "ABORT" },
+            { SIGFPE , "FPE" },
+            { SIGILL , "ILL" },
+            { SIGINT , "INT" },
+            { SIGSEGV , "SEGV" },
+            { SIGTERM , "TERM" },
+        };
+
+        for (auto& i : sigs)
+        {
+            installButton("signal " + i.second, [i] () {
+                std::raise(i.first);
+            });
+        }
+
+
         installButton("break debugger", []() {
             asm volatile ("int3");
         });
