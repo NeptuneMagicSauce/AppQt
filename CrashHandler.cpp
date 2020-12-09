@@ -17,11 +17,6 @@ using std::vector;
 
 // TODO other threads: do they need to attach crash handler and disable FPE ?
 
-namespace CrashHandlerImpl
-{
-    CrashHandler* instance = nullptr;
-};
-
 class CrashHandlerNotImplemented: public CrashHandler
 {
 public:
@@ -31,20 +26,15 @@ public:
     virtual void breakDebugger(bool) const { }
 };
 
-void CrashHandler::install(void)
+namespace CrashHandlerImpl
 {
 #if _WIN64
-    CrashHandlerImpl::instance = new CrashHandlerWin64;
+    CrashHandler* instance = new CrashHandlerWin64;
 #else
 #warning "CrashHandler not implemened"
-    CrashHandlerImpl::instance = new CrashHandlerNotImplemented;
+    CrashHandler* instance = new CrashHandlerNotImplemented;
 #endif
-}
-
-bool CrashHandler::isInit(void)
-{
-    return CrashHandlerImpl::instance != nullptr;
-}
+};
 
 CrashHandler& CrashHandler::instance(void)
 {
