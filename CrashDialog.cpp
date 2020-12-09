@@ -88,7 +88,6 @@ void CrashDialogImpl::showTerminal(
     const Stack& stack,
     const QString& location)
 {
-    // TODO produce core dump ? with or without qFatal
     auto qdebug = QTextStream(stdout);
     qdebug << error << "\n";
     if (location.size())
@@ -193,8 +192,6 @@ void CrashDialogImpl::showDialog(
     stack_area.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     stack_area.setWidget(&stack_label);
     layout_root.addWidget(&stack_area);
-
-    // TODO if no stack or short stack -> smaller size in both dimensions
 
     dialog.resize(800, 500);
     dialog.exec();

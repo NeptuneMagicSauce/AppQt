@@ -71,7 +71,6 @@ void Utils::panicException(
     int line,
     const QString& function)
 {
-    // TODO find stack trace on exception: not at catch but at throw
     UtilsImpl::panic(
         "Unhandled exception: ' " + QString{UtilsImpl::demangle(typeid(e))} +
         "\n' " + e.what() + " '",
