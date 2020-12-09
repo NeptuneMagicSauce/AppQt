@@ -19,6 +19,7 @@ using std::vector;
 class CrashHandlerNotImplemented: public CrashHandler
 {
 public:
+    // linux install: std::signal(SIG*) cf <csignal> same as windows
     virtual bool canAttachDebugger(void) const override { return false; }
     virtual bool isDebuggerAttached(void) const override { return false; }
     virtual void attachDebugger(void) const override { }

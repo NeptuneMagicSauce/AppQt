@@ -15,5 +15,6 @@ protected:
 private:
     friend class CrashHandlerWin64Impl;
     void handle(void* exception) const;
+    void sigAbort(void) const;
     QStringList walkStack(void* context) const;
 };
