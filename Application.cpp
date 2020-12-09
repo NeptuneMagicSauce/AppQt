@@ -62,6 +62,9 @@ public:
         installButton("Assert(false)", []() {
             Assert(false);
         });
+        installButton("assert(false)", []() {
+            assert(false);
+        });
         installButton("vector.at(invalid)", []() {
             std::vector<int> v;
             v.resize(0);
