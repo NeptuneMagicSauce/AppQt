@@ -134,6 +134,50 @@ bool CrashHandlerWin64::isDebuggerAttached(void) const
     return IsDebuggerPresent();
 }
 
+#if 0
+// mini dump can be opened by windbg, maybe its not compatible with gcc -g ?
+// it needs cmake: set(CMAKE_CXX_STANDARD_LIBRARIES "-ldbghelp")
+void MiniDump(void)
+{
+    auto h_proc = GetCurrentProcess();
+    if (!h_proc)
+    {
+        qDebug() << "GetCurrentProcess failed";
+        return;
+    }
+
+    auto path = QDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)).absoluteFilePath("crash.dmp");
+    qDebug() << "CRASHING TO" << path;
+
+    const DWORD Flags = MiniDumpWithFullMemory |
+        MiniDumpWithFullMemoryInfo |
+        MiniDumpWithHandleData |
+        MiniDumpWithUnloadedModules |
+        MiniDumpWithThreadInfo;
+
+    auto h_file = CreateFile(path.toUtf8(), GENERIC_ALL, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+   if (!h_file)
+   {
+       qDebug() << "Failed to write dump: Invalid dump file" << path;
+       return;
+   }
+   auto result = MiniDumpWriteDump( h_proc,
+                                    GetProcessId(h_proc),
+                                    h_file,
+                                    (MINIDUMP_TYPE)Flags,
+                                    nullptr,
+                                    nullptr,
+                                    nullptr );
+
+   CloseHandle(h_file);
+
+   if (!result)
+   {
+       qDebug() << "MiniDumpWriteDump failed";
+   }
+}
+#endif
+
 void CrashHandlerWin64::breakDebugger(bool force) const
 {
     if (force || isDebuggerAttached())
