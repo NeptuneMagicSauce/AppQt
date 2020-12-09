@@ -90,19 +90,6 @@ private:
         }
     }
 
-    void switchTheme(void)
-    {
-        static int index = -1;
-        auto themes = QStyleFactory::keys();
-        ++index;
-        if (index >= themes.size())
-        {
-            index = 0;
-        }
-        qApp->setStyle(QStyleFactory::create(themes[index]));
-        qDebug() << qApp->style();
-    }
-
     void setInitialWindowSize(void)
     {
         auto* window = tool_bar.window();
@@ -165,7 +152,6 @@ GuiImpl::GuiImpl(Gui& gui) :
 
     filter.callback = [this] () { setInitialWindowSize(); };
     tool_bar.installEventFilter(&filter);
-    // TODO respect dark mode with QStyle for ToolBar and CrashDialog
     tool_bar.setFloatable(false);
     tool_bar.setMovable(false);
 
@@ -182,12 +168,6 @@ GuiImpl::GuiImpl(Gui& gui) :
         "Reset",
         QKeySequence::Refresh);
     tool_bar.addWidget(spacer_right);
-
-    // addButton(
-    //     [this] () { switchTheme(); },
-    //     Labels::themes,
-    //     "Themes",
-    //     Qt::Key_F1);
 
     settings_button = addButton(
         [this] () { switchSettings(); },
