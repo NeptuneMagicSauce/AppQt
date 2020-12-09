@@ -15,7 +15,7 @@ using namespace Utils;
 namespace UtilsImpl
 {
     void panic(
-        std::ostringstream& error,
+        ostringstream& error,
         const string& message,
         const string& file,
         int line,
@@ -26,19 +26,12 @@ namespace UtilsImpl
             error << std::endl << message;
         }
 
-        // TODO use QString, allow formatLocation() to work in place
-        // TODO move parsing/formatting in not panic
+        // TODO work with QString, no conversions from stdString
 
-        auto location = file + ":" + std::to_string(line);
-        location = CrashDialog::formatLocation(location.c_str()).toStdString();
-
-        error
-            << std::endl
-            << std::endl << CrashDialog::prefix_function << function
-            << std::endl << CrashDialog::prefix_location << location
-            << std::endl
-            ;
-        CrashDialog::panic(error.str(), CrashHandler::instance().currentStack());
+        CrashDialog::panic(
+            error.str(),
+            CrashHandler::instance().currentStack(),
+            CrashDialog::Location{ function.c_str(), file.c_str(), line });
     }
 
     string demangle(const std::type_info& type)
@@ -70,7 +63,7 @@ void Utils::doAssert(
         return;
     }
 
-    std::ostringstream ss;
+    ostringstream ss;
     ss << "Assertion not verified: ' " << literal << " '";
     UtilsImpl::panic(ss, message, file, line, function);
 }
@@ -83,10 +76,9 @@ void Utils::panicException(
     const std::string& function)
 {
     // TODO find stack trace on exception: not at catch but at throw
-    std::ostringstream ss;
+    ostringstream ss;
     ss
-        << "Unhandled exception: ' "
-        << UtilsImpl::demangle(typeid(e)) << " '"
+        << "Unhandled exception: ' " << UtilsImpl::demangle(typeid(e)) << " '"
         << std::endl
         << "' " << e.what() << " '";
     UtilsImpl::panic(ss, "", file, line, function);

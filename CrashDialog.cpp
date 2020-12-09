@@ -23,20 +23,60 @@ using StackInfo = CrashHandler::StackInfo;
 class CrashDialogImpl
 {
 public:
-    void showTerminal(const string& error, const Stack& stack);
-    void showDialog(const string& error, const Stack& stack);
+    void showTerminal(
+        const string& error,
+        const Stack& stack,
+        const QString& location);
+    void showDialog(
+        const string& error,
+        const Stack& stack,
+        const QString& location);
     QString prettyPrintStack(
         const StackInfo& info,
         bool has_horizontal_scroll=false,
         bool rich_text=false);
+    QString removeFilePathSpecifics(const QString& location)
+    {
+        static auto withoutPrefix = [] (const QString& s, const QString& prefix) {
+            if (s.startsWith(prefix, Qt::CaseInsensitive))
+            {
+                return s.right(s.size() - prefix.size());
+            }
+            return s;
+        };
+        return withoutPrefix(withoutPrefix(location,
+                             "c:/Devel/Tools/"),
+                             "c:/Devel/Workspace/");
+    }
+    QString prettyPrintLocation(const CrashDialog::Location& location)
+    {
+        QString ret;
+        if (location.line > 0)
+        {
+            ret.append(prefix_function);
+            ret.append(location.function);
+            ret.append("\n");
+            ret.append(prefix_location);
+            ret.append(removeFilePathSpecifics(location.file));
+            ret.append(":");
+            ret.append(QString::number(location.line));
+            ret.append("\n");
+        }
+        return ret;
+    }
+    static constexpr const char* prefix_function = "in ";
+    static constexpr const char* prefix_location = "at ";
 } impl_cd;
 
 void CrashDialog::panic(
     const string& error,
-    const Stack& stack)
+    const Stack& stack,
+    const Location& location)
 {
-    impl_cd.showTerminal(error, stack);
-    impl_cd.showDialog(error, stack);
+    auto location_parsed = impl_cd.prettyPrintLocation(location);
+
+    impl_cd.showTerminal(error, stack, location_parsed);
+    impl_cd.showDialog(error, stack, location_parsed);
 
     // exit as fast as possible, no deferral
     // because we can't expect other systems to work
@@ -44,24 +84,34 @@ void CrashDialog::panic(
     std::exit(1);
 }
 
-void CrashDialogImpl::showTerminal(const string& error, const Stack& stack)
+void CrashDialogImpl::showTerminal(
+    const string& error,
+    const Stack& stack,
+    const QString& location)
 {
+    auto qdebug = qDebug();
+    qdebug.noquote();
+    qdebug.nospace();
     std::cerr << error << std::endl;
+    if (location.size())
+    {
+        qdebug << "\n" << location << "\n";
+    }
     if (stack.isEmpty())
     {
         return;
     }
-    std::cerr << "Stack Trace" << std::endl;
-    auto qdebug = qDebug();
-    qdebug.noquote();
-    qdebug.nospace();
+    qdebug << "Stack Trace\n";
     for (const auto& s : stack)
     {
         qdebug << impl_cd.prettyPrintStack(s) << "\n";
     }
 }
 
-void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
+void CrashDialogImpl::showDialog(
+    const string& error,
+    const Stack& stack,
+    const QString& location)
 {
     auto widgetCentered = [] (QList<QWidget*> widgets)
     {
@@ -103,8 +153,12 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
     dialog.setLayout(&layout_root);
     QLabel error_label { error.c_str() };
     error_label.setAlignment(Qt::AlignHCenter);
-    // TODO another QLabel AlignedLeft for location!
     layout_root.addWidget(widgetCentered({&error_label}));
+    QLabel location_label { location };
+    if (location.size())
+    {
+        layout_root.addWidget(widgetCentered({&location_label}));
+    }
 
     QPushButton button_quit { "Quit" };
     button_quit.setDefault(true);
@@ -150,21 +204,6 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
     {
         CrashHandler::instance().attachDebugger();
     }
-}
-
-QString CrashDialog::formatLocation(const QString& location)
-{
-
-    static auto withoutPrefix = [] (const QString& s, const QString& prefix) {
-        if (s.startsWith(prefix, Qt::CaseInsensitive))
-        {
-            return s.right(s.size() - prefix.size());
-        }
-        return s;
-    };
-    return withoutPrefix(withoutPrefix(location,
-                         "c:/Devel/Tools/"),
-                         "c:/Devel/Workspace/");
 }
 
 QString CrashDialogImpl::prettyPrintStack(
@@ -223,15 +262,14 @@ QString CrashDialogImpl::prettyPrintStack(
         return mark.first + item_safe + mark.second;
     };
 
-
-    location = CrashDialog::formatLocation(location);
+    location = impl_cd.removeFilePathSpecifics(location);
 
     auto a = formatItem(address, Type::Address, rich_text);
     auto f = formatItem(function, Type::Function, rich_text);
     auto l = formatItem(location, Type::Location, rich_text);
 
-    f = CrashDialog::prefix_function + f;
-    l = CrashDialog::prefix_location + l;
+    f = CrashDialogImpl::prefix_function + f;
+    l = CrashDialogImpl::prefix_location + l;
 
     static const std::map<bool, QString> brs =
         {
