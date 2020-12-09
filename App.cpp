@@ -9,6 +9,7 @@
 
 
 // TODO have portable install with std::signal for windows
+// in base class
 
 // TODO if no stack or short stack -> smaller size crash dialog in both dimensions
 
