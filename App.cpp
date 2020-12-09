@@ -12,9 +12,6 @@
 
 // TODO if no stack or short stack -> smaller size crash dialog in both dimensions
 
-// TODO ship gdb qt pretty printers and eval-load them ?
-// TODO XOR load in place on my machines? if $HOME/.gdb/... ?
-
 /* TODO
 
    port Linux
