@@ -43,6 +43,7 @@ void CrashHandlerWin64::handle(void* exception_void) const
     // TODO hide console on start, show console on crash
 
     // TODO ship gdb qt pretty printers and eval-load them ?
+    // TODO XOR load in place on my machines? if $HOME/.gdb/... ?
 
     auto ex_code = exception ? exception->ExceptionRecord->ExceptionCode : 0;
     auto error_message =
