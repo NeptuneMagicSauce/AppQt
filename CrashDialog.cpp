@@ -89,8 +89,6 @@ void CrashDialogImpl::showTerminal(
     const QString& location)
 {
     // TODO produce core dump ? with or without qFatal
-    // TODO auto connect debugger with qfatal ?
-    // On Windows, for debug builds, this function will report a _CRT_ERROR enabling you to connect a debugger to the application.
     auto qdebug = QTextStream(stdout);
     qdebug << error << "\n";
     if (location.size())
