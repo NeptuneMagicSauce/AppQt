@@ -16,7 +16,6 @@
 #include <QThread>
 #include <QApplication>
 
-using std::string;
 using Stack = CrashHandler::Stack;
 using StackInfo = CrashHandler::StackInfo;
 
@@ -24,11 +23,11 @@ class CrashDialogImpl
 {
 public:
     void showTerminal(
-        const string& error,
+        const QString& error,
         const Stack& stack,
         const QString& location);
     void showDialog(
-        const string& error,
+        const QString& error,
         const Stack& stack,
         const QString& location);
     QString prettyPrintStack(
@@ -69,7 +68,7 @@ public:
 } impl_cd;
 
 void CrashDialog::panic(
-    const string& error,
+    const QString& error,
     const Stack& stack,
     const Location& location)
 {
@@ -85,14 +84,15 @@ void CrashDialog::panic(
 }
 
 void CrashDialogImpl::showTerminal(
-    const string& error,
+    const QString& error,
     const Stack& stack,
     const QString& location)
 {
+    // TODO do not use qDebug but qSomething to terminal !
     auto qdebug = qDebug();
     qdebug.noquote();
     qdebug.nospace();
-    std::cerr << error << std::endl;
+    qdebug << error << "\n";
     if (location.size())
     {
         qdebug << "\n" << location << "\n";
@@ -109,7 +109,7 @@ void CrashDialogImpl::showTerminal(
 }
 
 void CrashDialogImpl::showDialog(
-    const string& error,
+    const QString& error,
     const Stack& stack,
     const QString& location)
 {
@@ -151,7 +151,7 @@ void CrashDialogImpl::showDialog(
     dialog.setWindowTitle("Crash");
     QVBoxLayout layout_root;
     dialog.setLayout(&layout_root);
-    QLabel error_label { error.c_str() };
+    QLabel error_label { error };
     error_label.setAlignment(Qt::AlignHCenter);
     layout_root.addWidget(widgetCentered({&error_label}));
     QLabel location_label { location };

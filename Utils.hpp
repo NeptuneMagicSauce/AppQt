@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include <sstream>
+#include <QString>
 #include <QColor>
 
 namespace Utils
@@ -19,28 +18,35 @@ namespace Utils
         return QColor(int(red * 255), int(green * 255), int(blue * 255));
     }
 
-    template<class T> std::string toHexa(const T &value)
+    template<class T> auto toHexa(const T &value)
     {
-        std::ostringstream oss;
-        oss << std::hex << value;
-        return oss.str();
+        // std::string style ->
+        // std::ostringstream oss;
+        // oss << std::hex << value;
+        // return oss.str();
+        // static constexpr auto ptr_hexa_size = sizeof(intptr_t) * 2;
+        const auto hexa_size = sizeof(value) * 2; // 2 chars per byte in hexa
+        return
+            "0x" +
+            QString::number(intptr_t(value), 16).
+            rightJustified(hexa_size, '0');
     }
 
     void assertSingleton(const std::type_info& type);
 
     void doAssert(
         bool condition,
-        const std::string& literal,
-        const std::string& message,
-        const std::string& file,
+        const QString& literal,
+        const QString& message,
+        const QString& file,
         int line,
-        const std::string& function);
+        const QString& function);
 
     void panicException(
         const std::exception& e,
-        const std::string& file,
+        const QString& file,
         int line,
-        const std::string& function);
+        const QString& function);
 };
 
 #define Assert(check) Utils::doAssert((check), (#check), "", __FILE__, __LINE__, __PRETTY_FUNCTION__)

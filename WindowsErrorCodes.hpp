@@ -4,7 +4,7 @@
 
 namespace Utils
 {
-    static std::string exceptionCode(DWORD ex_code)
+    static QString exceptionCode(DWORD ex_code)
     {
         switch(ex_code)
         {

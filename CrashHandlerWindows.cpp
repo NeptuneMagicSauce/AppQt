@@ -4,7 +4,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <imagehlp.h> // SymInitialize() needs linker flag -limagehlp
-#include <string>
 #include <vector>
 #include <iostream>
 #include <QDebug>
@@ -15,7 +14,6 @@
 #include "Utils.hpp"
 #include "WindowsErrorCodes.hpp"
 
-using std::string;
 using std::vector;
 
 class CrashHandlerWin64Impl
@@ -46,7 +44,7 @@ void CrashHandlerWin64::handle(void* exception_void) const
     // TODO XOR load in place on my machines? if $HOME/.gdb/... ?
 
     auto ex_code = exception ? exception->ExceptionRecord->ExceptionCode : 0;
-    auto error_message =
+    QString error_message =
         Utils::exceptionCode(ex_code) + " " +
         Utils::toHexa(ex_code);
 
