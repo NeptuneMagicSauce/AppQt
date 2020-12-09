@@ -21,46 +21,46 @@ namespace Minus
         Layout(const int& width, const int& height) :
             width(width),
             height(height)
-            {
-                setContentsMargins(0, 0, 0, 0);
-                setSpacing(0);
-            }
+        {
+            setContentsMargins(0, 0, 0, 0);
+            setSpacing(0);
+        }
         virtual void setGeometry(const QRect &r) override
+        {
+            if (isEmpty())
             {
-                if (isEmpty())
+                QGridLayout::setGeometry(r);
+                return;
+            }
+
+            assert(count() == width * height);
+
+            const auto cell_size = std::min(
+                r.width() / width,
+                r.height() / height);
+            const auto
+                start_x = r.width() / 2 - (cell_size * width) / 2,
+                start_y = r.height() / 2 - (cell_size * height) / 2;
+
+            for (int x=0; x<width; ++x)
+            {
+                for (int y=0; y<height; ++y)
                 {
-                    QGridLayout::setGeometry(r);
-                    return;
-                }
-
-                assert(count() == width * height);
-
-                const auto cell_size = std::min(
-                    r.width() / width,
-                    r.height() / height);
-                const auto
-                    start_x = r.width() / 2 - (cell_size * width) / 2,
-                    start_y = r.height() / 2 - (cell_size * height) / 2;
-
-                for (int x=0; x<width; ++x)
-                {
-                    for (int y=0; y<height; ++y)
-                    {
-                        const QRect rect
-                            {
-                                start_x + cell_size * x,
-                                start_y + cell_size * y,
-                                cell_size,
-                                cell_size,
-                            };
-                        itemAtPosition(y, x)->setGeometry(rect);
-                    }
+                    const QRect rect
+                        {
+                            start_x + cell_size * x,
+                            start_y + cell_size * y,
+                            cell_size,
+                            cell_size,
+                        };
+                    itemAtPosition(y, x)->setGeometry(rect);
                 }
             }
+        }
         virtual QSize minimumSize() const override
-            {
-                return QSize { Frame::MinimumCellSize * width, Frame::MinimumCellSize * height };
-            }
+        {
+            return QSize { Frame::MinimumCellSize * width, Frame::MinimumCellSize * height };
+        }
         const int& width;
         const int& height;
     };
