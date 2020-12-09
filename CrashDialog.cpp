@@ -111,9 +111,7 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
         dialog.accept();
     });
     layout_root.addWidget(widgetCentered({&button_quit, &button_gdb}));
-    button_gdb.setEnabled(
-        CrashHandler::isInit() &&
-        CrashHandler::instance().canAttachDebugger());
+    button_gdb.setEnabled(CrashHandler::instance().canAttachDebugger());
 
     auto& stack_label = *(new QLabel);
     // stack_label will be destroyed by its parent stack_area -> dyn alloc

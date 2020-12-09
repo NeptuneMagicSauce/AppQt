@@ -98,8 +98,6 @@ Application::Application(int argc, char** argv) :
     QApplication(argc, argv)
 {
     impl_app.installDebugWindow();
-    // TODO install crash handler early: static ctor, test with crash in member init
-    CrashHandler::install();
 
     cb.setSingleShot(false);
     cb.setInterval(100);

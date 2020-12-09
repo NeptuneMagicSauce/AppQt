@@ -8,7 +8,6 @@
 class CrashHandler
 {
 public:
-    static void install(void);
     static CrashHandler& instance(void);
 
     virtual bool canAttachDebugger(void) const  = 0;
@@ -30,9 +29,5 @@ protected:
     Stack parseStack(const QStringList& stack);
     bool hasAlreadyCrashed(void);
     void finishPanic(const std::string& error, const Stack& stack);
-
-private:
-    friend class CrashDialogImpl;
-    static bool isInit(void); // in case there's an panic before init
 
 };
