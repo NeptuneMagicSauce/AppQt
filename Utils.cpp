@@ -15,71 +15,65 @@ using namespace Utils;
 namespace UtilsImpl
 {
     void panic(
-        ostringstream& error,
-        const string& message,
-        const string& file,
+        const QString& message,
+        const QString& file,
         int line,
-        const string& function)
+        const QString& function)
     {
-        if (message.size())
-        {
-            error << std::endl << message;
-        }
-
-        // TODO work with QString, no conversions from stdString
-
         CrashDialog::panic(
-            error.str(),
+            message,
             CrashHandler::instance().currentStack(),
-            CrashDialog::Location{ function.c_str(), file.c_str(), line });
+            CrashDialog::Location{ function, file, line });
     }
 
-    string demangle(const std::type_info& type)
+    char* demangle(const std::type_info& type)
     {
         return abi::__cxa_demangle(type.name(), 0, 0, 0);
     }
 };
 
 void Utils::assertSingleton(const std::type_info& type)
-{
-    const string class_name = UtilsImpl::demangle(type);
+{;
     static std::set<string> classes;
+    auto class_name = UtilsImpl::demangle(type);
     AssertX(
-        !classes.count(class_name),
-        "only one instance supported of " + class_name);
+        !classes.count(string{class_name}),
+        "only one instance supported of " + QString{class_name});
     classes.insert(class_name);
 }
 
 void Utils::doAssert(
         bool condition,
-        const string& literal,
-        const string& message,
-        const string& file,
+        const QString& literal,
+        const QString& message,
+        const QString& file,
         int line,
-        const string& function)
+        const QString& function)
 {
     if (condition)
     {
         return;
     }
 
-    ostringstream ss;
-    ss << "Assertion not verified: ' " << literal << " '";
-    UtilsImpl::panic(ss, message, file, line, function);
+    auto message_combined = "Assertion not verified: ' " + literal;
+    if (message.size())
+    {
+        message_combined += " '\n\n" + message + "\n";
+    }
+
+    UtilsImpl::panic(message_combined, file, line, function);
 }
 
 
 void Utils::panicException(
     const std::exception& e,
-    const std::string& file,
+    const QString& file,
     int line,
-    const std::string& function)
+    const QString& function)
 {
     // TODO find stack trace on exception: not at catch but at throw
-    ostringstream ss;
-    ss
-        << "Unhandled exception: ' " << UtilsImpl::demangle(typeid(e)) << " '"
-        << std::endl
-        << "' " << e.what() << " '";
-    UtilsImpl::panic(ss, "", file, line, function);
+    UtilsImpl::panic(
+        "Unhandled exception: ' " + QString{UtilsImpl::demangle(typeid(e))} +
+        "\n' " + e.what() + " '",
+        file, line, function);
 }

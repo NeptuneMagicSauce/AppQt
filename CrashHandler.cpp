@@ -10,7 +10,6 @@
 #include "CrashHandlerWindows.hpp"
 #endif
 
-using std::string;
 using std::vector;
 
 // TODO port FloatingPointExceptions::Disabler, disable fpe in excpt handler
@@ -54,7 +53,7 @@ bool CrashHandler::hasAlreadyCrashed(void) const
     return false;
 }
 
-void CrashHandler::finishPanic(const std::string& error, const Stack& stack) const
+void CrashHandler::finishPanic(const QString& error, const Stack& stack) const
 {
     CrashDialog::panic(error, stack);
 }
@@ -72,20 +71,19 @@ QStringList CrashHandler::addr2line(const vector<void*>& addr) const
             "-e",
             QCoreApplication::applicationFilePath(),
         };
+    QStringList args_addr;
     for (auto& a: addr)
     {
-        args << QString::fromStdString(Utils::toHexa(a));
+        args_addr << Utils::toHexa(a);
     }
+    args << args_addr;
 
     p.start("addr2line", args);
     if (!p.waitForStarted())
     {
         QStringList ret;
         ret << "addr2line failed";
-        for (auto& a: addr)
-        {
-            ret << QString::fromStdString(Utils::toHexa(a));
-        }
+        ret << args_addr;
         return ret;
     }
     p.waitForFinished();

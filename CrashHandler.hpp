@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <vector>
 #include <QString>
 #include <QList>
@@ -29,6 +28,6 @@ protected:
     QStringList addr2line(const std::vector<void*>& addr) const;
     Stack parseStack(const QStringList& stack) const;
     bool hasAlreadyCrashed(void) const;
-    void finishPanic(const std::string& error, const Stack& stack) const;
+    void finishPanic(const QString& error, const Stack& stack) const;
 
 };
