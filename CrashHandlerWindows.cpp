@@ -4,6 +4,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <imagehlp.h> // SymInitialize() needs linker flag -limagehlp
+#include <csignal>
 #include <vector>
 #include <iostream>
 #include <QDebug>
@@ -22,6 +23,7 @@ public:
     static CrashHandlerWin64* instance;
     static CONTEXT* contextOfException(EXCEPTION_POINTERS* exception);
     static LONG WINAPI windowsExceptionHandler(EXCEPTION_POINTERS* exception);
+    static void handlerSigAbort(int) { instance->sigAbort(); }
 };
 
 CrashHandlerWin64* CrashHandlerWin64Impl::instance = nullptr;
@@ -30,6 +32,11 @@ LONG WINAPI CrashHandlerWin64Impl::windowsExceptionHandler(EXCEPTION_POINTERS* e
 {
     instance->handle(exception);
     return EXCEPTION_EXECUTE_HANDLER;
+}
+
+void CrashHandlerWin64::sigAbort(void) const
+{
+    finishPanic("Signal Abort", currentStack());
 }
 
 void CrashHandlerWin64::handle(void* exception_void) const
@@ -124,6 +131,7 @@ CrashHandlerWin64::CrashHandlerWin64(void)
 {
     CrashHandlerWin64Impl::instance = this;
     SetUnhandledExceptionFilter(CrashHandlerWin64Impl::windowsExceptionHandler);
+    std::signal(SIGABRT, CrashHandlerWin64Impl::handlerSigAbort);
 }
 
 bool CrashHandlerWin64::isDebuggerAttached(void) const
