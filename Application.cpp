@@ -104,9 +104,6 @@ Application::Application(int argc, char** argv) :
     {
         impl_app.installDebugWindow();
 
-        // TODO linux: is dark mode respected without specifying theme Fusion ?
-        // qApp->setStyle(QStyleFactory::create("Fusion"));
-
         cb.setSingleShot(false);
         cb.setInterval(100);
         connect(&cb, &QTimer::timeout, [this] () {

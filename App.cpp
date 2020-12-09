@@ -20,8 +20,18 @@
 /* TODO
 
    port Linux
+   linux check if gdb command continue on attach should be removed
+   linux gdb will need to be inside a terminal
+   linux check split(\r\n) on output of addr2line
+
+   cmake: do not require custom env var mingw-qt ...
+   cmake: store in subdir of build : /bin/
 
    setting: size, ratio, color, emojis, keybinds
+   do not have box layout
+   rather, have Settings Pane above Frame
+   and maybe darken frame for feedback on modality
+   or small part above screen, in corner
 
    result modal window : win or lose
    status win/lose: with face emoji
@@ -49,7 +59,13 @@
 
    highlight auto revealed cell same as hovered maybe ?
 
-   check Linux compatibility, port printStackTrace
+   windows: ship mintty, gdb with tui, cgdb
+
+   windows: hide console on start, show console on crash
+
+   check other threads: do they need to attach signal handler and disable FPE ?
+
+   Floating Point Exceptions: forbid inf, nan, allow temporary FPE::Disabler
 
    see how OSS does autowin first reveal: gnome-mines, kmines
 
