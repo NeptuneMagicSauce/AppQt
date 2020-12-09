@@ -9,6 +9,7 @@ class Application : public QApplication
 {
 public:
     Application(int argc, char** argv);
+    virtual bool notify(QObject *receiver, QEvent *event) override;
 private:
     QTimer cb;
     class Loader

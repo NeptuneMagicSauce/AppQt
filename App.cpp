@@ -5,6 +5,7 @@
 #include "Application.hpp"
 #include "Logic.hpp"
 #include "Gui.hpp"
+#include "Utils.hpp"
 
 /* TODO
 
@@ -125,6 +126,11 @@ int main(int argc, char **argv)
 {
     // qDebug()  << "__cplusplus" << __cplusplus;
     // qDebug() << "__VERSION__" << __VERSION__;
-
-    return Minus::App(argc, argv).exec();
+    try
+    {
+        return Minus::App(argc, argv).exec();
+    }catch (std::exception& e) {
+        PanicException(e);
+    }
+    return 1;
 }
