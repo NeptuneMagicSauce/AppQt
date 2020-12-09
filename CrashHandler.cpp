@@ -12,10 +12,6 @@
 
 using std::vector;
 
-// TODO port FloatingPointExceptions::Disabler, disable fpe in excpt handler
-
-// TODO other threads: do they need to attach crash handler and disable FPE ?
-
 class CrashHandlerNotImplemented: public CrashHandler
 {
 public:
@@ -88,7 +84,6 @@ QStringList CrashHandler::addr2line(const vector<void*>& addr) const
         return ret;
     }
     p.waitForFinished();
-    // TODO check split(\r\n) on Linux
     return QString(p.readAll()).split("\r\n", Qt::SkipEmptyParts);
 }
 

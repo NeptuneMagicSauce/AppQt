@@ -134,10 +134,6 @@ GuiImpl::GuiImpl(Gui& gui) :
     gui(gui)
 {
     auto* widget = new QWidget;
-    // TODO do not have box layout ..
-    // rather, have Settings Pane above Frame
-    // and maybe darken frame for feedback on modality
-    // or small part above screen, in corner
     auto* layout = new QHBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);

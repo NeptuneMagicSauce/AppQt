@@ -39,7 +39,6 @@ foreach(qtlib ${QTLIBLIST})
   target_link_libraries(${PROJECT_NAME} Qt5::${qtlib})
 endforeach()
 
-# TODO store in subdir of build : /bin/
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${BINARY_OUTPUT_DIR})
 

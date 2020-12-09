@@ -43,10 +43,6 @@ void CrashHandlerWin64::handle(void* exception_void) const
 {
     auto* exception = static_cast<EXCEPTION_POINTERS*>(exception_void);
 
-    // TODO ship mintty, gdb with tui, cgdb
-
-    // TODO hide console on start, show console on crash
-
     auto ex_code = exception ? exception->ExceptionRecord->ExceptionCode : 0;
     QString error_message =
         Utils::exceptionCode(ex_code) + " " +
@@ -207,8 +203,6 @@ void CrashHandlerWin64::attachDebugger(void) const
           "-ex", "\"attach " + pid_string + "\"",
           // continue on first breakpoint because
           // windows breaks on attach at DbgUiRemoteBreakin
-          // TODO linux check if continue command next line should be removed
-          // TODO linux gdb will need to be inside a terminal
           "-ex", "continue"
         });
 
