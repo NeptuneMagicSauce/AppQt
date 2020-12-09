@@ -14,6 +14,7 @@
 #include <QCoreApplication>
 #include <QProcess>
 #include <QThread>
+#include <QApplication>
 
 using std::string;
 using Stack = CrashHandler::Stack;
@@ -85,6 +86,11 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
         layout->addWidget(spacer_right);
         return base;
     };
+
+    if (qApp == nullptr)
+    {
+        new QApplication(*(new int(0)), (char**)nullptr);
+    }
 
     QDialog dialog {
         nullptr,
