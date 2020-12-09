@@ -48,7 +48,7 @@ bool CrashHandler::isInit(void)
 
 CrashHandler& CrashHandler::instance(void)
 {
-    Assert(CrashHandlerImpl::instance, "");
+    Assert(CrashHandlerImpl::instance);
     return *CrashHandlerImpl::instance;
 }
 

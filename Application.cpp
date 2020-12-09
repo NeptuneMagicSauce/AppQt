@@ -63,7 +63,7 @@ public:
             qDebug() << *(QPoint*)nullptr;
         });
         installButton("Assert(false)", []() {
-            Assert(false, "");
+            Assert(false);
         });
         installButton("assert(false)", []() {
             assert(false);
