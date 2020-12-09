@@ -22,18 +22,19 @@ class CrashHandlerWin64Impl
 {
 public:
     static CrashHandlerWin64* instance;
-    static LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS* exception);
+    static CONTEXT* contextOfException(EXCEPTION_POINTERS* exception);
+    static LONG WINAPI windowsExceptionHandler(EXCEPTION_POINTERS* exception);
 };
 
 CrashHandlerWin64* CrashHandlerWin64Impl::instance = nullptr;
 
-LONG WINAPI CrashHandlerWin64Impl::windows_exception_handler(EXCEPTION_POINTERS* exception)
+LONG WINAPI CrashHandlerWin64Impl::windowsExceptionHandler(EXCEPTION_POINTERS* exception)
 {
     instance->handle(exception);
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-void CrashHandlerWin64::handle(void* exception_void)
+void CrashHandlerWin64::handle(void* exception_void) const
 {
     auto* exception = static_cast<EXCEPTION_POINTERS*>(exception_void);
 
@@ -51,50 +52,46 @@ void CrashHandlerWin64::handle(void* exception_void)
     CrashHandler::Stack stack;
     if (hasAlreadyCrashed())
     {
-        error_message += " double crash";
+        error_message += "\nDouble Crash";
     } else {
-        stack = parseStack(walkStack(exception_void));
+        auto* context = CrashHandlerWin64Impl::contextOfException(exception);
+        if (context == nullptr)
+        {
+            error_message += " (No Context)";
+        } else {
+            stack = parseStack(walkStack(context));
+        }
     }
 
     finishPanic(error_message, stack);
 }
 
-QStringList CrashHandlerWin64::walkStack(void* exception_void)
+CONTEXT* CrashHandlerWin64Impl::contextOfException(EXCEPTION_POINTERS* exception)
 {
-    auto* exception = static_cast<EXCEPTION_POINTERS*>(exception_void);
-
-    QStringList ret;
     if (exception == nullptr)
     {
-        ret << "exception is null";
-        return ret;
+        return nullptr;
     }
     auto* ex_record = exception->ExceptionRecord;
     if (ex_record == nullptr)
     {
-        ret << "exception record is null";
-        return ret;
+        return nullptr;
     }
-    auto* context = exception->ContextRecord;
     if (ex_record->ExceptionCode == DWORD(EXCEPTION_STACK_OVERFLOW))
     {
-        if (context == nullptr)
-        {
-            ret << "context is null";
-            return ret;
-        }
         // If this is a stack overflow then we can't walk the stack
         // so just show where the error happened
-
-        ret << addr2line({(void*)context->Rip});
-        return ret;
+        // do no try to examine the context
+        return nullptr;
     }
-    if (context == nullptr)
-    {
-        ret << "context is null";
-        return ret;
-    }
+    return exception->ContextRecord;
+}
 
+QStringList CrashHandlerWin64::walkStack(void* context_void) const
+{
+    auto* context = static_cast<CONTEXT*>(context_void);
+
+    QStringList ret;
     auto handle = GetCurrentProcess();
     SymInitialize(handle, 0, true);
 #pragma GCC diagnostic push
@@ -130,7 +127,7 @@ QStringList CrashHandlerWin64::walkStack(void* exception_void)
 CrashHandlerWin64::CrashHandlerWin64(void)
 {
     CrashHandlerWin64Impl::instance = this;
-    SetUnhandledExceptionFilter(CrashHandlerWin64Impl::windows_exception_handler);
+    SetUnhandledExceptionFilter(CrashHandlerWin64Impl::windowsExceptionHandler);
 }
 
 bool CrashHandlerWin64::isDebuggerAttached(void) const
@@ -181,6 +178,12 @@ void CrashHandlerWin64::attachDebugger(void) const
             QThread::msleep(100);
         }
     }
+}
+CrashHandler::Stack CrashHandlerWin64::currentStack(void) const
+{
+    auto* context = new CONTEXT();
+    RtlCaptureContext(context);
+    return parseStack(walkStack(context));
 }
 
 #endif

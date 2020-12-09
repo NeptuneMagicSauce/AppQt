@@ -11,8 +11,9 @@ protected:
     virtual bool isDebuggerAttached(void) const override;
     virtual void attachDebugger(void) const override;
     virtual void breakDebugger(bool force=false) const override;
+    virtual Stack currentStack(void) const override;
 private:
     friend class CrashHandlerWin64Impl;
-    void handle(void* exception);
-    QStringList walkStack(void* exception);
+    void handle(void* exception) const;
+    QStringList walkStack(void* context) const;
 };
