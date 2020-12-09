@@ -98,7 +98,11 @@ void CellWidget::reveal(void)
 
 void CellWidget::raise(bool up)
 {
-    setFrameStyle(QFrame::StyledPanel |
+    setFrameStyle(
+        // QFrame::StyledPanel | // respect qApp->style
+        // QFrame::Box |         // ugly
+        QFrame::WinPanel |    // deep raised/sunken difference
+        // QFrame::Panel |       // soft difference
                   (up ? QFrame::Raised : QFrame::Sunken));
     impl_cw.setColor(this, up);
 }

@@ -25,6 +25,8 @@ namespace Minus::Labels
     const QString settings = "🔧"; // wrench
     // const QString settings = "🎛️"; // control knobs
     // const QString settings = "🎚️"; // level slider
+    // const QString themes = "🖼"; // framed painting
+    const QString themes = "🎨"; // painter palette
 
     const std::array<QColor, 10> colors
     {
