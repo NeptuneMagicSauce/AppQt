@@ -88,10 +88,10 @@ void CrashDialogImpl::showTerminal(
     const Stack& stack,
     const QString& location)
 {
-    // TODO do not use qDebug but qSomething to terminal !
-    auto qdebug = qDebug();
-    qdebug.noquote();
-    qdebug.nospace();
+    // TODO produce core dump ? with or without qFatal
+    // TODO auto connect debugger with qfatal ?
+    // On Windows, for debug builds, this function will report a _CRT_ERROR enabling you to connect a debugger to the application.
+    auto qdebug = QTextStream(stdout);
     qdebug << error << "\n";
     if (location.size())
     {
@@ -106,6 +106,7 @@ void CrashDialogImpl::showTerminal(
     {
         qdebug << impl_cd.prettyPrintStack(s) << "\n";
     }
+    qdebug.flush();
 }
 
 void CrashDialogImpl::showDialog(
