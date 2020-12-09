@@ -3,6 +3,7 @@
 #include <sstream>
 #include <set>
 #include <cxxabi.h>
+#include <QDebug>
 #include <QString>
 
 #include "CrashDialog.hpp"
@@ -24,11 +25,18 @@ namespace UtilsImpl
         {
             error << std::endl << message;
         }
-        // TODO insert tabs around all lines of error (already has message)
-        // TODO massage location with shared function: remove first X dirs
+
+        // TODO use QString, allow formatLocation() to work in place
+        // TODO move parsing/formatting in not panic
+
+        auto location = file + ":" + std::to_string(line);
+        location = CrashDialog::formatLocation(location.c_str()).toStdString();
+
         error
-            << std::endl << CrashDialog::prefix_function << function << ""
-            << std::endl << CrashDialog::prefix_location << file + ":" + std::to_string(line) << ""
+            << std::endl
+            << std::endl << CrashDialog::prefix_function << function
+            << std::endl << CrashDialog::prefix_location << location
+            << std::endl
             ;
         CrashDialog::panic(error.str(), CrashHandler::instance().currentStack());
     }

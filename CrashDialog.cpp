@@ -102,6 +102,8 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
     QVBoxLayout layout_root;
     dialog.setLayout(&layout_root);
     QLabel error_label { error.c_str() };
+    error_label.setAlignment(Qt::AlignHCenter);
+    // TODO another QLabel AlignedLeft for location!
     layout_root.addWidget(widgetCentered({&error_label}));
 
     QPushButton button_quit { "Quit" };
@@ -150,6 +152,21 @@ void CrashDialogImpl::showDialog(const string& error, const Stack& stack)
     }
 }
 
+QString CrashDialog::formatLocation(const QString& location)
+{
+
+    static auto withoutPrefix = [] (const QString& s, const QString& prefix) {
+        if (s.startsWith(prefix, Qt::CaseInsensitive))
+        {
+            return s.right(s.size() - prefix.size());
+        }
+        return s;
+    };
+    return withoutPrefix(withoutPrefix(location,
+                         "c:/Devel/Tools/"),
+                         "c:/Devel/Workspace/");
+}
+
 QString CrashDialogImpl::prettyPrintStack(
     const StackInfo& info,
     bool has_horizontal_scroll,
@@ -157,7 +174,7 @@ QString CrashDialogImpl::prettyPrintStack(
 {
     auto& address = info.address;
     auto& function = info.function;
-    auto& location = info.location;
+    auto location = info.location;
 
     enum struct Type: int { Address, Function, Unknown, Location };
     static auto formatItem = [] (const QString& item, Type type, bool rich_text) {
@@ -206,11 +223,15 @@ QString CrashDialogImpl::prettyPrintStack(
         return mark.first + item_safe + mark.second;
     };
 
+
+    location = CrashDialog::formatLocation(location);
+
     auto a = formatItem(address, Type::Address, rich_text);
-    auto f = CrashDialog::prefix_function +
-        formatItem(function, Type::Function, rich_text);
-    auto l = CrashDialog::prefix_location +
-        formatItem(location, Type::Location, rich_text);
+    auto f = formatItem(function, Type::Function, rich_text);
+    auto l = formatItem(location, Type::Location, rich_text);
+
+    f = CrashDialog::prefix_function + f;
+    l = CrashDialog::prefix_location + l;
 
     static const std::map<bool, QString> brs =
         {
@@ -219,7 +240,7 @@ QString CrashDialogImpl::prettyPrintStack(
         };
     static const std::map<bool, QString> tabs =
         {
-            { true, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" },
+            { true, "&nbsp;&nbsp;&nbsp;&nbsp;" },
             { false, "\t" },
         };
 
