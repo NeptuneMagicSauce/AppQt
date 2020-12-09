@@ -24,12 +24,11 @@ namespace UtilsImpl
         {
             error << std::endl << message;
         }
-        // TODO insert tabs around all lines of error and message
+        // TODO insert tabs around all lines of error (already has message)
         // TODO massage location with shared function: remove first X dirs
-        // TODO prefix 'in' for function with shared function
         error
-            << std::endl << "" << "in " << function << ""
-            << std::endl << "" << "at " << file + ":" + std::to_string(line) << ""
+            << std::endl << CrashDialog::prefix_function << function << ""
+            << std::endl << CrashDialog::prefix_location << file + ":" + std::to_string(line) << ""
             ;
         CrashDialog::panic(error.str(), CrashHandler::instance().currentStack());
     }

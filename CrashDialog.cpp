@@ -207,8 +207,10 @@ QString CrashDialogImpl::prettyPrintStack(
     };
 
     auto a = formatItem(address, Type::Address, rich_text);
-    auto f = formatItem(function, Type::Function, rich_text);
-    auto l = formatItem(location, Type::Location, rich_text);
+    auto f = CrashDialog::prefix_function +
+        formatItem(function, Type::Function, rich_text);
+    auto l = CrashDialog::prefix_location +
+        formatItem(location, Type::Location, rich_text);
 
     static const std::map<bool, QString> brs =
         {
@@ -223,7 +225,6 @@ QString CrashDialogImpl::prettyPrintStack(
 
     const auto br = brs.at(rich_text);
     const auto tab = tabs.at(rich_text);
-    static const QString location_prefix = "at ";
 
     auto has_location = !location.isEmpty();
     auto ret = QString{};
@@ -236,7 +237,7 @@ QString CrashDialogImpl::prettyPrintStack(
         ret += f + " ";
         if (has_location)
         {
-            ret += location_prefix + l;
+            ret += l;
         }
         return ret;
     }
@@ -257,23 +258,31 @@ QString CrashDialogImpl::prettyPrintStack(
         ret += f + br;
         if (has_location)
         {
-            ret += tab + location_prefix + l;
+            ret += tab + l;
         }
     } else {
         ret += br;
+        constexpr const char* prefix_empty = "   ";
+        auto first_f = true;
         for (auto& f: splitLength(f))
         {
-            ret += tab + f + br;
+            ret += tab;
+            if (!first_f)
+            {
+                ret += prefix_empty;
+            }
+            first_f = false;
+            ret += f + br;
         }
-        auto first_location = true;
+        auto first_l = true;
         for (auto& l: splitLength(l))
         {
             ret += tab;
-            if (first_location)
+            if (!first_l)
             {
-                ret += location_prefix;
-                first_location = false;
+                ret += prefix_empty;
             }
+            first_l = false;
             ret += l + br;
         }
     }
