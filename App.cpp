@@ -8,17 +8,19 @@
 #include "Utils.hpp"
 
 
-// TODO find stack trace on exception: not at catch but at throw
+// TODO have portable install with std::signal for windows
 
 // TODO if no stack or short stack -> smaller size crash dialog in both dimensions
+
+// TODO CrashHandlerWin64Impl: no state, pure functional with friend of CrashHandler ?
+
+// TODO namespace Utils for classes if not in namespace Minus
 
 /* TODO
 
    port Linux
 
    setting: size, ratio, color, emojis, keybinds
-
-   namespace Utils for classes if not in namespace Minus
 
    result modal window : win or lose
    status win/lose: with face emoji
