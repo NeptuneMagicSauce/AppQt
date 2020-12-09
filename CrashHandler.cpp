@@ -20,10 +20,11 @@ using std::vector;
 class CrashHandlerNotImplemented: public CrashHandler
 {
 public:
-    virtual bool canAttachDebugger(void) const { return false; }
-    virtual bool isDebuggerAttached(void) const { return false; }
-    virtual void attachDebugger(void) const { }
-    virtual void breakDebugger(bool) const { }
+    virtual bool canAttachDebugger(void) const override { return false; }
+    virtual bool isDebuggerAttached(void) const override { return false; }
+    virtual void attachDebugger(void) const override { }
+    virtual void breakDebugger(bool) const override { }
+    virtual Stack currentStack(void) const override { return { }; }
 };
 
 namespace CrashHandlerImpl
@@ -42,7 +43,7 @@ CrashHandler& CrashHandler::instance(void)
     return *CrashHandlerImpl::instance;
 }
 
-bool CrashHandler::hasAlreadyCrashed(void)
+bool CrashHandler::hasAlreadyCrashed(void) const
 {
     static bool has_crashed = false;
     if (has_crashed)
@@ -53,12 +54,12 @@ bool CrashHandler::hasAlreadyCrashed(void)
     return false;
 }
 
-void CrashHandler::finishPanic(const std::string& error, const Stack& stack)
+void CrashHandler::finishPanic(const std::string& error, const Stack& stack) const
 {
     CrashDialog::panic(error, stack);
 }
 
-QStringList CrashHandler::addr2line(const vector<void*>& addr)
+QStringList CrashHandler::addr2line(const vector<void*>& addr) const
 {
     QProcess p;
     QStringList args =
@@ -92,7 +93,7 @@ QStringList CrashHandler::addr2line(const vector<void*>& addr)
     return QString(p.readAll()).split("\r\n", Qt::SkipEmptyParts);
 }
 
-CrashHandler::Stack CrashHandler::parseStack(const QStringList& stack)
+CrashHandler::Stack CrashHandler::parseStack(const QStringList& stack) const
 {
     Stack ret;
     for (auto s: stack)

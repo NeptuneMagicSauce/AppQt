@@ -38,13 +38,14 @@ public:
             | Qt::WindowCloseButtonHint);
         debug_window->hide();
         debug_window->setWindowTitle("Debug");
+        debug_window->setModal(true);
         auto* layout = new QGridLayout;
         debug_window->setLayout(layout);
         auto installButton = [this, layout] (
             const QString& label,
             std::function<void()> cb) {
             static int index = 0;
-            const int columns = 3;
+            const int columns = 2;
             auto* button = new QPushButton;
             button->setText(label);
             layout->addWidget(button, index / columns, index % columns);
@@ -54,9 +55,6 @@ public:
                 cb();
             });
         };
-
-        // TODO find stack trace on exception
-        // TODO find stack trace on assert ?
 
         installButton("nullptr", []() {
             qDebug() << *(QPoint*)nullptr;

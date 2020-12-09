@@ -13,13 +13,6 @@ using namespace Utils;
 
 namespace UtilsImpl
 {
-    string sourceLocation(
-        const string& file,
-        int line,
-        const string& function="")
-    {
-        return file + ":" + std::to_string(line) + " " + function;
-    }
     void panic(
         std::ostringstream& error,
         const string& message,
@@ -31,10 +24,14 @@ namespace UtilsImpl
         {
             error << std::endl << message;
         }
-        CrashDialog::panic(error.str(), { {
-                    "",
-                    function.c_str(),
-                    UtilsImpl::sourceLocation(file, line).c_str() } });
+        // TODO insert tabs around all lines of error and message
+        // TODO massage location with shared function: remove first X dirs
+        // TODO prefix 'in' for function with shared function
+        error
+            << std::endl << "" << "in " << function << ""
+            << std::endl << "" << "at " << file + ":" + std::to_string(line) << ""
+            ;
+        CrashDialog::panic(error.str(), CrashHandler::instance().currentStack());
     }
 
     string demangle(const std::type_info& type)
@@ -45,12 +42,11 @@ namespace UtilsImpl
 
 void Utils::assertSingleton(const std::type_info& type)
 {
-    const std::string class_name = UtilsImpl::demangle(type);
-    static std::set<std::string> classes;
-    if (classes.count(class_name))
-    {
-        throw std::runtime_error("only one instance supported of " + class_name);
-    }
+    const string class_name = UtilsImpl::demangle(type);
+    static std::set<string> classes;
+    AssertX(
+        !classes.count(class_name),
+        "only one instance supported of " + class_name);
     classes.insert(class_name);
 }
 
@@ -79,6 +75,7 @@ void Utils::panicException(
     int line,
     const std::string& function)
 {
+    // TODO find stack trace on exception: not at catch but at throw
     std::ostringstream ss;
     ss
         << "Unhandled exception: ' "

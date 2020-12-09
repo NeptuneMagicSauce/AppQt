@@ -10,11 +10,6 @@ class CrashHandler
 public:
     static CrashHandler& instance(void);
 
-    virtual bool canAttachDebugger(void) const  = 0;
-    virtual bool isDebuggerAttached(void) const = 0;
-    virtual void attachDebugger(void) const = 0;
-    virtual void breakDebugger(bool force=false) const = 0;
-
     class StackInfo
     {
     public:
@@ -24,10 +19,16 @@ public:
     };
     using Stack = QList<StackInfo>;
 
+    virtual bool canAttachDebugger(void) const  = 0;
+    virtual bool isDebuggerAttached(void) const = 0;
+    virtual void attachDebugger(void) const = 0;
+    virtual void breakDebugger(bool force=false) const = 0;
+    virtual Stack currentStack(void) const = 0;
+
 protected:
-    QStringList addr2line(const std::vector<void*>& addr);
-    Stack parseStack(const QStringList& stack);
-    bool hasAlreadyCrashed(void);
-    void finishPanic(const std::string& error, const Stack& stack);
+    QStringList addr2line(const std::vector<void*>& addr) const;
+    Stack parseStack(const QStringList& stack) const;
+    bool hasAlreadyCrashed(void) const;
+    void finishPanic(const std::string& error, const Stack& stack) const;
 
 };
