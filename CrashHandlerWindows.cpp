@@ -23,12 +23,9 @@ class CrashHandlerWin64Impl
 public:
     static CrashHandlerWin64* instance;
     static LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS* exception);
-    // TODO no state: remove can_attach, cache result
-    static bool can_attach_gdb;
 };
 
 CrashHandlerWin64* CrashHandlerWin64Impl::instance = nullptr;
-bool CrashHandlerWin64Impl::can_attach_gdb = false;
 
 LONG WINAPI CrashHandlerWin64Impl::windows_exception_handler(EXCEPTION_POINTERS* exception)
 {
@@ -132,8 +129,6 @@ QStringList CrashHandlerWin64::walkStack(void* exception_void)
 
 CrashHandlerWin64::CrashHandlerWin64(void)
 {
-    CrashHandlerWin64Impl::can_attach_gdb =
-        QProcess::startDetached("gdb", { "-q", "-ex", "quit" });
     CrashHandlerWin64Impl::instance = this;
     SetUnhandledExceptionFilter(CrashHandlerWin64Impl::windows_exception_handler);
 }
@@ -154,7 +149,8 @@ void CrashHandlerWin64::breakDebugger(bool force) const
 
 bool CrashHandlerWin64::canAttachDebugger(void) const
 {
-    return CrashHandlerWin64Impl::can_attach_gdb;
+    static auto ret = QProcess::startDetached("gdb", { "-q", "-ex", "quit" });
+    return ret;
 }
 
 void CrashHandlerWin64::attachDebugger(void) const
