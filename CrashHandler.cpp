@@ -121,15 +121,6 @@ CrashHandler::Stack CrashHandler::parseStack(const QStringList& stack) const
         info.function = takeBefore(s, " at ");
         info.location = takeBefore(s, "");
 
-        static auto removePrefix = [] (QString& s, const QString& prefix) {
-            if (s.startsWith(prefix, Qt::CaseInsensitive))
-            {
-                s.remove(0, prefix.size());
-            }
-        };
-        removePrefix(info.location, "c:/Devel/Workspace/");
-        removePrefix(info.location, "c:/Devel/Tools/");
-
         ret << info;
     }
     return ret;
