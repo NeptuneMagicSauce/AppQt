@@ -3,12 +3,13 @@
 #include <vector>
 #include <cmath>
 
+#include <QDebug>
 #include <QDialog>
 #include <QMainWindow>
 #include <QGridLayout>
 #include <QAction>
 #include <QPushButton>
-#include <QDebug>
+#include <QStyleFactory>
 
 #include "CrashHandler.hpp"
 #include "Utils.hpp"
@@ -98,6 +99,9 @@ Application::Application(int argc, char** argv) :
     QApplication(argc, argv)
 {
     impl_app.installDebugWindow();
+
+    // TODO linux: is it different without specifyng theme Fusion ?
+    qApp->setStyle(QStyleFactory::create("Fusion"));
 
     cb.setSingleShot(false);
     cb.setInterval(100);
