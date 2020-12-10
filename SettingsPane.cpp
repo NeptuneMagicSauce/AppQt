@@ -2,8 +2,21 @@
 
 using namespace Minus;
 
+class SettingsPaneImpl
+{
+public:
+    SettingsPane& panel;
+    SettingsPaneImpl(SettingsPane& panel);
+};
+
 SettingsPane::SettingsPane()
 {
-    hide();
-    setMaximumSize(200, 0);
+    new SettingsPaneImpl(*this);
+}
+
+SettingsPaneImpl::SettingsPaneImpl(SettingsPane& panel) :
+    panel(panel)
+{
+    panel.hide();
+    panel.setMaximumSize(200, 0);
 }
