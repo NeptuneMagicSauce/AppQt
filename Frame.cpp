@@ -151,7 +151,9 @@ void FrameImpl::reset(int width, int height)
     qDebug() << "reset from" << layout->count();
     while (layout->count())
     {
-        layout->takeAt(0);
+        // TODO faster reset: use set visible rather than remove from layout
+        auto item = layout->takeAt(layout->count() - 1);
+        item->widget()->setParent(nullptr);
     }
     qDebug() << "reset to" << layout->count();
     cell_pressed = nullptr;
@@ -175,6 +177,8 @@ void FrameImpl::reset(int width, int height)
     }
     key_reveal_pressed = false;
     pool.reset();
+    // TODO BUG there is 2 calls to reset() on launch
+    // TODO faster reset: use pool for Cell instances
 }
 
 void Frame::addCell(int row, int column)
@@ -197,7 +201,7 @@ void Frame::addCell(int row, int column)
             }
         }
     }
-    assert(n.size() <= 9);
+    Assert(n.size() <= 9);
 }
 
 void Frame::resizeEvent(QResizeEvent *event)
