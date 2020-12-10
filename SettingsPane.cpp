@@ -71,6 +71,7 @@ QAction* SettingsPane::action(const QString& label)
 
 void SettingsPane::hideEvent(QHideEvent *event)
 {
+    // TODO fix dirty hack : timer with magic value
     QDialog::hideEvent(event);
     // needs to setChecked(false) on hide from clicking away
     // with delay in case we click away on the action button
@@ -113,9 +114,11 @@ int SettingsPane::registerInt(QString label, int value, QPoint range)
     auto index = impl_s.index;
     QObject::connect(slider, &QSlider::valueChanged,
                      [this, value_label, index] (int v) {
-                         value_label->setText(QString::number(v));
                          emit intChanged(index, v);
                      });
+    QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
+        value_label->setText(QString::number(value));
+    });
     impl_s.layout->addWidget(widget);
     return impl_s.index++;
 }
