@@ -9,6 +9,8 @@
 
 /* TODO
 
+   coding style: auto* -> auto
+
    port Linux
    linux stack trace: portable cstd way, boost:: ? backtrace() ?
    linux check if gdb command continue on attach should be removed
