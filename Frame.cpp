@@ -77,9 +77,7 @@ namespace Minus
             {
                 for (int row=0; row<rowCount(); ++row)
                 {
-                    // TODO disable and enable mouse tracking same as visibility
                     itemAtPosition(row, column)->widget()->setVisible(false);
-                    // TODO CellWidget herits from Widget not Frame: faster?
                 }
             }
             pool.reset();
@@ -160,8 +158,6 @@ Frame::Frame(
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
     setContextMenuPolicy(Qt::PreventContextMenu);
-
-    reset();
 }
 
 CellWidget* Frame::widgetOfEvent(QMouseEvent* e)
@@ -197,7 +193,6 @@ void FrameImpl::reset(int width, int height)
         }
     }
     key_reveal_pressed = false;
-    // TODO BUG there is 2 calls to reset() on launch
     // TODO faster reset: use pool for Cell instances
 }
 

@@ -12,6 +12,10 @@
    coding style: auto* -> auto
    change assert -> Assert
 
+
+   better perf if CellWidget herits from Widget not Frame or Label: faster?
+   with rendering of pre-rendered textures ?
+
    port Linux
    linux stack trace: portable cstd way, boost:: ? backtrace() ?
    linux check if gdb command continue on attach should be removed
