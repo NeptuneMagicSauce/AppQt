@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QStyle>
 #include <QStyleFactory>
+#include <QTime>
 
 #include "Utils.hpp"
 #include "Labels.hpp"
@@ -186,13 +187,6 @@ GuiImpl::GuiImpl(Gui& gui) :
 void Gui::reset(void)
 {
     frame.reset();
-    for (int x=0; x<frame.width; ++x)
-    {
-        for (int y=0; y<frame.height; ++y)
-        {
-            frame.addCell(y, x);
-        }
-    }
     resizeEvent();
 
     static auto first_run = true;

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <QDebug>
+#include <QTime>
 
 #include "Application.hpp"
 #include "Logic.hpp"

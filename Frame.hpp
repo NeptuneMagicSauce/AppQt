@@ -16,7 +16,6 @@ namespace Minus
             int max_width,
             int max_height);
         void reset(void);
-        void addCell(int row, int column);
         void setMineData(const CellStates& data);
         void revealCell(Indices);
 
