@@ -1,121 +1,89 @@
-#include "CrashHandler.hpp"
-
+#include <csignal>
+#include <QVector>
 #include <QDebug>
-#include <QProcess>
-#include <QCoreApplication>
 
-#include "Utils.hpp"
 #include "CrashDialog.hpp"
-#if _WIN64
-#include "CrashHandlerWindows.hpp"
-#endif
 
-using std::vector;
-
-class CrashHandlerNotImplemented: public CrashHandler
+namespace CrashHandler
 {
-public:
-    // linux install: std::signal(SIG*) cf <csignal> same as windows
-    virtual bool canAttachDebugger(void) const override { return false; }
-    virtual bool isDebuggerAttached(void) const override { return false; }
-    virtual void attachDebugger(void) const override { }
-    virtual void breakDebugger(bool) const override { }
-    virtual Stack currentStack(void) const override { return { }; }
-};
+    using Type = void*;
+    Type install(void);
+    Type instance = install();
+    void installSignalHandlers(QVector<int> sigs);
+    void handler(int signal);
+}
 
-namespace CrashHandlerImpl
+void CrashHandler::installSignalHandlers(QVector<int> sigs)
 {
+    for (auto& s: sigs)
+    {
+        std::signal(s, CrashHandler::handler);
+    }
+}
+
+void CrashHandler::handler(int signal)
+{
+    CrashDialog::panic(QString{"signal "} + (
+                       (signal == SIGABRT) ? "ABORT" :
+                       (signal == SIGFPE) ? "FPE" :
+                       (signal == SIGILL) ? "ILL" :
+                       (signal == SIGINT) ? "INT" :
+                       (signal == SIGSEGV) ? "SEGV" :
+                       (signal == SIGTERM) ? "TERM" :
+                       "UNKNOWN"));
+}
+
 #if _WIN64
-    CrashHandler* instance = new CrashHandlerWin64;
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include "WindowsErrorCodes.hpp"
+LONG WINAPI  handlerWindows(EXCEPTION_POINTERS* exception)
+{
+    auto has_code =
+        exception != nullptr &&
+        exception->ExceptionRecord != nullptr;
+    auto ex_code =
+        has_code
+        ? exception->ExceptionRecord->ExceptionCode
+        : 0;
+    auto stack_overflow =
+        has_code &&
+        ex_code == DWORD(EXCEPTION_STACK_OVERFLOW);
+    auto message = Utils::exceptionCode(ex_code) + " " + QString::number(ex_code, 16);
+
+    CrashDialog::panic(message, stack_overflow == false);
+
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+CrashHandler::Type CrashHandler::install(void)
+{
+    SetUnhandledExceptionFilter(handlerWindows);
+    // the windows api handler can not handle these
+    // SIGABORT (and all other signals), std::terminate(), throw empty, assert(false)
+    installSignalHandlers( {
+        // the cstd api handler can not handle these
+        // asm "int3", win api DebugBreak()
+        // and its stack trace is longer than the winapi
+            SIGABRT,
+            // SIGSEGV, // this one is already caught by handlerWindows
+            // SIGFPE, // this one is already caught by handlerWindows
+            SIGINT,
+            SIGTERM,
+            SIGILL,
+        });
+    return nullptr;
+}
 #else
-#warning "CrashHandler not implemened"
-    CrashHandler* instance = new CrashHandlerNotImplemented;
+CrashHandler::Type CrashHandler::install(void)
+{
+    installSignalHandlers( {
+            SIGTERM, // termination request, sent to the program
+            SIGSEGV, // invalid memory access (segmentation fault)
+            SIGINT, // external interrupt, usually initiated by the user
+            SIGILL, // invalid program image, such as invalid instruction
+            SIGABRT, // abnormal termination condition: std::abort() ...
+            SIGFPE, // erroneous arithmetic operation such as divide by zero
+        });
+    return nullptr;
+}
 #endif
-};
-
-CrashHandler& CrashHandler::instance(void)
-{
-    Assert(CrashHandlerImpl::instance);
-    return *CrashHandlerImpl::instance;
-}
-
-bool CrashHandler::hasAlreadyCrashed(void) const
-{
-    static bool has_crashed = false;
-    if (has_crashed)
-    {
-        return true;
-    }
-    has_crashed = true;
-    return false;
-}
-
-void CrashHandler::finishPanic(const QString& error, const Stack& stack) const
-{
-    CrashDialog::panic(error, stack);
-}
-
-QStringList CrashHandler::addr2line(const vector<void*>& addr) const
-{
-    QProcess p;
-    QStringList args =
-        {
-            "-C", // --demangle
-            // "-s" // --basenames
-            "-a", // --addresses
-            "-f", // --functions
-            "-p", // --pretty-print
-            "-e",
-            QCoreApplication::applicationFilePath(),
-        };
-    QStringList args_addr;
-    for (auto& a: addr)
-    {
-        args_addr << Utils::toHexa(a);
-    }
-    args << args_addr;
-
-    p.start("addr2line", args);
-    if (!p.waitForStarted())
-    {
-        QStringList ret;
-        ret << "addr2line failed";
-        ret << args_addr;
-        return ret;
-    }
-    p.waitForFinished();
-    return QString(p.readAll()).split("\r\n", Qt::SkipEmptyParts);
-}
-
-CrashHandler::Stack CrashHandler::parseStack(const QStringList& stack) const
-{
-    Stack ret;
-    for (auto s: stack)
-    {
-        StackInfo info;
-
-        static auto takeBefore = [] (QString& s, const QString& pattern) {
-            auto pattern_len = pattern.size();
-            auto len =
-                pattern_len
-                ? s.indexOf(pattern)
-                : s.size();
-            if (len == -1)
-            {
-                auto ret = s;
-                s.resize(0);
-                return ret.trimmed();
-            }
-            auto ret = s.left(len).trimmed();
-            s.remove(0, len + pattern_len);
-            return ret;
-        };
-
-        info.address = takeBefore(s, ":");
-        info.function = takeBefore(s, " at ");
-        info.location = takeBefore(s, "");
-
-        ret << info;
-    }
-    return ret;
-}

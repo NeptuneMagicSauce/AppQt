@@ -1,6 +1,5 @@
 #include "CrashDialog.hpp"
 
-#include <iostream>
 #include <map>
 #include <QDebug>
 #include <QDialog>
@@ -10,14 +9,14 @@
 #include <QPushButton>
 #include <QGroupBox>
 #include <QScrollArea>
-#include <QTimer>
 #include <QCoreApplication>
-#include <QProcess>
-#include <QThread>
 #include <QApplication>
 
-using Stack = CrashHandler::Stack;
-using StackInfo = CrashHandler::StackInfo;
+#include "Debugger.hpp"
+#include "StackTrace.hpp"
+
+using Stack = Utils::StackTrace::Stack;
+using StackInfo = Utils::StackTrace::StackInfo;
 
 class CrashDialogImpl
 {
@@ -69,9 +68,13 @@ public:
 
 void CrashDialog::panic(
     const QString& error,
-    const Stack& stack,
+    bool can_call_stack_trace,
     const Location& location)
 {
+    auto stack =
+        can_call_stack_trace
+        ? Utils::StackTrace::getCurrent()
+        : Stack{ };
     auto location_parsed = impl_cd.prettyPrintLocation(location);
 
     impl_cd.showTerminal(error, stack, location_parsed);
@@ -171,7 +174,7 @@ void CrashDialogImpl::showDialog(
         dialog.accept();
     });
     layout_root.addWidget(widgetCentered({&button_quit, &button_gdb}));
-    button_gdb.setEnabled(CrashHandler::instance().canAttachDebugger());
+    button_gdb.setEnabled(Utils::Debugger::canAttachDebugger());
 
     auto& stack_label = *(new QLabel);
     // stack_label will be destroyed by its parent stack_area -> dyn alloc
@@ -198,7 +201,7 @@ void CrashDialogImpl::showDialog(
 
     if (deferred_gdb)
     {
-        CrashHandler::instance().attachDebugger();
+        Utils::Debugger::attachDebugger();
     }
 }
 

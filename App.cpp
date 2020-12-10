@@ -7,13 +7,11 @@
 #include "Gui.hpp"
 #include "Utils.hpp"
 
-
-// TODO have portable install with std::signal for windows
-// in base class
+// TODO stack trace: portable cstd way
 
 // TODO if no stack or short stack -> smaller size crash dialog in both dimensions
 
-// TODO CrashHandlerWin64Impl: no state, pure functional with friend of CrashHandler ?
+// TODO stack trace: collapsed unresolved symbol lines
 
 // TODO namespace Utils for classes if not in namespace Minus
 
@@ -23,6 +21,7 @@
    linux check if gdb command continue on attach should be removed
    linux gdb will need to be inside a terminal
    linux check split(\r\n) on output of addr2line
+   linux do we have to implement isDebuggerAttached?
 
    cmake: do not require custom env var mingw-qt ...
    cmake: store in subdir of build : /bin/
