@@ -2,8 +2,6 @@
 
 #include <QString>
 
-#include "CrashHandler.hpp"
-
 class CrashDialog
 {
 public:
@@ -15,6 +13,6 @@ public:
     };
     static void panic(
         const QString& error,
-        const CrashHandler::Stack& stack={},
+        bool can_call_stack_trace=true,
         const Location& location={"", "", 0});
 };

@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QString>
 
+#include "StackTrace.hpp"
 #include "CrashDialog.hpp"
 
 using std::string;
@@ -22,7 +23,7 @@ namespace UtilsImpl
     {
         CrashDialog::panic(
             message,
-            CrashHandler::instance().currentStack(),
+            true, // can call stack trace
             CrashDialog::Location{ function, file, line });
     }
 

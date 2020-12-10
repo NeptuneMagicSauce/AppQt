@@ -13,7 +13,7 @@
 #include <QPushButton>
 #include <QStyleFactory>
 
-#include "CrashHandler.hpp"
+#include "Debugger.hpp"
 #include "Utils.hpp"
 
 using namespace Utils;
@@ -96,11 +96,11 @@ public:
             std::terminate();
         });
         auto sigs = std::map<int, QString> {
+            { SIGSEGV , "SEGV" },
             { SIGABRT, "ABORT" },
             { SIGFPE , "FPE" },
             { SIGILL , "ILL" },
             { SIGINT , "INT" },
-            { SIGSEGV , "SEGV" },
             { SIGTERM , "TERM" },
         };
 
@@ -111,9 +111,11 @@ public:
             });
         }
 
-
-        installButton("break debugger", []() {
+        installButton("asm int3", []() {
             asm volatile ("int3");
+        });
+        installButton("break debugger", []() {
+            Debugger::breakDebugger();
         });
     }
 } impl_app;
