@@ -56,7 +56,7 @@ void Utils::doAssert(
         return;
     }
 
-    auto message_combined = "Assertion not verified: ' " + literal;
+    auto message_combined = "Assertion not verified: ' " + literal + " '";
     if (message.size())
     {
         message_combined += " '\n\n" + message + "\n";
