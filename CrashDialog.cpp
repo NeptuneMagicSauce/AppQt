@@ -176,14 +176,14 @@ void CrashDialogImpl::showDialog(
     layout_root.addWidget(widgetCentered({&button_quit, &button_gdb}));
     button_gdb.setEnabled(Utils::Debugger::canAttachDebugger());
 
-    auto& stack_label = *(new QLabel);
-    // stack_label will be destroyed by its parent stack_area -> dyn alloc
+    QLabel stack_label;
     auto stack_font = QFont{"Consolas"};
     stack_font.setPointSizeF(8.5f);
     stack_label.setFont(stack_font);
     stack_label.setTextFormat(Qt::RichText);
     QString stack_text;
     stack_text += "<b>Process ID</b> " + pid_string + "<br><br>";
+    // stack_text += "<b>stack size</b> " + QString::number(stack.size()) + "<br><br>";
     stack_text += "<b>Stack Trace</b><br><br>";
     for (const auto& s: stack)
     {
@@ -198,6 +198,10 @@ void CrashDialogImpl::showDialog(
 
     dialog.resize(800, 500);
     dialog.exec();
+
+    stack_area.takeWidget();
+    // stack_label will be deleted by its parent stack_area destructor
+    // -> unpair it because it will also be destructed at this end of scope
 
     if (deferred_gdb)
     {
