@@ -171,7 +171,6 @@ GuiImpl::GuiImpl(Gui& gui) :
             auto height = id == setting_id_height ? value : gui.frame.height;
             emit gui.reset_signal(width, height);
             // TODO BUG missing call to resize event because font is not scaled
-            // TODO BUG here: I can see old zombie CellWidgets after reset
         });
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
@@ -190,6 +189,7 @@ void Gui::reset(void)
             frame.addCell(y, x);
         }
     }
+    resizeEvent();
 }
 
 void Gui::resizeEvent(void)
