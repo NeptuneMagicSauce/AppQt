@@ -58,7 +58,6 @@ struct CellWidgetImpl: public LoadContent
     }
 
     QFont font;
-    const Qt::Alignment alignment { Qt::AlignHCenter | Qt::AlignVCenter };
 
 } impl_cw;
 
@@ -68,7 +67,7 @@ CellWidget::CellWidget(const QColor& color) :
 {
     setMouseTracking(true);
     setAutoFillBackground(true);
-    setAlignment(impl_cw.alignment);
+    setAlignment(Qt::AlignCenter);
     setFont(impl_cw.font);
     reset(color);
 }
