@@ -45,25 +45,19 @@ public:
     GuiImpl(Gui& gui);
 private:
     Gui& gui;
-    QToolButton* settings_button = nullptr;
     EventFilterFirstShow filter;
 
     QMainWindow main_window;
     QToolBar tool_bar;
 
-    auto* addButton(
-        std::function<void()> callback,
-        const QString& label,
-        const QString& tool_tip,
-        const QKeySequence& shortcut)
+    void formatAction(QAction* action)
     {
-        auto* action = tool_bar.addAction(label, callback);
-        action->setShortcut(shortcut);
-        action->setToolTip(tool_tip + " (" + action->shortcut().toString() + ")");
+        action->setToolTip(
+            action->toolTip() + " (" +
+            action->shortcut().toString() + ")");
         auto font = action->font();
         font.setPointSize(16);
         action->setFont(font);
-        QToolButton* ret = nullptr;
         for (auto* w: action->associatedWidgets())
         {
             auto* button = dynamic_cast<QToolButton*>(w);
@@ -71,23 +65,19 @@ private:
             {
                 button->setAutoRaise(false);
             }
-            if (!ret) { ret = button; }
         }
-        return ret;
     }
 
-    void switchSettings(void)
+    void addButton(
+        std::function<void()> callback,
+        const QString& label,
+        const QString& tool_tip,
+        const QKeySequence& shortcut)
     {
-        static bool state = false;
-
-        state = !state;
-        settings_button->setDown(state);
-        if (state)
-        {
-            gui.settings.show();
-        } else {
-            gui.settings.hide();
-        }
+        auto* action = tool_bar.addAction(label, callback);
+        action->setToolTip(tool_tip);
+        action->setShortcut(shortcut);
+        formatAction(action);
     }
 
     void setInitialWindowSize(void)
@@ -124,7 +114,8 @@ private:
 };
 
 Gui::Gui(const int& width, const int& height) :
-    frame(width, height)
+    frame(width, height),
+    settings(&frame)
 {
     Utils::assertSingleton(typeid(*this));
     new GuiImpl(*this);
@@ -133,16 +124,7 @@ Gui::Gui(const int& width, const int& height) :
 GuiImpl::GuiImpl(Gui& gui) :
     gui(gui)
 {
-    auto* widget = new QWidget;
-    auto* layout = new QHBoxLayout;
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
-    widget->setLayout(layout);
-    layout->addWidget(&gui.frame);
-    layout->addWidget(&gui.settings);
-    main_window.setCentralWidget(widget);
-
-    // main_window.setCentralWidget(&gui.frame);
+    main_window.setCentralWidget(&gui.frame);
     main_window.setWindowTitle("Super Minus");
     main_window.show();
 
@@ -156,6 +138,7 @@ GuiImpl::GuiImpl(Gui& gui) :
     auto* spacer_right = new QWidget;
     spacer_right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     tool_bar.addWidget(spacer_left);
+    // TODO button reset is not perfectly centered
     addButton(
         [&gui]() {
             emit gui.reset_signal();
@@ -165,13 +148,9 @@ GuiImpl::GuiImpl(Gui& gui) :
         QKeySequence::Refresh);
     tool_bar.addWidget(spacer_right);
 
-    settings_button = addButton(
-        [this] () { switchSettings(); },
-        Labels::settings,
-        "Settings",
-        Qt::Key_F2);
-    // MacOS: prefer standard shortcut Preferences, it does not exist on Windows
-    // QKeySequence::Preferences);
+    auto* settings_action = gui.settings.action();
+    tool_bar.addAction(settings_action);
+    formatAction(settings_action);
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
@@ -194,6 +173,6 @@ void Gui::reset(void)
 void Gui::resizeEvent(void)
 {
     // trigger resize event in Frame
-    QResizeEvent e { frame.size(), QSize(0, 0) };
+    auto e = QResizeEvent { frame.size(), QSize(0, 0) };
     frame.resizeEvent(&e);
 }
