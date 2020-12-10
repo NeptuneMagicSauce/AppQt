@@ -24,7 +24,6 @@ namespace Minus
         const int& height;
 
         static constexpr int InitialCellSize = 40;
-        static constexpr int MinimumCellSize = 20;
 
         virtual void resizeEvent(QResizeEvent *event) override;
 
