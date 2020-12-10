@@ -15,13 +15,9 @@ class SettingsImpl
 public:
     QWidget* parent = nullptr;
     QAction* action = nullptr;
-    QToolButton* button = nullptr;
-    bool state = false;
 } impl_s;
 
 SettingsPane::SettingsPane(QWidget* parent) :
-    // QWidget(parent)
-    // QDockWidget(parent)
     QDialog(parent)
 {
     Utils::assertSingleton(typeid(*this)); // have impl be member if not singleton
@@ -29,18 +25,11 @@ SettingsPane::SettingsPane(QWidget* parent) :
 
     resize(200, 200);
 
-    // // as QDockWidget ->
-    // hide();
-    // setWindowTitle("Settings");
-    // setFeatures(QDockWidget::NoDockWidgetFeatures);
-
     // as QDialog ->
     setWindowFlags(
         Qt::FramelessWindowHint |
-        // Qt::Tool // Tool = Popup | Dialog
         Qt::Popup // auto-close when click away
         // Qt::Dialog // is another window, takes focus away from parent
-        // Qt::Widget
         );
     setModal(false);
 
@@ -51,16 +40,15 @@ SettingsPane::SettingsPane(QWidget* parent) :
     action->setShortcut(Qt::Key_F2);
     // MacOS: prefer standard shortcut Preferences, it does not exist on Windows
     // QKeySequence::Preferences);
-    QObject::connect(action, &QAction::toggled, [this] (bool checked) {
-        if (checked) { show(); }
-        else { hide(); }
+    QObject::connect(action, &QAction::triggered, [this] (bool checked) {
+        if (checked)
+        {
+            show();
+        }
+        // no need to test checked == false
+        // because clicking away from the dialog (on the action) hides it
     });
-
-    // TODO update tool bar button state: on hideEvent() ?
-    // TODO parent window management is broken: resize, close ...
-    // TODO parent window does not catch actions: F1, F2 ...
-    // TODO check if my height is bigger than parent height
-
+    // TODO check if my height is taller than parent height
 }
 
 QAction* SettingsPane::action(void) const
@@ -71,8 +59,11 @@ QAction* SettingsPane::action(void) const
 void SettingsPane::hideEvent(QHideEvent *event)
 {
     QDialog::hideEvent(event);
-    Assert(impl_s.button);
-    impl_s.button->setDown(false);
+    // needs to setChecked(false) on hide from clicking away
+    // with delay in case we click away on the action button
+    QTimer::singleShot(200, [] () {
+        impl_s.action->setChecked(false);
+    });
 }
 
 void SettingsPane::showEvent(QShowEvent *event)
@@ -84,18 +75,4 @@ void SettingsPane::showEvent(QShowEvent *event)
     // auto top_left = parent->mapToGlobal({0, 0});
     // top_left.setX(top_left.x() + parent->width() - width());
     // setGeometry({ top_left, size() });
-
-    auto& button = impl_s.button;
-    if (button == nullptr)
-    {
-        for (auto* w: impl_s.action->associatedWidgets())
-        {
-            auto*b = dynamic_cast<QToolButton*>(w);
-            if (b != nullptr)
-            {
-                button = b;
-                break;
-            }
-        }
-    }
 }

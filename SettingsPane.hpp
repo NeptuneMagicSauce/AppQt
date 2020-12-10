@@ -1,15 +1,11 @@
 #pragma once
 
-// #include <QWidget>
-// #include <QDockWidget>
 #include <QDialog>
 #include <QAction>
 
 namespace Minus
 {
     class SettingsPane: public QDialog
-    // class SettingsPane: public QDockWidget
-    // class SettingsPane: public QWidget
     {
         Q_OBJECT
     public:
