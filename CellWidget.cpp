@@ -13,6 +13,7 @@
 
 using std::set;
 
+using namespace Utils;
 using namespace Minus;
 
 struct CellWidgetImpl: public LoadContent

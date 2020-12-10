@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <vector>
 
+using namespace Utils;
+
 class LoadContentImpl
 {
 public:

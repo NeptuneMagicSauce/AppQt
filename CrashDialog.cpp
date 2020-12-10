@@ -17,6 +17,7 @@
 
 using Stack = Utils::StackTrace::Stack;
 using StackInfo = Utils::StackTrace::StackInfo;
+using Utils::CrashDialog;
 
 class CrashDialogImpl
 {

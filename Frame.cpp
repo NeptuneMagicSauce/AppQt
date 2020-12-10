@@ -12,6 +12,7 @@
 #include "Pool.hpp"
 
 using std::vector;
+using namespace Utils;
 
 namespace Minus
 {
