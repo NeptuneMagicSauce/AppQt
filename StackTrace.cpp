@@ -6,7 +6,7 @@
 
 using namespace Utils;
 
-namespace DebuggerImpl
+namespace StackTraceImpl
 {
     using Addresses = QVector<void*>;
     Addresses walkStack(void* context_void);
@@ -22,7 +22,7 @@ namespace DebuggerImpl
     }
 }
 
-QStringList DebuggerImpl::addr2line(const Addresses& addresses)
+QStringList StackTraceImpl::addr2line(const Addresses& addresses)
 {
     QProcess p;
     QStringList args =
@@ -51,10 +51,12 @@ QStringList DebuggerImpl::addr2line(const Addresses& addresses)
         return ret;
     }
     p.waitForFinished();
-    return QString(p.readAll()).split("\r\n", Qt::SkipEmptyParts);
+    auto process_output = QString{ p.readAll() };
+    process_output.remove("\r"); // windows carriage return
+    return process_output.split("\n", Qt::SkipEmptyParts);
 }
 
-StackTrace::Stack DebuggerImpl::parseStack(const DebuggerImpl::Addresses& addresses)
+StackTrace::Stack StackTraceImpl::parseStack(const StackTraceImpl::Addresses& addresses)
 {
     auto addresses_resolved = addr2line(addresses);
     StackTrace::Stack ret;
@@ -113,8 +115,8 @@ StackTrace::Stack StackTrace::fromContext(void* exception_void)
     }
 
     auto context = exception->ContextRecord;
-    auto addresses = DebuggerImpl::walkStack(context);
-    return DebuggerImpl::parseStack(addresses);
+    auto addresses = StackTraceImpl::walkStack(context);
+    return StackTraceImpl::parseStack(addresses);
 }
 
 
@@ -122,11 +124,11 @@ StackTrace::Stack StackTrace::getCurrent(void)
 {
     auto context = new CONTEXT;
     RtlCaptureContext(context);
-    auto addresses = DebuggerImpl::walkStack(context);
-    return DebuggerImpl::parseStack(addresses);
+    auto addresses = StackTraceImpl::walkStack(context);
+    return StackTraceImpl::parseStack(addresses);
 }
 
-DebuggerImpl::Addresses DebuggerImpl::walkStack(void* context_void)
+StackTraceImpl::Addresses StackTraceImpl::walkStack(void* context_void)
 {
     auto* context = static_cast<CONTEXT*>(context_void);
     if (!context)
