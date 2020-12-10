@@ -66,7 +66,6 @@ CellWidget::CellWidget(const QColor& color) :
     revealed(m_revealed)
 {
     setMouseTracking(true);
-    setAutoFillBackground(true);
     setAlignment(Qt::AlignCenter);
     setFont(impl_cw.font);
     reset(color);
