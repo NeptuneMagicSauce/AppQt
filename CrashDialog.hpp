@@ -2,17 +2,20 @@
 
 #include <QString>
 
-class CrashDialog
+namespace Utils
 {
-public:
-    struct Location
+    class CrashDialog
     {
-        QString function;
-        QString file;
-        int line;
+    public:
+        struct Location
+        {
+            QString function;
+            QString file;
+            int line;
+        };
+        static void panic(
+            const QString& error,
+            bool can_call_stack_trace=true,
+            const Location& location={"", "", 0});
     };
-    static void panic(
-        const QString& error,
-        bool can_call_stack_trace=true,
-        const Location& location={"", "", 0});
-};
+}

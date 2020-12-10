@@ -7,17 +7,15 @@
 #include "Gui.hpp"
 #include "Utils.hpp"
 
-// TODO stack trace: portable cstd way
-
-// TODO if no stack or short stack -> smaller size crash dialog in both dimensions
 
 // TODO stack trace: collapsed unresolved symbol lines
-
-// TODO namespace Utils for classes if not in namespace Minus
+// and/or
+// TODO if no stack or short stack -> smaller size crash dialog in both dimensions
 
 /* TODO
 
    port Linux
+   linux stack trace: portable cstd way, boost?
    linux check if gdb command continue on attach should be removed
    linux gdb will need to be inside a terminal
    linux check split(\r\n) on output of addr2line
@@ -81,6 +79,7 @@
 
  */
 
+using namespace Utils;
 
 namespace Minus
 {

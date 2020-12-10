@@ -5,19 +5,22 @@
 
 #include "LoadContent.hpp"
 
-class Application : public QApplication
+namespace Utils
 {
-public:
-    Application(int argc, char** argv);
-    virtual bool notify(QObject *receiver, QEvent *event) override;
-private:
-    QTimer cb;
-    class Loader
+    class Application : public QApplication
     {
     public:
-        Loader()
+        Application(int argc, char** argv);
+        virtual bool notify(QObject *receiver, QEvent *event) override;
+    private:
+        QTimer cb;
+        class Loader
         {
-            LoadContent::doLoad();
-        }
-    } loader;
-};
+        public:
+            Loader()
+            {
+                Utils::LoadContent::doLoad();
+            }
+        } loader;
+    };
+}

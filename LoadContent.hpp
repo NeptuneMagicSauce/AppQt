@@ -1,10 +1,13 @@
 #pragma once
 
-class LoadContent
+namespace Utils
 {
-public:
-    LoadContent();
-    static void doLoad(void);
-protected:
-    virtual void loadCallback(void) { }
-};
+    class LoadContent
+    {
+    public:
+        LoadContent();
+        static void doLoad(void);
+    protected:
+        virtual void loadCallback(void) { }
+    };
+}

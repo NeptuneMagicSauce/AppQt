@@ -4,6 +4,8 @@
 
 #include "CrashDialog.hpp"
 
+using Utils::CrashDialog;
+
 namespace CrashHandler
 {
     using Type = void*;
