@@ -19,9 +19,8 @@ using Stack = Utils::StackTrace::Stack;
 using StackInfo = Utils::StackTrace::StackInfo;
 using Utils::CrashDialog;
 
-class CrashDialogImpl
+namespace CrashDialogImpl
 {
-public:
     void showTerminal(
         const QString& error,
         const Stack& stack,
@@ -47,6 +46,8 @@ public:
                              "c:/Devel/Tools/"),
                              "c:/Devel/Workspace/");
     }
+    constexpr const char* prefix_function = "in ";
+    constexpr const char* prefix_location = "at ";
     QString prettyPrintLocation(const CrashDialog::Location& location)
     {
         QString ret;
@@ -63,9 +64,7 @@ public:
         }
         return ret;
     }
-    static constexpr const char* prefix_function = "in ";
-    static constexpr const char* prefix_location = "at ";
-} impl_cd;
+};
 
 void CrashDialog::panic(
     const QString& error,
@@ -76,10 +75,10 @@ void CrashDialog::panic(
         can_call_stack_trace
         ? Utils::StackTrace::getCurrent()
         : Stack{ };
-    auto location_parsed = impl_cd.prettyPrintLocation(location);
+    auto location_parsed = CrashDialogImpl::prettyPrintLocation(location);
 
-    impl_cd.showTerminal(error, stack, location_parsed);
-    impl_cd.showDialog(error, stack, location_parsed);
+    CrashDialogImpl::showTerminal(error, stack, location_parsed);
+    CrashDialogImpl::showDialog(error, stack, location_parsed);
 
     // exit as fast as possible, no deferral
     // because we can't expect other systems to work
@@ -105,7 +104,7 @@ void CrashDialogImpl::showTerminal(
     qdebug << "Stack Trace\n";
     for (const auto& s : stack)
     {
-        qdebug << impl_cd.prettyPrintStack(s) << "\n";
+        qdebug << prettyPrintStack(s) << "\n";
     }
     qdebug.flush();
 }
@@ -188,7 +187,7 @@ void CrashDialogImpl::showDialog(
     stack_text += "<b>Stack Trace</b><br><br>";
     for (const auto& s: stack)
     {
-        stack_text += impl_cd.prettyPrintStack(s, true, true) + "<br>";
+        stack_text += prettyPrintStack(s, true, true) + "<br>";
     }
     stack_label.setText(stack_text);
 
@@ -262,14 +261,14 @@ QString CrashDialogImpl::prettyPrintStack(
         return mark.first + item_safe + mark.second;
     };
 
-    location = impl_cd.removeFilePathSpecifics(location);
+    location = removeFilePathSpecifics(location);
 
     auto a = formatItem(address, Type::Address, rich_text);
     auto f = formatItem(function, Type::Function, rich_text);
     auto l = formatItem(location, Type::Location, rich_text);
 
-    f = CrashDialogImpl::prefix_function + f;
-    l = CrashDialogImpl::prefix_location + l;
+    f = prefix_function + f;
+    l = prefix_location + l;
 
     static const std::map<bool, QString> brs =
         {

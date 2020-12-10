@@ -63,9 +63,9 @@ CrashHandler::Type CrashHandler::install(void)
     // the windows api handler can not handle these
     // SIGABORT (and all other signals), std::terminate(), throw empty, assert(false)
     installSignalHandlers( {
-        // the cstd api handler can not handle these
-        // asm "int3", win api DebugBreak()
-        // and its stack trace is longer than the winapi
+            // the cstd api handler can not handle these
+            // asm "int3", win api DebugBreak()
+            // and its stack trace is longer than the winapi
             SIGABRT,
             // SIGSEGV, // this one is already caught by handlerWindows
             // SIGFPE, // this one is already caught by handlerWindows
