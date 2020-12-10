@@ -3,6 +3,9 @@
 #include <iostream>
 #include <set>
 
+#include <QTime>
+#include <QDebug>
+
 #include "Utils.hpp"
 
 using std::set;
@@ -120,7 +123,6 @@ void Logic::reset(int width, int height)
             cells[index(x, y)] = std::make_shared<Cell>(Indices(x, y));
         }
     }
-
 
     // populate mines
     const int mines_count = float(size) * 0.20f;

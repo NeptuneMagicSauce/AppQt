@@ -6,6 +6,7 @@
 #include <QGridLayout>
 #include <QResizeEvent>
 #include <QDebug>
+#include <QTime>
 
 #include "Utils.hpp"
 #include "Labels.hpp"
@@ -38,6 +39,7 @@ namespace Minus
                 }
             }
         }
+
         virtual void setGeometry(const QRect &r) override
         {
             QGridLayout::setGeometry(r);
@@ -193,30 +195,32 @@ void FrameImpl::reset(int width, int height)
         }
     }
     key_reveal_pressed = false;
-    // TODO faster reset: use pool for Cell instances
-}
 
-void Frame::addCell(int row, int column)
-{
-    auto widget = dynamic_cast<CellWidget*>(impl_f.layout->itemAtPosition(row, column)->widget());
-    widget->reset(FrameImpl::color(column, row, width, height));
-    widget->setVisible(true);
-    impl_f.indices[widget] = { column, row };
-    impl_f.widgets[column][row] = widget;
-
-    // compute neighbors
-    auto& n = impl_f.neighbors[column][row];
-    for (int x = column - 1; x <= column + 1; ++x)
+    for (int column=0; column<width; ++column)
     {
-        for (int y = row - 1; y <= row + 1; ++y)
+        for (int row=0; row<height; ++row)
         {
-            if (x >= 0 && y >= 0 && x < width && y < height)
+            auto widget = dynamic_cast<CellWidget*>(layout->itemAtPosition(row, column)->widget());
+            widget->reset(FrameImpl::color(column, row, width, height));
+            widget->setVisible(true);
+            indices[widget] = { column, row };
+            widgets[column][row] = widget;
+
+            // compute neighbors
+            auto& n = neighbors[column][row];
+            for (int x = column - 1; x <= column + 1; ++x)
             {
-                n.emplace_back(x, y);
+                for (int y = row - 1; y <= row + 1; ++y)
+                {
+                    if (x >= 0 && y >= 0 && x < width && y < height)
+                    {
+                        n.emplace_back(x, y);
+                    }
+                }
             }
+            Assert(n.size() <= 9);
         }
     }
-    Assert(n.size() <= 9);
 }
 
 void Frame::resizeEvent(QResizeEvent *event)
