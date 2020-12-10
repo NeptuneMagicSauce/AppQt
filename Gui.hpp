@@ -21,6 +21,5 @@ namespace Minus
     public:
         Frame frame;
         Utils::SettingsPane settings;
-
     };
 };

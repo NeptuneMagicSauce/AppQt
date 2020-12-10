@@ -44,6 +44,9 @@ class GuiImpl
 {
 public:
     GuiImpl(Gui& gui);
+
+    static constexpr int MaxWidth = 50;
+    static constexpr int MaxHeight = 40;
 private:
     Gui& gui;
     EventFilterFirstShow filter;
@@ -115,7 +118,7 @@ private:
 };
 
 Gui::Gui(const int& width, const int& height) :
-    frame(width, height),
+    frame(width, height, GuiImpl::MaxWidth, GuiImpl::MaxHeight),
     settings(&frame)
 {
     Utils::assertSingleton(typeid(*this));
@@ -127,7 +130,6 @@ GuiImpl::GuiImpl(Gui& gui) :
 {
     main_window.setCentralWidget(&gui.frame);
     main_window.setWindowTitle("Super Minus");
-    main_window.show();
 
     filter.callback = [this] () { setInitialWindowSize(); };
     tool_bar.installEventFilter(&filter);
@@ -153,15 +155,14 @@ GuiImpl::GuiImpl(Gui& gui) :
     tool_bar.addAction(settings_action);
     formatAction(settings_action);
 
-    auto mine_range = QPoint { 5, 100 };
     auto setting_id_width = gui.settings.registerInt(
         "Width",
         gui.frame.width,
-        mine_range);
+        { 5, GuiImpl::MaxWidth });
     auto setting_id_height = gui.settings.registerInt(
         "Height",
         gui.frame.height,
-        mine_range);
+        { 5, GuiImpl::MaxHeight });
     QObject::connect(
         &gui.settings,
         &SettingsPane::intChanged,
@@ -170,13 +171,13 @@ GuiImpl::GuiImpl(Gui& gui) :
             auto width = id == setting_id_width ? value : gui.frame.width;
             auto height = id == setting_id_height ? value : gui.frame.height;
             emit gui.reset_signal(width, height);
-            // TODO BUG missing call to resize event because font is not scaled
         });
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
     main_window.addToolBar(Qt::TopToolBarArea, &tool_bar);
 
+    main_window.show();
 }
 
 void Gui::reset(void)
