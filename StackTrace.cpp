@@ -4,12 +4,18 @@
 #include <QProcess>
 #include <QCoreApplication>
 
+#if _WIN64
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <imagehlp.h> // SymInitialize() needs linker flag -limagehlp
+#else
+#endif
+
 using namespace Utils;
 
 namespace StackTraceImpl
 {
     using Addresses = QVector<void*>;
-    Addresses walkStack(void* context_void);
     StackTrace::Stack parseStack(const Addresses& addresses);
     QStringList addr2line(const Addresses& addresses);
     QString printAddress(void* value)
@@ -20,6 +26,10 @@ namespace StackTraceImpl
             QString::number(intptr_t(value), 16).
             rightJustified(pointer_chars, '0');
     }
+#if _WIN64
+    Addresses walkStack(CONTEXT* context);
+    StackTrace::Stack fromContext(EXCEPTION_POINTERS* exception); // not used
+#endif
 }
 
 QStringList StackTraceImpl::addr2line(const Addresses& addresses)
@@ -91,12 +101,8 @@ StackTrace::Stack StackTraceImpl::parseStack(const StackTraceImpl::Addresses& ad
 }
 
 #if _WIN64
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <imagehlp.h> // SymInitialize() needs linker flag -limagehlp
-StackTrace::Stack StackTrace::fromContext(void* exception_void)
+StackTrace::Stack StackTraceImpl::fromContext(EXCEPTION_POINTERS* exception)
 {
-    auto* exception = static_cast<EXCEPTION_POINTERS*>(exception_void);
     if (exception == nullptr)
     {
         return { };
@@ -128,9 +134,8 @@ StackTrace::Stack StackTrace::getCurrent(void)
     return StackTraceImpl::parseStack(addresses);
 }
 
-StackTraceImpl::Addresses StackTraceImpl::walkStack(void* context_void)
+StackTraceImpl::Addresses StackTraceImpl::walkStack(CONTEXT* context)
 {
-    auto* context = static_cast<CONTEXT*>(context_void);
     if (!context)
     {
         return { };

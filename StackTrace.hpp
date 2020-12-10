@@ -13,8 +13,5 @@ namespace Utils::StackTrace
     };
     using Stack = QList<StackInfo>;
 
-#if _WIN64
-    Stack fromContext(void* exception); // not used
-#endif
     Stack getCurrent(void);
 }
