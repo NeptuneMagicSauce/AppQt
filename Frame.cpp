@@ -148,10 +148,12 @@ void Frame::reset(void)
 
 void FrameImpl::reset(int width, int height)
 {
+    qDebug() << "reset from" << layout->count();
     while (layout->count())
     {
         layout->takeAt(0);
     }
+    qDebug() << "reset to" << layout->count();
     cell_pressed = nullptr;
     hovered = nullptr;
     under_mouse = nullptr;

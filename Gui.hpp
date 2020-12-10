@@ -16,11 +16,11 @@ namespace Minus
         void resizeEvent(void);
 
     signals:
-        void reset_signal(void);
+        void reset_signal(int width, int height);
 
     public:
         Frame frame;
-        SettingsPane settings;
+        Utils::SettingsPane settings;
 
     };
 };
