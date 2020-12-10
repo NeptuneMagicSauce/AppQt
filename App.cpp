@@ -7,15 +7,10 @@
 #include "Gui.hpp"
 #include "Utils.hpp"
 
-
-// TODO stack trace: collapsed unresolved symbol lines
-// and/or
-// TODO if no stack or short stack -> smaller size crash dialog in both dimensions
-
 /* TODO
 
    port Linux
-   linux stack trace: portable cstd way, boost?
+   linux stack trace: portable cstd way, boost:: ? backtrace() ?
    linux check if gdb command continue on attach should be removed
    linux gdb will need to be inside a terminal
    linux check split(\r\n) on output of addr2line
@@ -34,13 +29,11 @@
    status win/lose: with face emoji
 
    nicer font as baked resource
-
+   outline text of neighbor count
    emoji renders are not nicely anti-aliased
 
    use a QGraphicsView instead of QFrame ?
    cf https://stackoverflow.com/a/13990849
-
-   outline text of neighbor count
 
    reveal cells with nice animation
    shake viewport
