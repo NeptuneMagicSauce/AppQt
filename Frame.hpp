@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CellWidget.hpp"
+// TODO do not use Cell which is on Logic side
 #include "Cell.hpp"
 
 namespace Minus
@@ -9,7 +10,11 @@ namespace Minus
     {
         Q_OBJECT
     public:
-        Frame(const int& width, const int& height);
+        Frame(
+            const int& width,
+            const int& height,
+            int max_width,
+            int max_height);
         void reset(void);
         void addCell(int row, int column);
         void setMineData(const CellStates& data);

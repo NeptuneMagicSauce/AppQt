@@ -19,23 +19,34 @@ namespace Minus
     class Layout: public QGridLayout
     {
     public:
-        Layout(const int& width, const int& height) :
+        Layout(const int& width, const int& height, int max_width, int max_height) :
             width(width),
-            height(height)
+            height(height),
+            max_width(max_width),
+            max_height(max_height)
         {
             setContentsMargins(0, 0, 0, 0);
             setSpacing(0);
+            pool.reserve(max_width * max_height);
+            for (int column=0; column<max_width; ++column)
+            {
+                for (int row=0; row<max_height; ++row)
+                {
+                    auto w = pool.get();
+                    addWidget(w, row, column);
+                    w->setVisible(false);
+                }
+            }
         }
         virtual void setGeometry(const QRect &r) override
         {
+            QGridLayout::setGeometry(r);
             if (isEmpty())
             {
-                QGridLayout::setGeometry(r);
                 return;
             }
 
-            assert(count() == width * height);
-
+            Assert(width <= max_width && height <= max_height);
             const auto cell_size = std::min(
                 r.width() / width,
                 r.height() / height);
@@ -60,10 +71,28 @@ namespace Minus
         }
         virtual QSize minimumSize() const override
         {
+            // TODO no minimum size
             return QSize { Frame::MinimumCellSize * width, Frame::MinimumCellSize * height };
         }
+
+        void reset(void)
+        {
+            Assert(width <= max_width && height <= max_height);
+            for (int column=0; column<columnCount(); ++column)
+            {
+                for (int row=0; row<rowCount(); ++row)
+                {
+                    itemAtPosition(row, column)->widget()->setVisible(false);
+                }
+            }
+            pool.reset();
+        }
+
+    private:
         const int& width;
         const int& height;
+        const int max_width, max_height;
+        Pool<CellWidget> pool;
     };
 };
 
@@ -86,7 +115,6 @@ public:
     std::map<CellWidget*, Indices> indices;
     vector<vector<CellWidget*>> widgets;
     vector<vector<vector<Indices>>> neighbors;
-    Pool<CellWidget> pool;
 
     static QColor color(int column, int row, int width, int height)
     {
@@ -120,14 +148,17 @@ public:
 
 } impl_f;
 
-Frame::Frame(const int& width, const int& height) :
+Frame::Frame(
+    const int& width,
+    const int& height,
+    int max_width,
+    int max_height) :
     width(width),
     height(height)
 {
     Utils::assertSingleton(typeid(*this));
     impl_f.frame = this;
-    impl_f.layout = new Layout(width, height);
-    impl_f.pool.reserve(40 * 40);
+    impl_f.layout = new Layout(width, height, max_width, max_height);
     setLayout(impl_f.layout);
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
@@ -148,14 +179,7 @@ void Frame::reset(void)
 
 void FrameImpl::reset(int width, int height)
 {
-    qDebug() << "reset from" << layout->count();
-    while (layout->count())
-    {
-        // TODO faster reset: use set visible rather than remove from layout
-        auto item = layout->takeAt(layout->count() - 1);
-        item->widget()->setParent(nullptr);
-    }
-    qDebug() << "reset to" << layout->count();
+    layout->reset();
     cell_pressed = nullptr;
     hovered = nullptr;
     under_mouse = nullptr;
@@ -176,16 +200,15 @@ void FrameImpl::reset(int width, int height)
         }
     }
     key_reveal_pressed = false;
-    pool.reset();
     // TODO BUG there is 2 calls to reset() on launch
     // TODO faster reset: use pool for Cell instances
 }
 
 void Frame::addCell(int row, int column)
 {
-    auto* widget = impl_f.pool.get();
+    auto widget = dynamic_cast<CellWidget*>(impl_f.layout->itemAtPosition(row, column)->widget());
     widget->reset(FrameImpl::color(column, row, width, height));
-    impl_f.layout->addWidget(widget, row, column);
+    widget->setVisible(true);
     impl_f.indices[widget] = { column, row };
     impl_f.widgets[column][row] = widget;
 
@@ -370,8 +393,8 @@ void FrameImpl::onCellPressed(CellWidget* w)
         for (auto& neighbor_indices: neighbors[wx][wy])
         {
             auto x = neighbor_indices.x(), y = neighbor_indices.y();
-            assert(y < layout->rowCount());
-            assert(x < layout->columnCount());
+            Assert(y < layout->rowCount());
+            Assert(x < layout->columnCount());
             auto* n = dynamic_cast<CellWidget*>(layout->itemAtPosition(y, x)->widget());
             if (n->revealed == false && n->flag == false)
             {
