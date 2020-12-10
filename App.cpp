@@ -113,12 +113,12 @@ namespace Minus
                                  gui.frame.revealCell(indices);
                              });
 
-            QObject::connect(&gui, &Gui::reset_signal, [this] () {
-                logic.reset(logic.width, logic.height);
+            QObject::connect(&gui, &Gui::reset_signal, [this] (int w, int h) {
+                logic.reset(w, h);
                 gui.reset();
             });
 
-            emit gui.reset_signal();
+            emit gui.reset_signal(logic.width, logic.height);
             // gui.resizeEvent(); // no longer needed because we do a first resize
         }
     private:

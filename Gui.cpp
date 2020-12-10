@@ -15,6 +15,7 @@
 #include "Labels.hpp"
 
 using namespace Minus;
+using namespace Utils;
 
 class EventFilterFirstShow: public QObject
 {
@@ -141,16 +142,37 @@ GuiImpl::GuiImpl(Gui& gui) :
     // TODO button reset is not perfectly centered
     addButton(
         [&gui]() {
-            emit gui.reset_signal();
+            emit gui.reset_signal(gui.frame.width, gui.frame.height);
         },
         Labels::reset,
         "Reset",
         QKeySequence::Refresh);
     tool_bar.addWidget(spacer_right);
 
-    auto* settings_action = gui.settings.action();
+    auto* settings_action = gui.settings.action(Labels::settings);
     tool_bar.addAction(settings_action);
     formatAction(settings_action);
+
+    auto mine_range = QPoint { 5, 100 };
+    auto setting_id_width = gui.settings.registerInt(
+        "Width",
+        gui.frame.width,
+        mine_range);
+    auto setting_id_height = gui.settings.registerInt(
+        "Height",
+        gui.frame.height,
+        mine_range);
+    QObject::connect(
+        &gui.settings,
+        &SettingsPane::intChanged,
+
+        [&gui, setting_id_width, setting_id_height] (int id, int value) {
+            auto width = id == setting_id_width ? value : gui.frame.width;
+            auto height = id == setting_id_height ? value : gui.frame.height;
+            emit gui.reset_signal(width, height);
+            // TODO BUG missing call to resize event because font is not scaled
+            // TODO BUG here: I can see old zombie CellWidgets after reset
+        });
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);

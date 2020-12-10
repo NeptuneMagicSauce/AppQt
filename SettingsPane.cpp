@@ -4,17 +4,23 @@
 #include <QDebug>
 #include <QToolButton>
 #include <QTimer>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QSlider>
+#include <QGroupBox>
 
 #include "Utils.hpp"
 #include "Labels.hpp"
 
-using namespace Minus;
+using namespace Utils;
 
 class SettingsImpl
 {
 public:
     QWidget* parent = nullptr;
     QAction* action = nullptr;
+    QVBoxLayout* layout = nullptr;
+    int index = 0;
 } impl_s;
 
 SettingsPane::SettingsPane(QWidget* parent) :
@@ -23,7 +29,7 @@ SettingsPane::SettingsPane(QWidget* parent) :
     Utils::assertSingleton(typeid(*this)); // have impl be member if not singleton
     impl_s.parent = parent;
 
-    resize(200, 200);
+    // resize(200, 200);
 
     // as QDialog ->
     setWindowFlags(
@@ -34,7 +40,7 @@ SettingsPane::SettingsPane(QWidget* parent) :
     setModal(false);
 
     auto& action = impl_s.action;
-    action = new QAction(Labels::settings);
+    action = new QAction("Settings");
     action->setCheckable(true);
     action->setToolTip("Settings");
     action->setShortcut(Qt::Key_F2);
@@ -49,10 +55,17 @@ SettingsPane::SettingsPane(QWidget* parent) :
         // because clicking away from the dialog (on the action) hides it
     });
     // TODO check if my height is taller than parent height
+
+    impl_s.layout = new QVBoxLayout;
+    setLayout(impl_s.layout);
 }
 
-QAction* SettingsPane::action(void) const
+QAction* SettingsPane::action(const QString& label)
 {
+    if (label.size())
+    {
+        impl_s.action->setText(label);
+    }
     return impl_s.action;
 }
 
@@ -75,4 +88,34 @@ void SettingsPane::showEvent(QShowEvent *event)
     // auto top_left = parent->mapToGlobal({0, 0});
     // top_left.setX(top_left.x() + parent->width() - width());
     // setGeometry({ top_left, size() });
+}
+
+int SettingsPane::registerInt(QString label, int value, QPoint range)
+{
+    auto widget = new QGroupBox(label);
+    // auto layout = new QHBoxLayout;
+    // auto sub_widget = new QWidget;
+    auto sub_layout = new QVBoxLayout;
+    auto slider = new QSlider;
+    auto value_label = new QLabel;
+    widget->setLayout(sub_layout);
+    // sub_widget->setLayout(sub_layout);
+    // layout->addWidget(new QLabel(label));
+    // layout->addWidget(sub_widget);
+    sub_layout->addWidget(slider);
+    sub_layout->addWidget(value_label);
+    value_label->setAlignment(Qt::AlignCenter);
+    slider->setTracking(false);
+    slider->setOrientation(Qt::Horizontal);
+    slider->setRange(range.x(), range.y());
+    slider->setValue(value);
+    value_label->setText(QString::number(value));
+    auto index = impl_s.index;
+    QObject::connect(slider, &QSlider::valueChanged,
+                     [this, value_label, index] (int v) {
+                         value_label->setText(QString::number(v));
+                         emit intChanged(index, v);
+                     });
+    impl_s.layout->addWidget(widget);
+    return impl_s.index++;
 }
