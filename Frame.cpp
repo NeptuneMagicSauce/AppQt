@@ -69,11 +69,6 @@ namespace Minus
                 }
             }
         }
-        virtual QSize minimumSize() const override
-        {
-            // TODO no minimum size
-            return QSize { Frame::MinimumCellSize * width, Frame::MinimumCellSize * height };
-        }
 
         void reset(void)
         {
@@ -82,7 +77,9 @@ namespace Minus
             {
                 for (int row=0; row<rowCount(); ++row)
                 {
+                    // TODO disable and enable mouse tracking same as visibility
                     itemAtPosition(row, column)->widget()->setVisible(false);
+                    // TODO CellWidget herits from Widget not Frame: faster?
                 }
             }
             pool.reset();
