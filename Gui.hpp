@@ -17,6 +17,7 @@ namespace Minus
 
     signals:
         void reset_signal(int width, int height);
+        void ready(void);
 
     public:
         Frame frame;

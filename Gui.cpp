@@ -47,6 +47,7 @@ public:
 
     static constexpr int MaxWidth = 50;
     static constexpr int MaxHeight = 40;
+
 private:
     Gui& gui;
     EventFilterFirstShow filter;
@@ -177,7 +178,9 @@ GuiImpl::GuiImpl(Gui& gui) :
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
     main_window.addToolBar(Qt::TopToolBarArea, &tool_bar);
 
-    main_window.show();
+    QObject::connect(&gui, &Gui::ready, [this] () {
+        main_window.show();
+    });
 }
 
 void Gui::reset(void)
@@ -191,6 +194,13 @@ void Gui::reset(void)
         }
     }
     resizeEvent();
+
+    static auto first_run = true;
+    if (first_run)
+    {
+        emit ready();
+        first_run = false;
+    }
 }
 
 void Gui::resizeEvent(void)
