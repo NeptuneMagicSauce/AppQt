@@ -201,10 +201,6 @@ void FrameInputEvents::onCellPressed(CellWidget* w)
         for (auto& neighbor_indices: neighbors[wx][wy])
         {
             auto x = neighbor_indices.x(), y = neighbor_indices.y();
-            // TODO check this ->
-            // Assert(y < layout->rowCount());
-            // Assert(x < layout->columnCount());
-            // auto* n = dynamic_cast<CellWidget*>(layout->itemAtPosition(y, x)->widget());
             auto n = widgets[x][y];
             if (n->revealed == false && n->flag == false)
             {
