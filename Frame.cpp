@@ -3,99 +3,17 @@
 #include <cmath>
 #include <vector>
 #include <map>
-#include <QGridLayout>
 #include <QResizeEvent>
 #include <QDebug>
 #include <QTime>
-#include <QTimer>
-#include <QDialog>
-#include <QProgressBar>
 
 #include "Utils.hpp"
 #include "Labels.hpp"
-#include "Pool.hpp"
+#include "Layout.hpp"
+#include "BackgroundOperation.hpp"
 
 using std::vector;
 using namespace Utils;
-
-namespace Minus
-{
-    class Layout: public QGridLayout
-    {
-    public:
-        Layout(const int& width, const int& height, int max_width, int max_height) :
-            width(width),
-            height(height),
-            max_width(max_width),
-            max_height(max_height)
-        {
-            setContentsMargins(0, 0, 0, 0);
-            setSpacing(0);
-            pool.reserve(max_width * max_height);
-            for (int column=0; column<max_width; ++column)
-            {
-                for (int row=0; row<max_height; ++row)
-                {
-                    auto w = pool.get();
-                    addWidget(w, row, column);
-                    w->setVisible(false);
-                }
-            }
-        }
-
-        virtual void setGeometry(const QRect &r) override
-        {
-            QGridLayout::setGeometry(r);
-            if (isEmpty())
-            {
-                return;
-            }
-
-            Assert(width <= max_width && height <= max_height);
-            const auto cell_size = std::min(
-                r.width() / width,
-                r.height() / height);
-            const auto
-                start_x = r.width() / 2 - (cell_size * width) / 2,
-                start_y = r.height() / 2 - (cell_size * height) / 2;
-
-            for (int x=0; x<width; ++x)
-            {
-                for (int y=0; y<height; ++y)
-                {
-                    const QRect rect
-                        {
-                            start_x + cell_size * x,
-                            start_y + cell_size * y,
-                            cell_size,
-                            cell_size,
-                        };
-                    itemAtPosition(y, x)->setGeometry(rect);
-                }
-            }
-        }
-
-        void reset(void)
-        {
-            Assert(width <= max_width && height <= max_height);
-            for (int column=0; column<columnCount(); ++column)
-            {
-                for (int row=0; row<rowCount(); ++row)
-                {
-                    itemAtPosition(row, column)->widget()->setVisible(false);
-                }
-            }
-            pool.reset();
-        }
-
-    private:
-        const int& width;
-        const int& height;
-        const int max_width, max_height;
-        Pool<CellWidget> pool;
-    };
-};
-
 using namespace Minus;
 
 class FrameImpl
@@ -121,60 +39,8 @@ public:
     QTimer set_visible_timer;
     QList<Indices> set_visible_indices;
 
-    QFrame* progress_dialog = nullptr;
-    QProgressBar* progress_bar = nullptr;
-
-    void init(void)
-    {
-        // cost of QWidget::setVisible is heavy with many instances
-        auto setVisibleCb = [this] () {
-            for (int i=0; i<5; ++i)
-            {
-                auto frame_size = frame->geometry().size();
-                auto progress_dialog_size = QSize{
-                    std::min(300, frame_size.width()),
-                    80 };
-                progress_dialog->setGeometry(
-                    {
-                        QPoint
-                        {
-                            (frame_size.width() - progress_dialog_size.width()) / 2,
-                            (frame_size.height() - progress_dialog_size.height()) / 2,
-                        },
-                        QSize{ progress_dialog_size.width(), progress_dialog_size.height() }
-                    });
-
-                if (set_visible_indices.isEmpty())
-                {
-                    set_visible_timer.stop();
-                    progress_dialog->hide();
-                    return;
-                }
-
-                progress_bar->setValue(
-                    frame->width * frame->height - set_visible_indices.count());
-                auto index = set_visible_indices.takeLast();
-                auto widget = dynamic_cast<CellWidget*>(
-                    layout->itemAtPosition(index.y(), index.x())->widget());
-                widget->setVisible(true);
-            }
-        };
-        QObject::connect(&set_visible_timer, &QTimer::timeout, setVisibleCb);
-
-        auto* progress_layout = new QGridLayout;
-
-        progress_dialog = new QFrame;
-        progress_dialog->setFrameShape(QFrame::StyledPanel);
-        progress_dialog->setAutoFillBackground(true);
-        progress_dialog->setLayout(progress_layout);
-        progress_dialog->setParent(frame);
-
-        progress_bar = new QProgressBar;
-        progress_bar->setParent(progress_dialog);
-        progress_bar->setMinimum(0);
-
-        progress_layout->addWidget(progress_bar, 0, 0);
-    }
+    // cost of QWidget::setVisible is heavy with many instances
+    BackgroundOperation* set_visible_operation = nullptr; // TODO not pointer
 
     bool needReset(void) const
     {
@@ -223,13 +89,13 @@ Frame::Frame(
 {
     Utils::assertSingleton(typeid(*this));
     impl_f.frame = this;
+    impl_f.set_visible_operation = new BackgroundOperation(this);
     impl_f.layout = new Layout(width, height, max_width, max_height);
     setLayout(impl_f.layout);
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
     setContextMenuPolicy(Qt::PreventContextMenu);
 
-    impl_f.init();
 }
 
 CellWidget* Frame::widgetOfEvent(QMouseEvent* e)
@@ -318,10 +184,26 @@ void FrameImpl::reset(void)
 
     if (need_reset)
     {
-        progress_bar->setMaximum(width * height);
-        progress_dialog->show();
+        set_visible_operation->start( [this] () {
+            for (int i=0; i<5; ++i)
+            {
+                if (set_visible_indices.isEmpty())
+                {
+                    return 100;
+                }
+
+                auto index = set_visible_indices.takeLast();
+                auto widget = dynamic_cast<CellWidget*>(
+                    layout->itemAtPosition(index.y(), index.x())->widget());
+                widget->setVisible(true);
+            }
+            if (set_visible_indices.isEmpty())
+            {
+                return 100;
+            }
+            return std::min(99, 100 - (set_visible_indices.count() * 100 / (frame->width * frame->height)));
+        });
         // TODO disable input while busy loading
-        set_visible_timer.start();
     }
 }
 
