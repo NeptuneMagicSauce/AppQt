@@ -1,5 +1,6 @@
 #include "Utils.hpp"
 
+#include <random>
 #include <sstream>
 #include <set>
 #include <cxxabi.h>
@@ -31,7 +32,13 @@ namespace UtilsImpl
     {
         return abi::__cxa_demangle(type.name(), 0, 0, 0);
     }
-};
+
+    std::mt19937 random_generator = [] () {
+        auto ret = std::mt19937 { std::random_device{}() };
+        ret.seed(time(0));
+        return ret;
+    }();
+}
 
 void Utils::assertSingleton(const std::type_info& type)
 {;
@@ -76,4 +83,11 @@ void Utils::panicException(
         "Unhandled exception: ' " + QString{UtilsImpl::demangle(typeid(e))} +
         "\n' " + e.what() + " '",
         file, line, function);
+}
+
+std::size_t Utils::randomIndex(std::size_t size)
+{
+    if (size == 0) { return 0; }
+    std::uniform_int_distribution<std::size_t> distrib { 0, size - 1 };
+    return distrib(UtilsImpl::random_generator);
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <map>
-#include <random>
 #include <QObject>
 
 #include "Cell.hpp"
@@ -32,11 +31,6 @@ namespace Minus
         Cells cells_empty;
         std::map<CellPtr, Cells> neighbors; // includes itself as neighbor
         bool any_reveal = false;
-
-        // random-ness
-        std::random_device rd;
-        std::mt19937 gen { rd() };
-        std::uniform_int_distribution<int> distrib;
 
         // functions
         CellPtr& cell(int x, int y);

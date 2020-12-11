@@ -13,7 +13,6 @@
    coding style: auto* -> auto
    change assert -> Assert
 
-
    better perf if CellWidget herits from Widget not Frame or Label: faster?
    with rendering of pre-rendered textures ?
 
@@ -61,7 +60,7 @@
 
    windows: hide console on start, show console on crash
 
-   check other threads: do they need to attach signal handler and disable FPE ?
+   other threads: they need to attach signal handler and disable FPE!
 
    Floating Point Exceptions: forbid inf, nan, allow temporary FPE::Disabler
 

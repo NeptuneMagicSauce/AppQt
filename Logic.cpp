@@ -19,7 +19,6 @@ Logic::Logic(int width, int height) :
     height(m_height)
 {
     Utils::assertSingleton(typeid(*this));
-    gen.seed(time(0));
 
     reset(width, height);
 }
@@ -98,8 +97,7 @@ void Logic::setFlag(const Indices& indices, bool flag)
 void Logic::setOneRandomCellToMine(void)
 {
     assert(cells_empty.size());
-    distrib.param(std::uniform_int_distribution<int>::param_type(0, int(cells_empty.size() - 1)));
-    const auto mine_index = distrib(gen);
+    const auto mine_index = Utils::randomIndex(cells_empty.size());
     cells_empty[mine_index]->mine = true;
     cells_empty.erase(cells_empty.begin() + mine_index);
 }

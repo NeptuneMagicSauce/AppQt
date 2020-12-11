@@ -1,6 +1,5 @@
 #include "CellWidget.hpp"
 
-#include <random>
 #include <set>
 
 #include <QTimer>
@@ -18,17 +17,13 @@ using namespace Minus;
 
 struct CellWidgetImpl: public LoadContent
 {
-    std::random_device rd;
-    std::mt19937 gen { rd() };
-    std::uniform_int_distribution<int> distrib {-5, 5};
-
     QColor processColor(const QColor& color)
     {
         int r, g, b;
         color.getRgb(&r, &g, &b);
         static auto perColor = [this] (int& c)
             {
-                c += distrib(gen);
+                c += Utils::randomIndex(10) - 5;
                 c = std::max(0, std::min(255, c));
             };
         perColor(r);
