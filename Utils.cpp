@@ -72,6 +72,15 @@ void Utils::doAssert(
     UtilsImpl::panic(message_combined, file, line, function);
 }
 
+void Utils::panic(
+    const QString& message,
+    const QString& file,
+    int line,
+    const QString& function)
+{
+    UtilsImpl::panic(message, file, line, function);
+}
+
 
 void Utils::panicException(
     const std::exception& e,
