@@ -44,6 +44,12 @@ namespace Utils
         int line,
         const QString& function);
 
+    void panic(
+        const QString& message,
+        const QString& file,
+        int line,
+        const QString& function);
+
     void panicException(
         const std::exception& e,
         const QString& file,
@@ -54,3 +60,4 @@ namespace Utils
 #define Assert(check) Utils::doAssert((check), (#check), "", __FILE__, __LINE__, __PRETTY_FUNCTION__)
 #define AssertX(check, message) Utils::doAssert((check), (#check), (message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
 #define PanicException(ex) Utils::panicException(ex, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+#define Panic(message) Utils::panic((message), __FILE__, __LINE__, __PRETTY_FUNCTION__)
