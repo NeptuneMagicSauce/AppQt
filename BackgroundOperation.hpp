@@ -15,6 +15,7 @@ namespace Utils
 
         using Callback = std::function<int()>; // return percent complete in 0-100
         void start(Callback callback);
+        bool cancel(void); // return 'was active'
 
     private:
         QWidget* parent;
