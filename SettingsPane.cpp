@@ -113,8 +113,9 @@ int SettingsPane::registerInt(QString label, int value, QPoint range)
     value_label->setText(QString::number(value));
     auto index = impl_s.index;
     QObject::connect(slider, &QSlider::valueChanged,
-                     [this, value_label, index] (int v) {
-                         emit intChanged(index, v);
+                     [this, value_label, index] (int value) {
+                         value_label->setText(QString::number(value));
+                         emit intChanged(index, value);
                      });
     QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
         value_label->setText(QString::number(value));
