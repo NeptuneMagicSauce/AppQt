@@ -36,7 +36,6 @@ public:
 
     int cached_width, cached_height;
 
-    QTimer set_visible_timer;
     QList<Indices> set_visible_indices;
 
     // cost of QWidget::setVisible is heavy with many instances
@@ -144,9 +143,8 @@ void FrameImpl::reset(void)
             }
         }
 
-        if (set_visible_timer.isActive())
+        if (set_visible_operation->cancel())
         {
-            set_visible_timer.stop();
             set_visible_indices.clear();
         }
     }

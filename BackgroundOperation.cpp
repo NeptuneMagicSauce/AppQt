@@ -33,6 +33,16 @@ void BackgroundOperation::start(Callback callback)
     timer.start();
 }
 
+bool BackgroundOperation::cancel(void)
+{
+    if (timer.isActive())
+    {
+        timer.stop();
+        return true;
+    }
+    return false;
+}
+
 void BackgroundOperation::internalCallback(void)
 {
     Assert(callback != nullptr);
