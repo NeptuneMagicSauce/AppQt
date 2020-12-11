@@ -196,7 +196,7 @@ void FrameInputEvents::onCellPressed(CellWidget* w)
     {
         auto w_indices = indices[w];
         auto wx = w_indices.x(), wy = w_indices.y();
-        assert(neighbors[wx][wy].size() <= 9);
+        Assert(neighbors[wx][wy].size() <= 9);
 
         for (auto& neighbor_indices: neighbors[wx][wy])
         {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "Utils.hpp"
 
 namespace Utils
 {
@@ -25,7 +26,7 @@ namespace Utils
                     instances[i] = new T;
                 }
             }
-            assert(index < instances.size());
+            Assert(index < instances.size());
             return instances[index++];
         }
         void reset(void)

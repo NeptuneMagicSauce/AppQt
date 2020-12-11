@@ -10,10 +10,7 @@
 
 /* TODO
 
-   break up Frame in smaller files
-
    coding style: auto* -> auto
-   change assert -> Assert
 
    better perf if CellWidget herits from Widget not Frame or Label: faster?
    with rendering of pre-rendered textures ?
