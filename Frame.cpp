@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <QTime>
 #include <QTimer>
+#include <QDialog>
+#include <QProgressBar>
 
 #include "Utils.hpp"
 #include "Labels.hpp"
@@ -119,17 +121,38 @@ public:
     QTimer set_visible_timer;
     QList<Indices> set_visible_indices;
 
+    QFrame* progress_dialog = nullptr;
+    QProgressBar* progress_bar = nullptr;
+
     void init(void)
     {
         // cost of QWidget::setVisible is heavy with many instances
         auto setVisibleCb = [this] () {
             for (int i=0; i<5; ++i)
             {
+                auto frame_size = frame->geometry().size();
+                auto progress_dialog_size = QSize{
+                    std::min(300, frame_size.width()),
+                    80 };
+                progress_dialog->setGeometry(
+                    {
+                        QPoint
+                        {
+                            (frame_size.width() - progress_dialog_size.width()) / 2,
+                            (frame_size.height() - progress_dialog_size.height()) / 2,
+                        },
+                        QSize{ progress_dialog_size.width(), progress_dialog_size.height() }
+                    });
+
                 if (set_visible_indices.isEmpty())
                 {
                     set_visible_timer.stop();
+                    progress_dialog->hide();
                     return;
                 }
+
+                progress_bar->setValue(
+                    frame->width * frame->height - set_visible_indices.count());
                 auto index = set_visible_indices.takeLast();
                 auto widget = dynamic_cast<CellWidget*>(
                     layout->itemAtPosition(index.y(), index.x())->widget());
@@ -137,6 +160,20 @@ public:
             }
         };
         QObject::connect(&set_visible_timer, &QTimer::timeout, setVisibleCb);
+
+        auto* progress_layout = new QGridLayout;
+
+        progress_dialog = new QFrame;
+        progress_dialog->setFrameShape(QFrame::StyledPanel);
+        progress_dialog->setAutoFillBackground(true);
+        progress_dialog->setLayout(progress_layout);
+        progress_dialog->setParent(frame);
+
+        progress_bar = new QProgressBar;
+        progress_bar->setParent(progress_dialog);
+        progress_bar->setMinimum(0);
+
+        progress_layout->addWidget(progress_bar, 0, 0);
     }
 
     bool needReset(void) const
@@ -212,7 +249,8 @@ void FrameImpl::reset(void)
     under_mouse = nullptr;
     key_reveal_pressed = false;
 
-    auto need_reset = needReset();
+#warning debug remove next line
+    auto need_reset = true; //needReset();
 
     auto& width = frame->width;
     auto& height = frame->height;
@@ -245,8 +283,6 @@ void FrameImpl::reset(void)
             set_visible_timer.stop();
             set_visible_indices.clear();
         }
-
-        set_visible_timer.start();
     }
 
     for (int column=0; column<width; ++column)
@@ -279,6 +315,14 @@ void FrameImpl::reset(void)
             }
         }
     }
+
+    if (need_reset)
+    {
+        progress_bar->setMaximum(width * height);
+        progress_dialog->show();
+        // TODO disable input while busy loading
+        set_visible_timer.start();
+    }
 }
 
 void Frame::resizeEvent(QResizeEvent *event)
@@ -291,11 +335,12 @@ void Frame::resizeEvent(QResizeEvent *event)
     }
 
     // auto scale font size
-    const auto size = std::min(
-        event->size().width() / width,
-        event->size().height() / height)
-        * 0.4f; // default was 0.26
-
+    const auto size =
+        std::max(4.f,
+                 std::min(
+                     event->size().width() / width,
+                     event->size().height() / height)
+                 * 0.4f); // default was 0.26
     for (auto w : impl_f.indices)
     {
         w.first->setFontSize(size);
