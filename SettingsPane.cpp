@@ -82,6 +82,11 @@ void SettingsPane::hideEvent(QHideEvent *event)
 
 void SettingsPane::showEvent(QShowEvent *event)
 {
+    // TODO positioning is broken ...
+    // but we are hidden on any click away, such as move/resize window
+    // moving the window with the keyboard does not hide us, show its broken
+    // -> do same way as progress bar in Frame
+
     QDialog::showEvent(event);
     // anchor in top right corner of parent
     auto parent = impl_s.parent;
