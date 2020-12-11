@@ -1,8 +1,7 @@
 #pragma once
 
 #include "CellWidget.hpp"
-// TODO do not use Cell which is on Logic side
-#include "Cell.hpp"
+#include "CellState.hpp"
 
 namespace Minus
 {
