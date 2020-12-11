@@ -32,6 +32,8 @@ namespace Utils
             rightJustified(hexa_size, '0');
     }
 
+    std::size_t randomIndex(std::size_t size); // return an index between 0 and size-1
+
     void assertSingleton(const std::type_info& type);
 
     void doAssert(
