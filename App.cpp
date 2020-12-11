@@ -10,6 +10,13 @@
 
 /* TODO
 
+   emacs : right click -> buffer list
+
+   store files in dirs of src:
+   utils
+   minus/logic
+   minus/gui
+
    coding style: auto* -> auto
 
    better perf if CellWidget herits from Widget not Frame or Label: faster?
