@@ -11,7 +11,6 @@ namespace Utils
     {
     public:
         BackgroundOperation(QWidget* parent);
-        QWidget* progressWidget(void) { return &dialog; }
 
         using Callback = std::function<int()>; // return percent complete in 0-100
         void start(Callback callback);
