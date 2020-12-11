@@ -12,7 +12,7 @@ namespace Minus
     {
         Q_OBJECT
     public:
-        Logic(int width=25, int height=25);
+        Logic(int width=30, int height=25);
         ~Logic(void);
 
         void reset(int width, int height);
