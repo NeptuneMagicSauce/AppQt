@@ -7,6 +7,7 @@
 #include <QResizeEvent>
 #include <QDebug>
 #include <QTime>
+#include <QTimer>
 
 #include "Utils.hpp"
 #include "Labels.hpp"
@@ -113,6 +114,36 @@ public:
     vector<vector<CellWidget*>> widgets;
     vector<vector<vector<Indices>>> neighbors;
 
+    int cached_width, cached_height;
+
+    QTimer set_visible_timer;
+    QList<Indices> set_visible_indices;
+
+    void init(void)
+    {
+        // cost of QWidget::setVisible is heavy with many instances
+        auto setVisibleCb = [this] () {
+            for (int i=0; i<5; ++i)
+            {
+                if (set_visible_indices.isEmpty())
+                {
+                    set_visible_timer.stop();
+                    return;
+                }
+                auto index = set_visible_indices.takeLast();
+                auto widget = dynamic_cast<CellWidget*>(
+                    layout->itemAtPosition(index.y(), index.x())->widget());
+                widget->setVisible(true);
+            }
+        };
+        QObject::connect(&set_visible_timer, &QTimer::timeout, setVisibleCb);
+    }
+
+    bool needReset(void) const
+    {
+        return frame->width != cached_width || frame->height != cached_height;
+    }
+
     static QColor color(int column, int row, int width, int height)
     {
         constexpr auto max_distance = std::sqrt(2.f);
@@ -137,7 +168,7 @@ public:
         neighbors_pressed.clear();
     }
 
-    void reset(int widh, int height);
+    void reset(void);
     void onCellPressed(CellWidget* w);
     void pressEvent(CellWidget* w, int button);
     void releaseEvent(CellWidget* w, int button);
@@ -160,6 +191,8 @@ Frame::Frame(
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
     setContextMenuPolicy(Qt::PreventContextMenu);
+
+    impl_f.init();
 }
 
 CellWidget* Frame::widgetOfEvent(QMouseEvent* e)
@@ -169,32 +202,52 @@ CellWidget* Frame::widgetOfEvent(QMouseEvent* e)
 
 void Frame::reset(void)
 {
-    impl_f.reset(width, height);
+    impl_f.reset();
 }
 
-void FrameImpl::reset(int width, int height)
+void FrameImpl::reset(void)
 {
-    layout->reset();
     cell_pressed = nullptr;
     hovered = nullptr;
     under_mouse = nullptr;
-    neighbors_pressed.clear();
-    indices.clear();
-    widgets.resize(width);
-    for (auto& column: widgets)
-    {
-        column.resize(height);
-    }
-    neighbors.resize(width);
-    for (auto& column: neighbors)
-    {
-        column.resize(height);
-        for (auto& neighbors_vec: column)
-        {
-            neighbors_vec.clear();
-        }
-    }
     key_reveal_pressed = false;
+
+    auto need_reset = needReset();
+
+    auto& width = frame->width;
+    auto& height = frame->height;
+
+    cached_width = width;
+    cached_height = height;
+
+    if (need_reset)
+    {
+        layout->reset(); // set all Widget visibility to false
+        neighbors_pressed.clear();
+        indices.clear();
+        widgets.resize(width);
+        for (auto& column: widgets)
+        {
+            column.resize(height);
+        }
+        neighbors.resize(width);
+        for (auto& column: neighbors)
+        {
+            column.resize(height);
+            for (auto& neighbors_vec: column)
+            {
+                neighbors_vec.clear();
+            }
+        }
+
+        if (set_visible_timer.isActive())
+        {
+            set_visible_timer.stop();
+            set_visible_indices.clear();
+        }
+
+        set_visible_timer.start();
+    }
 
     for (int column=0; column<width; ++column)
     {
@@ -202,23 +255,28 @@ void FrameImpl::reset(int width, int height)
         {
             auto widget = dynamic_cast<CellWidget*>(layout->itemAtPosition(row, column)->widget());
             widget->reset(FrameImpl::color(column, row, width, height));
-            widget->setVisible(true);
-            indices[widget] = { column, row };
-            widgets[column][row] = widget;
-
-            // compute neighbors
-            auto& n = neighbors[column][row];
-            for (int x = column - 1; x <= column + 1; ++x)
+            if (need_reset)
             {
-                for (int y = row - 1; y <= row + 1; ++y)
+                indices[widget] = { column, row };
+                widgets[column][row] = widget;
+                set_visible_indices.insert(
+                    Utils::randomIndex(set_visible_indices.size()),
+                    Indices{ column, row });
+
+                // compute neighbors
+                auto& n = neighbors[column][row];
+                for (int x = column - 1; x <= column + 1; ++x)
                 {
-                    if (x >= 0 && y >= 0 && x < width && y < height)
+                    for (int y = row - 1; y <= row + 1; ++y)
                     {
-                        n.emplace_back(x, y);
+                        if (x >= 0 && y >= 0 && x < width && y < height)
+                        {
+                            n.emplace_back(x, y);
+                        }
                     }
                 }
+                Assert(n.size() <= 9);
             }
-            Assert(n.size() <= 9);
         }
     }
 }
