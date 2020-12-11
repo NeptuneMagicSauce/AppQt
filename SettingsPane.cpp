@@ -86,6 +86,7 @@ void SettingsPane::showEvent(QShowEvent *event)
     // but we are hidden on any click away, such as move/resize window
     // moving the window with the keyboard does not hide us, show its broken
     // -> do same way as progress bar in Frame
+    // by connecting to an event or signal of parent? paintEvent?
 
     QDialog::showEvent(event);
     // anchor in top right corner of parent

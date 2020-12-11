@@ -88,6 +88,7 @@ private:
 
     void setInitialWindowSize(void)
     {
+        // TODO BUG setInitialWindowSize : puts title bar out of screen
         auto* window = tool_bar.window();
         if (!window) { return; }
         auto* screen = window->screen();
@@ -95,10 +96,11 @@ private:
         auto screen_geom = screen->availableVirtualGeometry();
         // qDebug() << screen_geom;
 
-        int width = gui.frame.width * Frame::InitialCellSize;
+        const auto initial_cell_size = 40;
+        int width = gui.frame.width * initial_cell_size;
         // tool_bar.height() does not have correct value
         // before first Show event
-        int height = tool_bar.height() + gui.frame.height * Frame::InitialCellSize;
+        int height = tool_bar.height() + gui.frame.height * initial_cell_size;
 
         if (width >= screen_geom.width() ||
             height >= screen_geom.height())
