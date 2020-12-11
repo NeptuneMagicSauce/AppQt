@@ -169,7 +169,7 @@ GuiImpl::GuiImpl(Gui& gui) :
         { 5, GuiImpl::MaxHeight });
     QObject::connect(
         &gui.settings,
-        &SettingsPane::intChanged,
+        &SettingsPane::integerChanged,
 
         [&gui, setting_id_width, setting_id_height] (int id, int value) {
             auto width = id == setting_id_width ? value : gui.frame.width;

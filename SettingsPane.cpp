@@ -4,97 +4,57 @@
 #include <QDebug>
 #include <QToolButton>
 #include <QTimer>
-#include <QVBoxLayout>
 #include <QLabel>
 #include <QSlider>
 #include <QGroupBox>
+#include <QVBoxLayout>
 
 #include "Utils.hpp"
 #include "Labels.hpp"
 
 using namespace Utils;
 
-class SettingsImpl
-{
-public:
-    QWidget* parent = nullptr;
-    QAction* action = nullptr;
-    QVBoxLayout* layout = nullptr;
-    int index = 0;
-} impl_s;
-
 SettingsPane::SettingsPane(QWidget* parent) :
-    QDialog(parent)
+    QFrame(parent),
+    m_action("Settings")
 {
-    Utils::assertSingleton(typeid(*this)); // have impl be member if not singleton
-    impl_s.parent = parent;
+    Assert(parent != nullptr);
 
-    // resize(200, 200);
-
-    // as QDialog ->
-    setWindowFlags(
-        Qt::FramelessWindowHint |
-        Qt::Popup // auto-close when click away
-        // Qt::Dialog // is another window, takes focus away from parent
-        );
-    setModal(false);
-
-    auto& action = impl_s.action;
-    action = new QAction("Settings");
-    action->setCheckable(true);
-    action->setToolTip("Settings");
-    action->setShortcut(Qt::Key_F2);
+    m_action.setCheckable(true);
+    m_action.setToolTip("Settings");
+    m_action.setShortcut(Qt::Key_F2);
     // MacOS: prefer standard shortcut Preferences, it does not exist on Windows
     // QKeySequence::Preferences);
-    QObject::connect(action, &QAction::triggered, [this] (bool checked) {
-        if (checked)
-        {
-            show();
-        }
-        // no need to test checked == false
-        // because clicking away from the dialog (on the action) hides it
+    QObject::connect(&m_action, &QAction::triggered, [this] (bool checked) {
+        setVisible(checked);
     });
     // TODO check if my height is taller than parent height
 
-    impl_s.layout = new QVBoxLayout;
-    setLayout(impl_s.layout);
+    setLayout(new QVBoxLayout);
+    setFrameShape(QFrame::StyledPanel);
+    setAutoFillBackground(true);
+    raise();
+    hide();
+    resize(200, 200); // TODO compute height from layout, no magic number
 }
 
-QAction* SettingsPane::action(const QString& label)
+QAction* SettingsPane::action(const QString& change_label)
 {
-    if (label.size())
+    if (change_label.size())
     {
-        impl_s.action->setText(label);
+        m_action.setText(change_label);
     }
-    return impl_s.action;
-}
-
-void SettingsPane::hideEvent(QHideEvent *event)
-{
-    // TODO fix dirty hack : timer with magic value
-    QDialog::hideEvent(event);
-    // needs to setChecked(false) on hide from clicking away
-    // with delay in case we click away on the action button
-    QTimer::singleShot(200, [] () {
-        impl_s.action->setChecked(false);
-    });
+    return &m_action;
 }
 
 void SettingsPane::showEvent(QShowEvent *event)
 {
-    // TODO positioning is broken ...
-    // but we are hidden on any click away, such as move/resize window
-    // moving the window with the keyboard does not hide us, show its broken
-    // -> do same way as progress bar in Frame
-    // by connecting to an event or signal of parent? paintEvent?
-
-    QDialog::showEvent(event);
+    QFrame::showEvent(event);
+    qDebug() << "settings show" << layout()->count() << size();
+    // TODO positioning is broken on resize parent !
     // anchor in top right corner of parent
-    auto parent = impl_s.parent;
-    setGeometry({parent->mapToGlobal({parent->width() - width(), 0}), size()});
-    // auto top_left = parent->mapToGlobal({0, 0});
-    // top_left.setX(top_left.x() + parent->width() - width());
-    // setGeometry({ top_left, size() });
+    auto p = dynamic_cast<QWidget*>(parent());
+    move({ p->width() - width(), 0 });
 }
 
 int SettingsPane::registerInt(QString label, int value, QPoint range)
@@ -117,15 +77,15 @@ int SettingsPane::registerInt(QString label, int value, QPoint range)
     slider->setRange(range.x(), range.y());
     slider->setValue(value);
     value_label->setText(QString::number(value));
-    auto index = impl_s.index;
+    auto index = next_setting_index;
     QObject::connect(slider, &QSlider::valueChanged,
                      [this, value_label, index] (int value) {
                          value_label->setText(QString::number(value));
-                         emit intChanged(index, value);
+                         emit integerChanged(index, value);
                      });
     QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
         value_label->setText(QString::number(value));
     });
-    impl_s.layout->addWidget(widget);
-    return impl_s.index++;
+    layout()->addWidget(widget);
+    return next_setting_index++;
 }
