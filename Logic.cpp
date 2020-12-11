@@ -96,7 +96,7 @@ void Logic::setFlag(const Indices& indices, bool flag)
 
 void Logic::setOneRandomCellToMine(void)
 {
-    assert(cells_empty.size());
+    Assert(cells_empty.size());
     const auto mine_index = Utils::randomIndex(cells_empty.size());
     cells_empty[mine_index]->mine = true;
     cells_empty.erase(cells_empty.begin() + mine_index);
