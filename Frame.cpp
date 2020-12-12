@@ -47,9 +47,9 @@ CellWidget* Frame::itemAt(int x, int y)
 
 void Frame::reset(void)
 {
-#warning debug remove next line
-    auto need_reset = true; //needReset();
-    // width != cached_width || height != cached_height;
+    auto need_reset = width != cached_width || height != cached_height;
+// #warning debug remove next line
+    // need_reset = true;
 
     cached_width = width;
     cached_height = height;
