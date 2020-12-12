@@ -25,17 +25,21 @@ SettingsPane::SettingsPane(QWidget* parent) :
     m_action.setShortcut(Qt::Key_F2);
     // MacOS: prefer standard shortcut Preferences, it does not exist on Windows
     // QKeySequence::Preferences);
-    QObject::connect(&m_action, &QAction::triggered, [this] (bool checked) {
+    QObject::connect(&m_action, &QAction::toggled, [this] (bool checked) {
         setVisible(checked);
+        if (checked)
+        {
+            setFocus(Qt::OtherFocusReason); // so that we receive focusOutEvent
+        }
     });
     // TODO check if my height is taller than parent height
 
     setLayout(new QVBoxLayout);
     setFrameShape(QFrame::StyledPanel);
+
     setAutoFillBackground(true);
     raise();
     hide();
-    resize(200, 200); // TODO compute height from layout, no magic number
 }
 
 QAction* SettingsPane::action(const QString& change_label)
@@ -50,11 +54,15 @@ QAction* SettingsPane::action(const QString& change_label)
 void SettingsPane::showEvent(QShowEvent *event)
 {
     QFrame::showEvent(event);
-    qDebug() << "settings show" << layout()->count() << size();
     // TODO positioning is broken on resize parent !
-    // anchor in top right corner of parent
     auto p = dynamic_cast<QWidget*>(parent());
     move({ p->width() - width(), 0 });
+}
+
+void SettingsPane::focusOutEvent(QFocusEvent *event)
+{
+    QFrame::focusOutEvent(event);
+    m_action.setChecked(false);
 }
 
 int SettingsPane::registerInt(QString label, int value, QPoint range)
@@ -87,5 +95,6 @@ int SettingsPane::registerInt(QString label, int value, QPoint range)
         value_label->setText(QString::number(value));
     });
     layout()->addWidget(widget);
+    resize(200, layout()->count() * 100);
     return next_setting_index++;
 }
