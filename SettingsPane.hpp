@@ -19,9 +19,6 @@ namespace Utils
 
     signals:
         // TODO signal is private, external api is "provide a callback taking QVariant"
-        // reset signal does not contain dimensions
-        // instead, gui callback calls logic.setDimensions() then emit reset();
-
         void integerChanged(int id, int value);
 
     protected:

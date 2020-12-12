@@ -176,6 +176,8 @@ GuiImpl::GuiImpl(Gui& gui) :
             auto height = id == setting_id_height ? value : gui.frame.height;
             emit gui.reset_signal(width, height);
         });
+    // TODO reset signal does not contain dimensions ...
+    // instead, gui callback calls logic.setDimensions() then emit reset();
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
