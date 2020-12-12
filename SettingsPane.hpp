@@ -17,10 +17,15 @@ namespace Utils
         int registerInt(QString label, int value, QPoint range);
 
     signals:
+        // TODO signal is private, external api is "provide a callback taking QVariant"
+        // reset signal does not contain dimensions
+        // instead, gui callback calls logic.setDimensions() then emit reset();
+
         void integerChanged(int id, int value);
 
     protected:
         virtual void showEvent(QShowEvent *event) override;
+        virtual void focusOutEvent(QFocusEvent *event) override;
 
     private:
         QAction m_action;
