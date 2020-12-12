@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QWidget>
 
 #include "Frame.hpp"
 #include "SettingsPane.hpp"
@@ -20,7 +21,9 @@ namespace Minus
         void ready(void);
 
     public:
+        // TODO private and friend
         Frame frame;
+        QWidget central;
         Utils::SettingsPane settings;
     };
 };
