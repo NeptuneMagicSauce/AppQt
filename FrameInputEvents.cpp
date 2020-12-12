@@ -21,10 +21,10 @@ void FrameInputEvents::reset(bool need_reset)
     hovered = nullptr;
     under_mouse = nullptr;
     key_reveal_pressed = false;
+    neighbors_pressed.clear();
 
     if (need_reset)
     {
-        neighbors_pressed.clear();
         indices.clear();
         widgets.resize(width);
         for (auto& column: widgets)
