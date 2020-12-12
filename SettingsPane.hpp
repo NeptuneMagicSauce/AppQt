@@ -3,6 +3,7 @@
 #include <QFrame>
 #include <QAction>
 #include <QString>
+#include <QTimer>
 
 namespace Utils
 {
@@ -24,11 +25,12 @@ namespace Utils
         void integerChanged(int id, int value);
 
     protected:
-        virtual void showEvent(QShowEvent *event) override;
         virtual void focusOutEvent(QFocusEvent *event) override;
 
     private:
         QAction m_action;
         int next_setting_index = 0;
+        QTimer watch_parent_timer;
+        QRect parent_geometry;
     };
 };

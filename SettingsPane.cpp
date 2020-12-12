@@ -29,7 +29,11 @@ SettingsPane::SettingsPane(QWidget* parent) :
         setVisible(checked);
         if (checked)
         {
+            parent_geometry = { 0, 0, 0, 0 };
             setFocus(Qt::OtherFocusReason); // so that we receive focusOutEvent
+            watch_parent_timer.start();
+        } else {
+            watch_parent_timer.stop();
         }
     });
     // TODO check if my height is taller than parent height
@@ -40,6 +44,15 @@ SettingsPane::SettingsPane(QWidget* parent) :
     setAutoFillBackground(true);
     raise();
     hide();
+
+    QObject::connect(&watch_parent_timer, &QTimer::timeout, [this] () {
+        auto current_parent_geometry = dynamic_cast<QWidget*>(this->parent())->geometry();
+        if (current_parent_geometry.width() != parent_geometry.width())
+        {
+            move({ current_parent_geometry.width() - width(), 0 });
+            current_parent_geometry = parent_geometry;
+        }
+    });
 }
 
 QAction* SettingsPane::action(const QString& change_label)
@@ -49,14 +62,6 @@ QAction* SettingsPane::action(const QString& change_label)
         m_action.setText(change_label);
     }
     return &m_action;
-}
-
-void SettingsPane::showEvent(QShowEvent *event)
-{
-    QFrame::showEvent(event);
-    // TODO positioning is broken on resize parent !
-    auto p = dynamic_cast<QWidget*>(parent());
-    move({ p->width() - width(), 0 });
 }
 
 void SettingsPane::focusOutEvent(QFocusEvent *event)
