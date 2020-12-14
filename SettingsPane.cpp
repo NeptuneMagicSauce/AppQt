@@ -88,6 +88,7 @@ void SettingsPane::create(QString label, int value, QPoint range, Callback callb
                      });
     QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
         value_label->setText(QString::number(value));
+        // TODO bug change to label -> change to width -> change to slider !
     });
     Assert(layout());
     layout()->addWidget(widget);
