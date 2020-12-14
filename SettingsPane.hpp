@@ -9,14 +9,13 @@ namespace Utils
 {
     class SettingsPane: public QFrame
     {
-        Q_OBJECT
     public:
         SettingsPane(QWidget* parent);
         QAction* action(const QString& change_label="");
 
         // register items
         using Callback = std::function<void(QVariant)>;
-        void create(QString label, int value, QPoint range, Callback callback);
+        void create(QString label, int value, QPoint range, Callback callback, int step=1);
 
     private:
         QAction m_action;

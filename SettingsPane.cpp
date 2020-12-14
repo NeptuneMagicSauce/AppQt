@@ -62,7 +62,7 @@ QAction* SettingsPane::action(const QString& change_label)
     return &m_action;
 }
 
-void SettingsPane::create(QString label, int value, QPoint range, Callback callback)
+void SettingsPane::create(QString label, int value, QPoint range, Callback callback, int step)
 {
     auto widget = new QGroupBox(label);
     auto sub_layout = new QHBoxLayout;
@@ -76,6 +76,9 @@ void SettingsPane::create(QString label, int value, QPoint range, Callback callb
     slider->setOrientation(Qt::Horizontal);
     slider->setRange(range.x(), range.y());
     slider->setValue(value);
+    slider->setSingleStep(step);
+    slider->setTickInterval(step);
+    slider->setTickPosition(QSlider::TicksBelow);
     // TODO slider: have small vertical bars
     value_label->setText(QString::number(value));
     QObject::connect(slider, &QSlider::valueChanged,
