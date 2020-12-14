@@ -38,6 +38,7 @@ Frame::Frame(
 {
     Utils::assertSingleton(typeid(*this));
     setLayout(&layout);
+    setMinimumSize(10, 10);
 }
 
 CellWidget* Frame::itemAt(int x, int y)
