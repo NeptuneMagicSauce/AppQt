@@ -104,6 +104,7 @@ void Logic::setOneRandomCellToMine(void)
 
 void Logic::reset(int width, int height)
 {
+    AssertX(width > 1 && height > 1, "width or height = 1 is not supported");
     this->m_width = width;
     this->m_height = height;
 

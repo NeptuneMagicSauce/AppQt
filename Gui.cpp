@@ -169,15 +169,15 @@ GuiImpl::GuiImpl(Gui& gui) :
         gui.frame.width,
         { 5, GuiImpl::MaxWidth },
         [this] (QVariant value) {
-            emit this->gui.reset_signal(value.toInt(), this->gui.frame.height);
-        });
+            emit this->gui.reset_signal(value.toInt(), this->gui.frame.height); },
+        5);
     gui.settings.create(
         "Height",
         gui.frame.height,
         { 5, GuiImpl::MaxHeight },
         [this] (QVariant value) {
-            emit this->gui.reset_signal(this->gui.frame.width, value.toInt());
-        });
+            emit this->gui.reset_signal(this->gui.frame.width, value.toInt()); },
+        5);
     // TODO reset signal does not contain dimensions ...
     // instead, gui callback calls logic.setDimensions() then emit reset();
 
