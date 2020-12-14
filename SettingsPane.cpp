@@ -31,7 +31,6 @@ SettingsPane::SettingsPane(QWidget* parent) :
         {
             raise();
             parent_geometry = { 0, 0, 0, 0 };
-            setFocus(Qt::OtherFocusReason); // so that we receive focusOutEvent
             watch_parent_timer.start();
         } else {
             watch_parent_timer.stop();
@@ -62,12 +61,6 @@ QAction* SettingsPane::action(const QString& change_label)
         m_action.setText(change_label);
     }
     return &m_action;
-}
-
-void SettingsPane::focusOutEvent(QFocusEvent *event)
-{
-    QFrame::focusOutEvent(event);
-    m_action.setChecked(false);
 }
 
 int SettingsPane::registerInt(QString label, int value, QPoint range)

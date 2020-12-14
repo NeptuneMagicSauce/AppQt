@@ -19,6 +19,7 @@ namespace Minus
         void reveal(Indices);
         void autoRevealNeighbors(Indices);
         void setFlag(Indices, bool);
+        void anyActivity(void);
 
     protected:
         FrameInputEvents(
