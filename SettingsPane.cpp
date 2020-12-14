@@ -79,7 +79,6 @@ void SettingsPane::create(QString label, int value, QPoint range, Callback callb
     slider->setSingleStep(step);
     slider->setTickInterval(step);
     slider->setTickPosition(QSlider::TicksBelow);
-    // TODO slider: have small vertical bars
     value_label->setText(QString::number(value));
     QObject::connect(slider, &QSlider::valueChanged,
                      [this, value_label, callback] (int value) {
