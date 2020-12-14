@@ -178,8 +178,6 @@ GuiImpl::GuiImpl(Gui& gui) :
         [this] (QVariant value) {
             emit this->gui.reset_signal(this->gui.frame.width, value.toInt()); },
         5);
-    // TODO reset signal does not contain dimensions ...
-    // instead, gui callback calls logic.setDimensions() then emit reset();
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
