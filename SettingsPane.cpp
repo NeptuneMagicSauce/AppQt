@@ -62,18 +62,13 @@ QAction* SettingsPane::action(const QString& change_label)
     return &m_action;
 }
 
-int SettingsPane::registerInt(QString label, int value, QPoint range)
+void SettingsPane::create(QString label, int value, QPoint range, Callback callback)
 {
     auto widget = new QGroupBox(label);
-    // auto layout = new QHBoxLayout;
-    // auto sub_widget = new QWidget;
     auto sub_layout = new QHBoxLayout;
     auto slider = new QSlider;
     auto value_label = new QLabel;
     widget->setLayout(sub_layout);
-    // sub_widget->setLayout(sub_layout);
-    // layout->addWidget(new QLabel(label));
-    // layout->addWidget(sub_widget);
     sub_layout->addWidget(value_label);
     sub_layout->addWidget(slider);
     value_label->setAlignment(Qt::AlignCenter);
@@ -81,12 +76,12 @@ int SettingsPane::registerInt(QString label, int value, QPoint range)
     slider->setOrientation(Qt::Horizontal);
     slider->setRange(range.x(), range.y());
     slider->setValue(value);
+    // TODO slider: have small vertical bars
     value_label->setText(QString::number(value));
-    auto index = next_setting_index;
     QObject::connect(slider, &QSlider::valueChanged,
-                     [this, value_label, index] (int value) {
+                     [this, value_label, callback] (int value) {
                          value_label->setText(QString::number(value));
-                         emit integerChanged(index, value);
+                         callback(value);
                      });
     QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
         value_label->setText(QString::number(value));
@@ -100,5 +95,4 @@ int SettingsPane::registerInt(QString label, int value, QPoint range)
         std::max(width(), parent_min_size.width()),
         std::max(height(), parent_min_size.height())
         );
-    return next_setting_index++;
 }
