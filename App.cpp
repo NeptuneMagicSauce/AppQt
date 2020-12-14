@@ -10,9 +10,6 @@
 
 /* TODO
 
-   watch_parent_timer: implement in Utils::WidgetWithCallbackWhenVisible
-   or some saner name
-
    emacs : hide title bar
    emacs : right click -> buffer list
 
