@@ -56,7 +56,7 @@ private:
     QMainWindow main_window;
     QToolBar tool_bar;
 
-    void formatAction(QAction* action)
+    QToolButton* formatAction(QAction* action)
     {
         action->setToolTip(
             action->toolTip() + " (" +
@@ -64,26 +64,17 @@ private:
         auto font = action->font();
         font.setPointSize(16);
         action->setFont(font);
+        QToolButton* ret = nullptr;
         for (auto* w: action->associatedWidgets())
         {
             auto* button = dynamic_cast<QToolButton*>(w);
             if (button != nullptr)
             {
                 button->setAutoRaise(false);
+                ret = button;
             }
         }
-    }
-
-    void addButton(
-        std::function<void()> callback,
-        const QString& label,
-        const QString& tool_tip,
-        const QKeySequence& shortcut)
-    {
-        auto* action = tool_bar.addAction(label, callback);
-        action->setToolTip(tool_tip);
-        action->setShortcut(shortcut);
-        formatAction(action);
+        return ret;
     }
 
     void setInitialWindowSize(void)
@@ -140,24 +131,35 @@ GuiImpl::GuiImpl(Gui& gui) :
     tool_bar.setFloatable(false);
     tool_bar.setMovable(false);
 
-    auto* spacer_left = new QWidget;
-    spacer_left->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    auto* spacer_right = new QWidget;
-    spacer_right->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    tool_bar.addWidget(spacer_left);
-    // TODO button reset is not perfectly centered
-    addButton(
+    auto spacer = [] () {
+        auto spacer = new QWidget;
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        return spacer;
+    };
+
+    tool_bar.addWidget(spacer());
+
+    auto action_reset = tool_bar.addAction(
+        Labels::reset,
         [&gui]() {
             emit gui.reset_signal(gui.frame.width, gui.frame.height);
-        },
-        Labels::reset,
-        "Reset",
-        QKeySequence::Refresh);
-    tool_bar.addWidget(spacer_right);
+        });
+    action_reset->setToolTip("Reset");
+    action_reset->setShortcut(QKeySequence::Refresh);
+    formatAction(action_reset);
+
+    tool_bar.addWidget(spacer());
+
+    auto addActionEndToolBar = [this, action_reset] (QAction* action) {
+        tool_bar.addAction(action);
+        auto button = formatAction(action);
+        auto spacer_for_centering = new QWidget;
+        spacer_for_centering->setFixedSize(button->sizeHint());
+        tool_bar.insertWidget(action_reset, spacer_for_centering);
+    };
 
     auto settings_action = gui.settings.action(Labels::settings);
-    tool_bar.addAction(settings_action);
-    formatAction(settings_action);
+    addActionEndToolBar(settings_action);
 
     QObject::connect(&gui.frame, &FrameInputEvents::anyActivity,
                      [settings_action] () {
