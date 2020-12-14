@@ -15,15 +15,11 @@ namespace Utils
         QAction* action(const QString& change_label="");
 
         // register items
-        int registerInt(QString label, int value, QPoint range);
-
-    signals:
-        // TODO signal is private, external api is "provide a callback taking QVariant"
-        void integerChanged(int id, int value);
+        using Callback = std::function<void(QVariant)>;
+        void create(QString label, int value, QPoint range, Callback callback);
 
     private:
         QAction m_action;
-        int next_setting_index = 0;
         QTimer watch_parent_timer;
         QRect parent_geometry;
     };

@@ -159,26 +159,24 @@ GuiImpl::GuiImpl(Gui& gui) :
     tool_bar.addAction(settings_action);
     formatAction(settings_action);
 
-    QObject::connect(&gui.frame, &FrameInputEvents::anyActivity, [settings_action] () {
-        settings_action->setChecked(false);
-    });
+    QObject::connect(&gui.frame, &FrameInputEvents::anyActivity,
+                     [settings_action] () {
+                         settings_action->setChecked(false);
+                     });
 
-    auto setting_id_width = gui.settings.registerInt(
+    gui.settings.create(
         "Width",
         gui.frame.width,
-        { 5, GuiImpl::MaxWidth });
-    auto setting_id_height = gui.settings.registerInt(
+        { 5, GuiImpl::MaxWidth },
+        [this] (QVariant value) {
+            emit this->gui.reset_signal(value.toInt(), this->gui.frame.height);
+        });
+    gui.settings.create(
         "Height",
         gui.frame.height,
-        { 5, GuiImpl::MaxHeight });
-    QObject::connect(
-        &gui.settings,
-        &SettingsPane::integerChanged,
-
-        [&gui, setting_id_width, setting_id_height] (int id, int value) {
-            auto width = id == setting_id_width ? value : gui.frame.width;
-            auto height = id == setting_id_height ? value : gui.frame.height;
-            emit gui.reset_signal(width, height);
+        { 5, GuiImpl::MaxHeight },
+        [this] (QVariant value) {
+            emit this->gui.reset_signal(this->gui.frame.width, value.toInt());
         });
     // TODO reset signal does not contain dimensions ...
     // instead, gui callback calls logic.setDimensions() then emit reset();
