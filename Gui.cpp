@@ -155,9 +155,13 @@ GuiImpl::GuiImpl(Gui& gui) :
         QKeySequence::Refresh);
     tool_bar.addWidget(spacer_right);
 
-    auto* settings_action = gui.settings.action(Labels::settings);
+    auto settings_action = gui.settings.action(Labels::settings);
     tool_bar.addAction(settings_action);
     formatAction(settings_action);
+
+    QObject::connect(&gui.frame, &FrameInputEvents::anyActivity, [settings_action] () {
+        settings_action->setChecked(false);
+    });
 
     auto setting_id_width = gui.settings.registerInt(
         "Width",

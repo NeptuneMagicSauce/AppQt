@@ -21,9 +21,6 @@ namespace Utils
         // TODO signal is private, external api is "provide a callback taking QVariant"
         void integerChanged(int id, int value);
 
-    protected:
-        virtual void focusOutEvent(QFocusEvent *event) override;
-
     private:
         QAction m_action;
         int next_setting_index = 0;
