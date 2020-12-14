@@ -36,7 +36,6 @@ SettingsPane::SettingsPane(QWidget* parent) :
             watch_parent_timer.stop();
         }
     });
-    // TODO check if my height is taller than parent height
 
     setFixedWidth(200);
     setLayout(new QVBoxLayout);
@@ -95,5 +94,11 @@ int SettingsPane::registerInt(QString label, int value, QPoint range)
     Assert(layout());
     layout()->addWidget(widget);
     adjustSize();
+    auto parent_widget = dynamic_cast<QWidget*>(parent());
+    auto parent_min_size = parent_widget->minimumSize();
+    parent_widget->setMinimumSize(
+        std::max(width(), parent_min_size.width()),
+        std::max(height(), parent_min_size.height())
+        );
     return next_setting_index++;
 }
