@@ -76,8 +76,7 @@ CellWidget* FrameInputEvents::widgetOfEvent(QMouseEvent* e)
     return dynamic_cast<CellWidget*>(childAt(e->pos()));
 }
 
-// TODO call Base::leaveEvent() for all overrides xor do not declare unused param
-void FrameInputEvents::leaveEvent(QEvent* event)
+void FrameInputEvents::leaveEvent(QEvent*)
 {
     // QWidget::leaveEvent(event);
     onCellPressed(nullptr);
