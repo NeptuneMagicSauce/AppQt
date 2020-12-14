@@ -29,6 +29,7 @@ SettingsPane::SettingsPane(QWidget* parent) :
         setVisible(checked);
         if (checked)
         {
+            raise();
             parent_geometry = { 0, 0, 0, 0 };
             setFocus(Qt::OtherFocusReason); // so that we receive focusOutEvent
             watch_parent_timer.start();
@@ -38,19 +39,18 @@ SettingsPane::SettingsPane(QWidget* parent) :
     });
     // TODO check if my height is taller than parent height
 
+    setFixedWidth(200);
     setLayout(new QVBoxLayout);
     setFrameShape(QFrame::StyledPanel);
-
     setAutoFillBackground(true);
-    raise();
     hide();
 
     QObject::connect(&watch_parent_timer, &QTimer::timeout, [this] () {
         auto current_parent_geometry = dynamic_cast<QWidget*>(this->parent())->geometry();
         if (current_parent_geometry.width() != parent_geometry.width())
         {
-            move({ current_parent_geometry.width() - width(), 0 });
-            current_parent_geometry = parent_geometry;
+            move(current_parent_geometry.width() - width(), 0);
+            parent_geometry = current_parent_geometry;
         }
     });
 }
@@ -75,15 +75,15 @@ int SettingsPane::registerInt(QString label, int value, QPoint range)
     auto widget = new QGroupBox(label);
     // auto layout = new QHBoxLayout;
     // auto sub_widget = new QWidget;
-    auto sub_layout = new QVBoxLayout;
+    auto sub_layout = new QHBoxLayout;
     auto slider = new QSlider;
     auto value_label = new QLabel;
     widget->setLayout(sub_layout);
     // sub_widget->setLayout(sub_layout);
     // layout->addWidget(new QLabel(label));
     // layout->addWidget(sub_widget);
-    sub_layout->addWidget(slider);
     sub_layout->addWidget(value_label);
+    sub_layout->addWidget(slider);
     value_label->setAlignment(Qt::AlignCenter);
     slider->setTracking(false);
     slider->setOrientation(Qt::Horizontal);
@@ -99,7 +99,8 @@ int SettingsPane::registerInt(QString label, int value, QPoint range)
     QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
         value_label->setText(QString::number(value));
     });
+    Assert(layout());
     layout()->addWidget(widget);
-    resize(200, layout()->count() * 100);
+    adjustSize();
     return next_setting_index++;
 }
