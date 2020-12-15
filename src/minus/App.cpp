@@ -4,8 +4,8 @@
 #include <QTime>
 
 #include "Application.hpp"
-#include "Logic.hpp"
-#include "Gui.hpp"
+#include "logic/Logic.hpp"
+#include "gui/Gui.hpp"
 #include "Utils.hpp"
 
 /* TODO

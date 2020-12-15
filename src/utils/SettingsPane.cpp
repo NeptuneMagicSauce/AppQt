@@ -7,7 +7,6 @@
 #include <QVBoxLayout>
 
 #include "Utils.hpp"
-#include "Labels.hpp"
 
 using namespace Utils;
 
