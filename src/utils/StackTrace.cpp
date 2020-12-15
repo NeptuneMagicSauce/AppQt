@@ -177,6 +177,7 @@ StackTraceImpl::Addresses StackTraceImpl::walkStack(CONTEXT* context)
 
 }
 #else
+#warning "StackTrace::getCurrent() not implemented"
 StackTrace::Stack StackTrace::getCurrent(void)
 {
     return { };
