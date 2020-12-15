@@ -14,9 +14,9 @@ FrameInputEvents::FrameInputEvents(const int& width, const int& height) :
     setFocusPolicy(Qt::StrongFocus);
     setContextMenuPolicy(Qt::PreventContextMenu);
 
-    QObject::connect(this, &reveal, [this] () { emit anyActivity(); });
-    QObject::connect(this, &autoRevealNeighbors, [this] () { emit anyActivity(); });
-    QObject::connect(this, &setFlag, [this] () { emit anyActivity(); });
+    QObject::connect(this, &FrameInputEvents::reveal, [this] () { emit anyActivity(); });
+    QObject::connect(this, &FrameInputEvents::autoRevealNeighbors, [this] () { emit anyActivity(); });
+    QObject::connect(this, &FrameInputEvents::setFlag, [this] () { emit anyActivity(); });
 }
 
 void FrameInputEvents::reset(bool need_reset)
