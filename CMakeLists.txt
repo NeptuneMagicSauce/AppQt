@@ -6,8 +6,11 @@ FILE(GLOB_RECURSE SOURCES src/*.cpp)
 include_directories(${CMAKE_SOURCE_DIR}/src/utils)
 include_directories(${CMAKE_SOURCE_DIR}/src/minus)
 
-# set(CMAKE_CXX_STANDARD 17) # does not work with my setup
-set(CMAKE_CXX_FLAGS "-std=c++17")
+if (WIN32)
+  set(CMAKE_CXX_FLAGS "-std=c++17")
+else()
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 
 if (WIN32)
   set(QT5_MINGW "c:/Devel/Tools/Qt5/5.15.1/mingw81_64")
