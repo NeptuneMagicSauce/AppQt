@@ -17,9 +17,11 @@ namespace Minus
         void resizeEvent(void);
 
     signals:
-        void reset_signal(int width, int height);
-        void reset_ratio(float ratio);
         void ready(void);
+        void changeWidth(int);
+        void changeHeight(int);
+        void changeRatio(float);
+        void resetSignal(void);
 
     public:
         // TODO private and friend
