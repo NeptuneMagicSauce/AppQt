@@ -118,6 +118,7 @@ Gui::Gui(const int& width, const int& height) :
 {
     Utils::assertSingleton(typeid(*this));
     new GuiImpl(*this);
+    reset();
 }
 
 GuiImpl::GuiImpl(Gui& gui) :
@@ -166,20 +167,30 @@ GuiImpl::GuiImpl(Gui& gui) :
                          settings_action->setChecked(false);
                      });
 
-    gui.settings.create(
-        "Width",
+    gui.settings.integer(
+        "Width", "",
         gui.frame.width,
         { 5, GuiImpl::MaxWidth },
         5,
         [this] (QVariant value) {
             emit this->gui.reset_signal(value.toInt(), this->gui.frame.height);});
-    gui.settings.create(
-        "Height",
+    gui.settings.integer(
+        "Height", "",
         gui.frame.height,
         { 5, GuiImpl::MaxHeight },
         5,
         [this] (QVariant value) {
             emit this->gui.reset_signal(this->gui.frame.width, value.toInt());});
+    gui.settings.integer(
+        "Mines", "%",
+        20,
+        { 10, 90 },
+        10,
+        [this] (QVariant value) {
+            emit this->gui.reset_ratio(float(value.toInt()) / 100);
+        });
+    // TODO do not have two signals with strange names ...
+    // call setters width height ratio, than reset(void);
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);

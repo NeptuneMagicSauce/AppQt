@@ -18,6 +18,7 @@ namespace Minus
 
     signals:
         void reset_signal(int width, int height);
+        void reset_ratio(float ratio);
         void ready(void);
 
     public:

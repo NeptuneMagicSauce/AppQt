@@ -128,7 +128,10 @@ namespace Minus
                 gui.reset();
             });
 
-            emit gui.reset_signal(logic.width, logic.height);
+            QObject::connect(&gui, &Gui::reset_ratio, [this] (float ratio) {
+                logic.setRatio(ratio);
+                emit gui.reset_signal(logic.width, logic.height);
+            });
             // gui.resizeEvent(); // no longer needed because we do a first resize
         }
     private:

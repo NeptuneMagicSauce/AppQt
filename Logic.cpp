@@ -12,11 +12,13 @@ using std::set;
 
 using namespace Minus;
 
-Logic::Logic(int width, int height) :
-    m_width(width),
-    m_height(height),
+Logic::Logic(void) :
+    m_width(20),
+    m_height(15),
+    m_ratio(0.20f),
     width(m_width),
-    height(m_height)
+    height(m_height),
+    ratio(m_ratio)
 {
     Utils::assertSingleton(typeid(*this));
 
@@ -29,6 +31,11 @@ Logic::~Logic(void)
     // on exit
     auto* copy = new Cells;
     copy->swap(cells);
+}
+
+void Logic::setRatio(float ratio)
+{
+    this->m_ratio = ratio;
 }
 
 void Logic::reveal(const Indices& indices)
@@ -124,7 +131,7 @@ void Logic::reset(int width, int height)
     }
 
     // populate mines
-    const int mines_count = float(size) * 0.20f;
+    const int mines_count = float(size) * ratio;
     cells_empty = cells;
     for (int mine=0; mine<mines_count; ++mine)
     {
