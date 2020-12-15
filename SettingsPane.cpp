@@ -59,17 +59,18 @@ QAction* SettingsPane::action(const QString& change_label)
     return &m_action;
 }
 
-SettingsPane::Widgets SettingsPane::beginCreate(QString name, QString longest_value)
+SettingsPane::Widgets SettingsPane::beginCreate(QString name, QString longest_value, QWidget* dialog)
 {
     auto widget = new QGroupBox(name);
     auto sub_layout = new QHBoxLayout;
     auto value_label = new QLabel;
     widget->setLayout(sub_layout);
     sub_layout->addWidget(value_label);
+    sub_layout->addWidget(dialog);
     value_label->setAlignment(Qt::AlignCenter);
     value_label->setText(longest_value);
     value_label->setMinimumWidth(value_label->sizeHint().width());
-    return { widget, sub_layout, value_label };
+    return { widget, value_label };
 }
 
 void SettingsPane::endCreate(QWidget* widget)
@@ -87,10 +88,10 @@ void SettingsPane::endCreate(QWidget* widget)
 
 void SettingsPane::integer(QString name, QString suffix, int value, QPoint range, int step, Callback callback)
 {
-    auto full_suffix = (suffix.length() ? (" " + suffix) : suffix);
-    auto [ widget, sub_layout, value_label ] = beginCreate(name, QString::number(range.y()) + full_suffix);
-
     auto slider = new QSlider;
+    auto full_suffix = (suffix.length() ? (" " + suffix) : suffix);
+    auto [ widget, value_label ] = beginCreate(name, QString::number(range.y()) + full_suffix, slider);
+
     slider->setTracking(false);
     slider->setOrientation(Qt::Horizontal);
     slider->setRange(range.x(), range.y());
@@ -98,7 +99,6 @@ void SettingsPane::integer(QString name, QString suffix, int value, QPoint range
     slider->setSingleStep(step);
     slider->setTickInterval(step);
     slider->setTickPosition(QSlider::TicksBelow);
-    sub_layout->addWidget(slider);
 
     value_label->setText(QString::number(value) + full_suffix);
     QObject::connect(slider, &QSlider::sliderMoved,
