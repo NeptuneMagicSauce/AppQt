@@ -5,7 +5,6 @@
 class CellWidgetImpl;
 namespace Minus
 {
-
     class CellWidget: public QLabel
     {
     public:
@@ -34,5 +33,4 @@ namespace Minus
         float font_size_digit, font_size_bomb;
         friend class ::CellWidgetImpl;
     };
-
 };

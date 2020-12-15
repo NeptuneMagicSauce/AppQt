@@ -24,9 +24,7 @@ namespace Minus
         void resetSignal(void);
 
     public:
-        // TODO private and friend
         Frame frame;
-        QWidget central;
         Utils::SettingsPane settings;
     };
 };
