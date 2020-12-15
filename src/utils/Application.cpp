@@ -118,10 +118,18 @@ public:
             Debugger::breakDebugger();
         });
     }
+
+    static int& ArgC(int argc)
+    {
+        // returning a reference for argc passed to QApplication
+        // is needed on linux!
+        static int argc_ret = argc;
+        return argc_ret;
+    }
 } impl_app;
 
 Application::Application(int argc, char** argv) :
-    QApplication(argc, argv)
+    QApplication(ApplicationImpl::ArgC(argc), argv)
 {
     try
     {
