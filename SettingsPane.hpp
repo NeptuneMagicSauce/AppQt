@@ -28,10 +28,9 @@ namespace Utils
         struct Widgets
         {
             QGroupBox* widget;
-            QLayout* sub_layout;
             QLabel* value_label;
         };
-        Widgets beginCreate(QString name, QString longest_value);
+        Widgets beginCreate(QString name, QString longest_value, QWidget* dialog);
         void endCreate(QWidget* widget);
     };
 };
