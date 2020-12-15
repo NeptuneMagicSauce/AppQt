@@ -5,28 +5,27 @@
 
 using namespace Utils;
 
-class LoadContentImpl
+namespace LoadContentImpl
 {
-public:
     std::vector<LoadContent*> instances;
     bool loaded = false;
-} impl_lc;
+};
 
 
 LoadContent::LoadContent()
 {
-    if (impl_lc.loaded)
+    if (LoadContentImpl::loaded)
     {
-        throw std::runtime_error(" too late");
+        throw std::runtime_error("too late");
     }
-    impl_lc.instances.emplace_back(this);
+    LoadContentImpl::instances.emplace_back(this);
 }
 
 void LoadContent::doLoad(void)
 {
-    for (auto* i: impl_lc.instances)
+    for (auto* i: LoadContentImpl::instances)
     {
         i->loadCallback();
     }
-    impl_lc.loaded = true;
+    LoadContentImpl::loaded = true;
 }

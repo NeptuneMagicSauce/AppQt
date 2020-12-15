@@ -15,7 +15,7 @@
 
    README: description, how to compile :
    mkdir build; cd build; cmake ..; make
-   linux: pkg install qtbase5-dev g++ make cmake
+   debian/ubuntu: apt install qtbase5-dev g++ make cmake
    windows: install QT dev with option mingw64
    what about make.exe ? should it be cmake --build . ?
    or Tools/Qt5/Tools/mingw810_64/bin/mingw32-make.exe
@@ -27,6 +27,8 @@
    port Linux
    double sigint -> crash of crash handler
    do not catch sigint, also sigterm?
+   ctrl-alt-f1 is caught by window manager first
+   f5 is not default keybind for refresh
    linux font: Verdana is probably not found -> different digit size from windows
    linux stack trace: portable cstd way, boost:: ? backtrace() ?
    linux check if gdb command continue on attach should be removed

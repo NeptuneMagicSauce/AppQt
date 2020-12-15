@@ -21,7 +21,7 @@ using namespace Utils;
 class ApplicationImpl
 {
 public:
-    QDialog* debug_window;
+    QDialog* debug_window = nullptr;
 
     void installDebugActions(QWidget* w)
     {
@@ -126,33 +126,29 @@ public:
         static int argc_ret = argc;
         return argc_ret;
     }
-    // TODO no static storage duration for ApplicationImpl nor for anyone else
-} impl_app;
+};
 
 Application::Application(int argc, char** argv) :
     QApplication(ApplicationImpl::ArgC(argc), argv)
 {
-    try
-    {
-        impl_app.installDebugWindow();
+    auto impl = new ApplicationImpl;
+    impl->installDebugWindow();
 
-        cb.setSingleShot(false);
-        cb.setInterval(100);
-        connect(&cb, &QTimer::timeout, [this] () {
-            for (auto* w: topLevelWidgets())
-            {
-                if (dynamic_cast<QMainWindow*>(w))
+    cb.setSingleShot(false);
+    cb.setInterval(100);
+    connect(&cb, &QTimer::timeout,
+            [this, impl] () {
+                for (auto* w: topLevelWidgets())
                 {
-                    impl_app.installDebugActions(w);
-                    cb.stop();
-                    break;
+                    if (dynamic_cast<QMainWindow*>(w))
+                    {
+                        impl->installDebugActions(w);
+                        cb.stop();
+                        break;
+                    }
                 }
-            }
-        });
-        cb.start();
-    } catch (std::exception& e) {
-        PanicException(e);
-    }
+            });
+    cb.start();
 }
 
 bool Application::notify(QObject *receiver, QEvent *event)

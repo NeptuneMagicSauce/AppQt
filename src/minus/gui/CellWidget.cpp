@@ -6,7 +6,6 @@
 #include <QDebug>
 #include <QMouseEvent>
 
-#include "LoadContent.hpp"
 #include "Utils.hpp"
 #include "Labels.hpp"
 
@@ -15,13 +14,14 @@ using std::set;
 using namespace Utils;
 using namespace Minus;
 
-struct CellWidgetImpl: public LoadContent
+class CellWidgetImpl
 {
-    QColor processColor(const QColor& color)
+public:
+    static QColor processColor(const QColor& color)
     {
         int r, g, b;
         color.getRgb(&r, &g, &b);
-        static auto perColor = [this] (int& c)
+        static auto perColor = [] (int& c)
             {
                 c += Utils::randomIndex(10) - 5;
                 c = std::max(0, std::min(255, c));
@@ -32,7 +32,7 @@ struct CellWidgetImpl: public LoadContent
         return QColor(r, g, b);
     }
 
-    void setColor(CellWidget* w, bool up, bool hovered=false)
+    static void setColor(CellWidget* w, bool up, bool hovered=false)
     {
         auto bg_color = (up
                          ? (hovered
@@ -45,16 +45,15 @@ struct CellWidgetImpl: public LoadContent
             );
     }
 
-    virtual void loadCallback(void) override
+    static QFont customFont(void)
     {
+        QFont font;
         font.setFamily("Verdana");
         font.setStyleStrategy(QFont::PreferAntialias);
         font.setWeight(QFont::DemiBold); // Medium Bold
+        return font;
     }
-
-    QFont font;
-
-} impl_cw;
+};
 
 CellWidget::CellWidget(const QColor& color) :
     flag(m_flag),
@@ -62,7 +61,8 @@ CellWidget::CellWidget(const QColor& color) :
 {
     setMouseTracking(true);
     setAlignment(Qt::AlignCenter);
-    setFont(impl_cw.font);
+    static auto custom_font = CellWidgetImpl::customFont();
+    setFont(custom_font);
     reset(color);
 }
 
@@ -75,10 +75,10 @@ void CellWidget::reset(const QColor& c)
     m_flag = false;
     m_revealed = false;
     hovered = false;
-    color = impl_cw.processColor(c);
+    color = CellWidgetImpl::processColor(c);
     sunken_color = Utils::lerpColor(color, Qt::white, 0.25f);
     hovered_color = Utils::lerpColor(color, Qt::white, 0.18f);
-    impl_cw.setColor(this, true);
+    CellWidgetImpl::setColor(this, true);
     setText("");
     raise(true);
 }
@@ -98,7 +98,7 @@ void CellWidget::raise(bool up)
         QFrame::WinPanel |    // deep raised/sunken difference
         // QFrame::Panel |       // soft difference
                   (up ? QFrame::Raised : QFrame::Sunken));
-    impl_cw.setColor(this, up);
+    CellWidgetImpl::setColor(this, up);
 }
 
 void CellWidget::setLabel(bool mine, int neighbor_mines)
@@ -142,5 +142,5 @@ void CellWidget::hover(bool h)
         return;
     }
     hovered = h;
-    impl_cw.setColor(this, true, hovered);
+    CellWidgetImpl::setColor(this, true, hovered);
 }
