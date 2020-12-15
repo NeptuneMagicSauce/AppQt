@@ -11,18 +11,21 @@
 /* TODO
 
    cmake: require custom var QT5_MINGW
-   cmake: store in subdir of build : /bin/
    cmake windows: make gnucxx mandatory
 
    README: description, how to compile :
    mkdir build; cd build; cmake ..; make
-   linux: pkg install qt5-dev g++ make cmake
-   windows:
+   linux: pkg install qtbase5-dev g++ make cmake
+   windows: install QT dev with option mingw64
    what about make.exe ? should it be cmake --build . ?
-   add to path g++, moc, make
-   set QT5_MINGW
+   or Tools/Qt5/Tools/mingw810_64/bin/mingw32-make.exe
+   add to path g++, moc
+   QT5_MINGW: env var or cmake var?
+
+   needs QT >= 5.14 for QWidget::screen()
 
    port Linux
+   linux font: Verdana is probably not found -> different digit size from windows
    linux stack trace: portable cstd way, boost:: ? backtrace() ?
    linux check if gdb command continue on attach should be removed
    linux gdb will need to be inside a terminal

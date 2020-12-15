@@ -126,6 +126,7 @@ public:
         static int argc_ret = argc;
         return argc_ret;
     }
+    // TODO no static storage duration for ApplicationImpl nor for anyone else
 } impl_app;
 
 Application::Application(int argc, char** argv) :
