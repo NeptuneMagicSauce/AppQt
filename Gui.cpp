@@ -16,8 +16,8 @@
 #include "Utils.hpp"
 #include "Labels.hpp"
 
-using namespace Minus;
 using namespace Utils;
+using namespace Minus;
 
 class EventFilterFirstShow: public QObject
 {
