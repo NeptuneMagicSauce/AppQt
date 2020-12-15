@@ -79,6 +79,8 @@ void SettingsPane::create(QString label, int value, QPoint range, Callback callb
     slider->setSingleStep(step);
     slider->setTickInterval(step);
     slider->setTickPosition(QSlider::TicksBelow);
+    value_label->setText(QString::number(range.y()));
+    value_label->setMinimumWidth(value_label->sizeHint().width());
     value_label->setText(QString::number(value));
     QObject::connect(slider, &QSlider::valueChanged,
                      [this, value_label, callback] (int value) {
@@ -87,7 +89,6 @@ void SettingsPane::create(QString label, int value, QPoint range, Callback callb
                      });
     QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
         value_label->setText(QString::number(value));
-        // TODO bug change to label -> change to width -> change to slider !
     });
     Assert(layout());
     layout()->addWidget(widget);
