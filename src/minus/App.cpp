@@ -10,6 +10,27 @@
 
 /* TODO
 
+   cmake: require custom var QT5_MINGW
+   cmake: store in subdir of build : /bin/
+   cmake windows: make gnucxx mandatory
+
+   README: description, how to compile :
+   mkdir build; cd build; cmake ..; make
+   linux: pkg install qt5-dev g++ make cmake
+   windows:
+   what about make.exe ? should it be cmake --build . ?
+   add to path g++, moc, make
+   set QT5_MINGW
+
+   port Linux
+   linux stack trace: portable cstd way, boost:: ? backtrace() ?
+   linux check if gdb command continue on attach should be removed
+   linux gdb will need to be inside a terminal
+   linux check split(\r\n) on output of addr2line
+   linux do we have to implement isDebuggerAttached?
+
+   unit tests and code coverage
+
    setting: ratio, color, emojis, keybinds
    settings: have categories
    save and restore settings
@@ -35,16 +56,6 @@
    better perf with custom render of cells without using widgets
    use a QGraphicsView instead of QFrame ?
    cf https://stackoverflow.com/a/13990849
-
-   port Linux
-   linux stack trace: portable cstd way, boost:: ? backtrace() ?
-   linux check if gdb command continue on attach should be removed
-   linux gdb will need to be inside a terminal
-   linux check split(\r\n) on output of addr2line
-   linux do we have to implement isDebuggerAttached?
-
-   cmake: do not require custom env var mingw-qt ...
-   cmake: store in subdir of build : /bin/
 
    nicer font as baked resource
    outline text of neighbor count
