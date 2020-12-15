@@ -122,7 +122,7 @@ public:
     static int& ArgC(int argc)
     {
         // returning a reference for argc passed to QApplication
-        // is needed on linux!
+        // otherwise it crashes on some platforms (linux)
         static int argc_ret = argc;
         return argc_ret;
     }

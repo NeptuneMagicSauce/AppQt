@@ -25,6 +25,8 @@
    needs QT >= 5.14 for QWidget::screen()
 
    port Linux
+   double sigint -> crash of crash handler
+   do not catch sigint, also sigterm?
    linux font: Verdana is probably not found -> different digit size from windows
    linux stack trace: portable cstd way, boost:: ? backtrace() ?
    linux check if gdb command continue on attach should be removed
