@@ -12,13 +12,14 @@ namespace Minus
     {
         Q_OBJECT
     public:
-        Logic(int width=20, int height=20);
+        Logic(void);
         ~Logic(void);
 
         void reset(int width, int height);
         void reveal(const Indices&);
         void autoRevealNeighbors(const Indices&);
         void setFlag(const Indices&, bool);
+        void setRatio(float ratio);
 
     signals:
         void setMineData(const CellStates&);
@@ -27,6 +28,7 @@ namespace Minus
     private:
         // state
         int m_width, m_height;
+        float m_ratio;
         Cells cells;
         Cells cells_empty;
         std::map<CellPtr, Cells> neighbors; // includes itself as neighbor
@@ -44,6 +46,7 @@ namespace Minus
     public:
         const int& width;
         const int& height;
+        const float& ratio;
 
     };
 };

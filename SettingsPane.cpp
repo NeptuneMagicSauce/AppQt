@@ -4,7 +4,6 @@
 #include <QDebug>
 #include <QToolButton>
 #include <QTimer>
-#include <QSlider>
 #include <QVBoxLayout>
 
 #include "Utils.hpp"
@@ -73,32 +72,6 @@ SettingsPane::Widgets SettingsPane::beginCreate(QString name, QString longest_va
     return { widget, sub_layout, value_label };
 }
 
-
-void SettingsPane::create(QString name, int value, QPoint range, int step, Callback callback)
-{
-    auto [ widget, sub_layout, value_label ] = beginCreate(name, QString::number(range.y()));
-
-    auto slider = new QSlider;
-    sub_layout->addWidget(slider);
-    slider->setTracking(false);
-    slider->setOrientation(Qt::Horizontal);
-    slider->setRange(range.x(), range.y());
-    slider->setValue(value);
-    slider->setSingleStep(step);
-    slider->setTickInterval(step);
-    slider->setTickPosition(QSlider::TicksBelow);
-    value_label->setText(QString::number(value));
-    QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
-        value_label->setText(QString::number(value));
-    });
-    QObject::connect(slider, &QSlider::valueChanged,
-                     [this, value_label, callback] (int value) {
-                         value_label->setText(QString::number(value));
-                         callback(value);
-                     });
-    endCreate(widget);
-}
-
 void SettingsPane::endCreate(QWidget* widget)
 {
     Assert(layout());
@@ -110,4 +83,32 @@ void SettingsPane::endCreate(QWidget* widget)
         std::max(width(), parent_min_size.width()),
         std::max(height(), parent_min_size.height())
         );
+}
+
+void SettingsPane::integer(QString name, QString suffix, int value, QPoint range, int step, Callback callback)
+{
+    auto full_suffix = (suffix.length() ? (" " + suffix) : suffix);
+    auto [ widget, sub_layout, value_label ] = beginCreate(name, QString::number(range.y()) + full_suffix);
+
+    auto slider = new QSlider;
+    slider->setTracking(false);
+    slider->setOrientation(Qt::Horizontal);
+    slider->setRange(range.x(), range.y());
+    slider->setValue(value);
+    slider->setSingleStep(step);
+    slider->setTickInterval(step);
+    slider->setTickPosition(QSlider::TicksBelow);
+    sub_layout->addWidget(slider);
+
+    value_label->setText(QString::number(value) + full_suffix);
+    QObject::connect(slider, &QSlider::sliderMoved,
+                     [value_label, full_suffix] (int value) {
+                         value_label->setText(QString::number(value) + full_suffix);
+    });
+    QObject::connect(slider, &QSlider::valueChanged,
+                     [this, value_label, callback, full_suffix] (int value) {
+                         value_label->setText(QString::number(value) + full_suffix);
+                         callback(value);
+                     });
+    endCreate(widget);
 }

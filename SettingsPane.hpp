@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QGroupBox>
 #include <QLabel>
+#include <QSlider>
 
 namespace Utils
 {
@@ -17,7 +18,7 @@ namespace Utils
 
         // register items
         using Callback = std::function<void(QVariant)>;
-        void create(QString name, int value, QPoint range, int step, Callback callback);
+        void integer(QString name, QString suffix, int value, QPoint range, int step, Callback callback);
 
     private:
         QAction m_action;
