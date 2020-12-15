@@ -4,9 +4,7 @@
 #include <QDebug>
 #include <QToolButton>
 #include <QTimer>
-#include <QLabel>
 #include <QSlider>
-#include <QGroupBox>
 #include <QVBoxLayout>
 
 #include "Utils.hpp"
@@ -62,16 +60,26 @@ QAction* SettingsPane::action(const QString& change_label)
     return &m_action;
 }
 
-void SettingsPane::create(QString label, int value, QPoint range, Callback callback, int step)
+SettingsPane::Widgets SettingsPane::beginCreate(QString name, QString longest_value)
 {
-    auto widget = new QGroupBox(label);
+    auto widget = new QGroupBox(name);
     auto sub_layout = new QHBoxLayout;
-    auto slider = new QSlider;
     auto value_label = new QLabel;
     widget->setLayout(sub_layout);
     sub_layout->addWidget(value_label);
-    sub_layout->addWidget(slider);
     value_label->setAlignment(Qt::AlignCenter);
+    value_label->setText(longest_value);
+    value_label->setMinimumWidth(value_label->sizeHint().width());
+    return { widget, sub_layout, value_label };
+}
+
+
+void SettingsPane::create(QString name, int value, QPoint range, int step, Callback callback)
+{
+    auto [ widget, sub_layout, value_label ] = beginCreate(name, QString::number(range.y()));
+
+    auto slider = new QSlider;
+    sub_layout->addWidget(slider);
     slider->setTracking(false);
     slider->setOrientation(Qt::Horizontal);
     slider->setRange(range.x(), range.y());
@@ -79,17 +87,20 @@ void SettingsPane::create(QString label, int value, QPoint range, Callback callb
     slider->setSingleStep(step);
     slider->setTickInterval(step);
     slider->setTickPosition(QSlider::TicksBelow);
-    value_label->setText(QString::number(range.y()));
-    value_label->setMinimumWidth(value_label->sizeHint().width());
     value_label->setText(QString::number(value));
+    QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
+        value_label->setText(QString::number(value));
+    });
     QObject::connect(slider, &QSlider::valueChanged,
                      [this, value_label, callback] (int value) {
                          value_label->setText(QString::number(value));
                          callback(value);
                      });
-    QObject::connect(slider, &QSlider::sliderMoved, [value_label] (int value) {
-        value_label->setText(QString::number(value));
-    });
+    endCreate(widget);
+}
+
+void SettingsPane::endCreate(QWidget* widget)
+{
     Assert(layout());
     layout()->addWidget(widget);
     adjustSize();

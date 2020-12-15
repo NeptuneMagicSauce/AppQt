@@ -170,16 +170,16 @@ GuiImpl::GuiImpl(Gui& gui) :
         "Width",
         gui.frame.width,
         { 5, GuiImpl::MaxWidth },
+        5,
         [this] (QVariant value) {
-            emit this->gui.reset_signal(value.toInt(), this->gui.frame.height); },
-        5);
+            emit this->gui.reset_signal(value.toInt(), this->gui.frame.height);});
     gui.settings.create(
         "Height",
         gui.frame.height,
         { 5, GuiImpl::MaxHeight },
+        5,
         [this] (QVariant value) {
-            emit this->gui.reset_signal(this->gui.frame.width, value.toInt()); },
-        5);
+            emit this->gui.reset_signal(this->gui.frame.width, value.toInt());});
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
