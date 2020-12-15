@@ -22,7 +22,7 @@ Logic::Logic(void) :
 {
     Utils::assertSingleton(typeid(*this));
 
-    reset(width, height);
+    reset();
 }
 
 Logic::~Logic(void)
@@ -33,7 +33,7 @@ Logic::~Logic(void)
     copy->swap(cells);
 }
 
-void Logic::setRatio(float ratio)
+void Logic::changeRatio(float ratio)
 {
     this->m_ratio = ratio;
 }
@@ -109,12 +109,20 @@ void Logic::setOneRandomCellToMine(void)
     cells_empty.erase(cells_empty.begin() + mine_index);
 }
 
-void Logic::reset(int width, int height)
+void Logic::changeWidth(int width)
 {
-    AssertX(width > 1 && height > 1, "width or height = 1 is not supported");
+    AssertX(width > 1, "width <= 1 is not supported");
     this->m_width = width;
-    this->m_height = height;
+}
 
+void Logic::changeHeight(int height)
+{
+    AssertX(height > 1, "height <= 1 is not supported");
+    this->m_height = height;
+}
+
+void Logic::reset(void)
+{
     cells.clear();
     neighbors.clear();
     any_reveal = false;

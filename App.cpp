@@ -122,15 +122,30 @@ namespace Minus
                                  gui.frame.revealCell(indices);
                              });
 
-            QObject::connect(&gui, &Gui::reset_signal, [this] (int w, int h) {
-                logic.reset(w, h);
-                gui.reset();
-            });
+            QObject::connect(&gui, &Gui::changeRatio,
+                             [this] (float ratio) {
+                                 logic.changeRatio(ratio);
+                                 emit gui.resetSignal();
+                             });
 
-            QObject::connect(&gui, &Gui::reset_ratio, [this] (float ratio) {
-                logic.setRatio(ratio);
-                emit gui.reset_signal(logic.width, logic.height);
-            });
+            QObject::connect(&gui, &Gui::changeWidth,
+                             [this] (int width) {
+                                 logic.changeWidth(width);
+                                 emit gui.resetSignal();
+                             });
+
+            QObject::connect(&gui, &Gui::changeHeight,
+                             [this] (int height) {
+                                 logic.changeHeight(height);
+                                 emit gui.resetSignal();
+                             });
+
+            QObject::connect(&gui, &Gui::resetSignal,
+                             [this] () {
+                                 logic.reset();
+                                 gui.reset();
+                             });
+
             // gui.resizeEvent(); // no longer needed because we do a first resize
         }
     private:

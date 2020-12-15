@@ -146,7 +146,7 @@ GuiImpl::GuiImpl(Gui& gui, const float& ratio) :
     auto action_reset = tool_bar.addAction(
         Labels::reset,
         [&gui]() {
-            emit gui.reset_signal(gui.frame.width, gui.frame.height);
+            emit gui.resetSignal();
         });
     action_reset->setToolTip("Reset");
     action_reset->setShortcut(QKeySequence::Refresh);
@@ -176,25 +176,24 @@ GuiImpl::GuiImpl(Gui& gui, const float& ratio) :
         { 5, GuiImpl::MaxWidth },
         5,
         [this] (QVariant value) {
-            emit this->gui.reset_signal(value.toInt(), this->gui.frame.height);});
+            emit this->gui.changeWidth(value.toInt());
+        });
     gui.settings.integer(
         "Height", "",
         gui.frame.height,
         { 5, GuiImpl::MaxHeight },
         5,
         [this] (QVariant value) {
-            emit this->gui.reset_signal(this->gui.frame.width, value.toInt());});
+            emit this->gui.changeHeight(value.toInt());
+        });
     gui.settings.integer(
         "Mines", "%",
         std::round(ratio * 100),
         { 10, 90 },
         10,
         [this] (QVariant value) {
-            emit this->gui.reset_ratio(float(value.toInt()) / 100);
+            emit this->gui.changeRatio(float(value.toInt()) / 100);
         });
-#warning TODO here
-    // TODO do not have two signals with strange names ...
-    // call setters width height ratio, than reset(void);
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);

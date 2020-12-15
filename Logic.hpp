@@ -15,11 +15,14 @@ namespace Minus
         Logic(void);
         ~Logic(void);
 
-        void reset(int width, int height);
+        void reset(void);
+        void changeWidth(int);
+        void changeHeight(int);
+        void changeRatio(float);
+
         void reveal(const Indices&);
         void autoRevealNeighbors(const Indices&);
         void setFlag(const Indices&, bool);
-        void setRatio(float ratio);
 
     signals:
         void setMineData(const CellStates&);
