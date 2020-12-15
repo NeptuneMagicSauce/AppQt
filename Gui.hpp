@@ -12,7 +12,7 @@ namespace Minus
     {
         Q_OBJECT
     public:
-        Gui(const int& width, const int& height);
+        Gui(const int& width, const int& height, const float& ratio);
         void reset(void);
         void resizeEvent(void);
 
