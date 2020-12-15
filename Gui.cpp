@@ -1,5 +1,6 @@
 #include "Gui.hpp"
 
+#include <cmath>
 #include <QDebug>
 #include <QMainWindow>
 #include <QToolBar>
@@ -44,13 +45,14 @@ protected:
 class GuiImpl
 {
 public:
-    GuiImpl(Gui& gui);
+    GuiImpl(Gui& gui, const float& ratio);
 
     static constexpr int MaxWidth = 50;
     static constexpr int MaxHeight = 40;
 
 private:
     Gui& gui;
+    const float& ratio;
     EventFilterFirstShow filter;
 
     QMainWindow main_window;
@@ -112,17 +114,18 @@ private:
     }
 };
 
-Gui::Gui(const int& width, const int& height) :
+Gui::Gui(const int& width, const int& height, const float& ratio) :
     frame(width, height, GuiImpl::MaxWidth, GuiImpl::MaxHeight),
     settings(&frame)
 {
     Utils::assertSingleton(typeid(*this));
-    new GuiImpl(*this);
+    new GuiImpl(*this, ratio);
     reset();
 }
 
-GuiImpl::GuiImpl(Gui& gui) :
-    gui(gui)
+GuiImpl::GuiImpl(Gui& gui, const float& ratio) :
+    gui(gui),
+    ratio(ratio)
 {
     main_window.setCentralWidget(&gui.frame);
     main_window.setWindowTitle("Super Minus");
@@ -183,12 +186,13 @@ GuiImpl::GuiImpl(Gui& gui) :
             emit this->gui.reset_signal(this->gui.frame.width, value.toInt());});
     gui.settings.integer(
         "Mines", "%",
-        20,
+        std::round(ratio * 100),
         { 10, 90 },
         10,
         [this] (QVariant value) {
             emit this->gui.reset_ratio(float(value.toInt()) / 100);
         });
+#warning TODO here
     // TODO do not have two signals with strange names ...
     // call setters width height ratio, than reset(void);
 
