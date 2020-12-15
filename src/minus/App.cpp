@@ -14,9 +14,6 @@
    settings: have categories
    save and restore settings
 
-   emacs : hide title bar
-   emacs : right click -> buffer list
-
    store files in dirs of src:
    utils
    minus/logic
