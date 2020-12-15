@@ -10,6 +10,10 @@
 
 /* TODO
 
+   setting: ratio, color, emojis, keybinds
+   settings: have categories
+   save and restore settings
+
    emacs : hide title bar
    emacs : right click -> buffer list
 
@@ -20,8 +24,20 @@
 
    coding style: auto* -> auto
 
-   better perf if CellWidget herits from Widget not Frame or Label: faster?
-   with rendering of pre-rendered textures ?
+   result dialog : win or lose, stats
+   status win/lose: with face emoji
+
+   timer during gameplay in tool bar
+
+   reveal cells with nice animation
+   shake viewport
+   rebouding particles
+   shockwave with cells moving in depth or in XY
+   shockwave: will not work with recursion, could work with async signals
+
+   better perf with custom render of cells without using widgets
+   use a QGraphicsView instead of QFrame ?
+   cf https://stackoverflow.com/a/13990849
 
    port Linux
    linux stack trace: portable cstd way, boost:: ? backtrace() ?
@@ -33,27 +49,9 @@
    cmake: do not require custom env var mingw-qt ...
    cmake: store in subdir of build : /bin/
 
-   setting: size, ratio, color, emojis, keybinds
-   do not have box layout
-   rather, have Settings Pane above Frame
-   and maybe darken frame for feedback on modality
-   or small part above screen, in corner
-
-   result modal window : win or lose
-   status win/lose: with face emoji
-
    nicer font as baked resource
    outline text of neighbor count
    emoji renders are not nicely anti-aliased
-
-   use a QGraphicsView instead of QFrame ?
-   cf https://stackoverflow.com/a/13990849
-
-   reveal cells with nice animation
-   shake viewport
-   rebouding particles
-   shockwave with cells moving in depth or in XY
-   shockwave: will not work with recursion, could work with async signals
    if sent in random (precomputed) directions
 
    highlight / specular and/or texture: nice noise or pattern
