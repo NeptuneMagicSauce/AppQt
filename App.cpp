@@ -94,8 +94,7 @@ namespace Minus
     public:
         App(int argc, char** argv) :
             Application(argc, argv),
-            gui_ptr(new Gui(logic.width, logic.height, logic.ratio)),
-            gui(*gui_ptr)
+            gui(logic.width, logic.height, logic.ratio)
         {
 
             QObject::connect(&gui.frame, &Frame::reveal,
@@ -136,12 +135,7 @@ namespace Minus
         }
     private:
         Logic logic;
-        Gui* gui_ptr;
-        Gui& gui;
-        // TODO check if next fail still occurs:
-        // gui must be dynamic allocated so that it is not destructed
-        // because auto destruction on quit fails with silent error
-        // maybe because QApplication is being destructed
+        Gui gui;
     };
 };
 
