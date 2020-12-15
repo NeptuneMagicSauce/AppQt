@@ -4,6 +4,8 @@
 #include <QAction>
 #include <QString>
 #include <QTimer>
+#include <QGroupBox>
+#include <QLabel>
 
 namespace Utils
 {
@@ -15,11 +17,20 @@ namespace Utils
 
         // register items
         using Callback = std::function<void(QVariant)>;
-        void create(QString label, int value, QPoint range, Callback callback, int step=1);
+        void create(QString name, int value, QPoint range, int step, Callback callback);
 
     private:
         QAction m_action;
         QTimer watch_parent_timer;
         QRect parent_geometry;
+
+        struct Widgets
+        {
+            QGroupBox* widget;
+            QLayout* sub_layout;
+            QLabel* value_label;
+        };
+        Widgets beginCreate(QString name, QString longest_value);
+        void endCreate(QWidget* widget);
     };
 };
