@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QFontDatabase>
 
 #include "Utils.hpp"
 #include "Labels.hpp"
@@ -47,10 +48,10 @@ public:
 
     static QFont customFont(void)
     {
-        QFont font;
-        font.setFamily("Verdana");
+        auto id = QFontDatabase::addApplicationFont(":Cousine-Bold.ttf");
+        Assert(id >= 0 && QFontDatabase::applicationFontFamilies(id).size());
+        QFont font(QFontDatabase::applicationFontFamilies(id).first());
         font.setStyleStrategy(QFont::PreferAntialias);
-        font.setWeight(QFont::DemiBold); // Medium Bold
         return font;
     }
 };

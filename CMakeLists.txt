@@ -2,6 +2,7 @@ project (AppQt)
 cmake_minimum_required(VERSION 3.6)
 
 FILE(GLOB_RECURSE SOURCES src/*.cpp)
+FILE(GLOB_RECURSE RESOURCES data/*.qrc)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/utils)
 include_directories(${CMAKE_SOURCE_DIR}/src/minus)
@@ -35,7 +36,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   add_compile_options(-Wall -Wextra) # must be before add_executable()
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/install)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
