@@ -4,9 +4,9 @@
 
 #include "CrashDialog.hpp"
 
-using Utils::CrashDialog;
+using namespace Utils;
 
-namespace CrashHandler
+namespace Utils::CrashHandler
 {
     using Type = void*;
     Type install(void);

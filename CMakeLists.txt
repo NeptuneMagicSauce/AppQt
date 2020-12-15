@@ -1,6 +1,10 @@
 project (AppQt)
 cmake_minimum_required(VERSION 3.6)
-FILE(GLOB SOURCES *.cpp)
+
+FILE(GLOB_RECURSE SOURCES src/*.cpp)
+
+include_directories(${CMAKE_SOURCE_DIR}/src/utils)
+include_directories(${CMAKE_SOURCE_DIR}/src/minus)
 
 # set(CMAKE_CXX_STANDARD 17) # does not work with my setup
 set(CMAKE_CXX_FLAGS "-std=c++17")
