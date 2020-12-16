@@ -69,6 +69,7 @@ int ColorDialog::HSVDialog::val(int x, int w)
     return 255 - std::max(0, (x - (w/2)) * 255 / (w/2));
 }
 
+// TODO what about move event?
 void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent *m)
 {
     auto rect = contentsRect();
@@ -98,29 +99,33 @@ void ColorDialog::HSVDialog::updatePixmap(void)
     int w = width() - frameWidth() * 2;
     int h = height() - frameWidth() * 2;
     QImage img(w, h, QImage::Format_RGB32);
-    int x, y;
     uint *pixel = (uint *) img.scanLine(0);
-    // TODO first loop in width, do not loop in height
+    QColor c;
+    QVector<QColor> colors;
+    colors.resize(w);
+    for (int x=0; x<w; ++x)
+    {
+        int h = color.hue();
+        int s = 255;
+        int v = 255;
+        if (type == Type::Hue)
+        {
+            h = hue(x, w);
+        }
+        else if (type == Type::SatVal)
+        {
+            s = sat(x, w);
+            v = val(x, w);
+        }
+        c.setHsv(h, s, v);
+        colors[x] = c;
+    }
+    int x, y;
     for (y = 0; y < h; y++) {
         const uint *end = pixel + w;
         x = 0;
         while (pixel < end) {
-            QPoint p(x, y);
-            QColor c;
-            int h = color.hue();
-            int s = 255;
-            int v = 255;
-            if (type == Type::Hue)
-            {
-                h = hue(x, w);
-            }
-            else if (type == Type::SatVal)
-            {
-                s = sat(x, w);
-                v = val(x, w);
-            }
-            c.setHsv(h, s, v);
-            *pixel = c.rgb();
+            *pixel = colors[x].rgb();
             ++pixel;
             ++x;
         }
