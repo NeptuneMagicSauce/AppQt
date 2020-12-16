@@ -13,7 +13,7 @@ namespace Utils
     {
         Q_OBJECT
     public:
-        ColorDialog(QWidget* parent=nullptr);
+        ColorDialog(QColor color, QWidget* parent=nullptr);
 
     private:
         QLabel feedback;
@@ -23,7 +23,7 @@ namespace Utils
         public:
             enum struct Type { Hue, SatVal };
             using Callback = std::function<void(int, int)>;
-            HSVDialog(Type type, Callback callback);
+            HSVDialog(Type type, QColor color, Callback callback);
         protected:
             QSize sizeHint() const override;
             void paintEvent(QPaintEvent*) override;

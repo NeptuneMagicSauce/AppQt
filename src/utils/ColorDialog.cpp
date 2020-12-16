@@ -5,12 +5,21 @@
 
 using namespace Utils;
 
-ColorDialog::HSVDialog::HSVDialog(Type type, Callback callback) :
+ColorDialog::HSVDialog::HSVDialog(Type type, QColor color, Callback callback) :
     type(type),
     callback(callback)
 {
     setAutoFillBackground(false);
     setFrameStyle(QFrame::StyledPanel);
+
+    if (type == Type::Hue)
+    {
+        callback(color.hue(), 0);
+    }
+    else if (type == Type::SatVal)
+    {
+        callback(color.saturation(), color.value());
+    }
 }
 
 QSize ColorDialog::HSVDialog::sizeHint() const
@@ -81,16 +90,16 @@ void ColorDialog::HSVDialog::resizeEvent(QResizeEvent *ev)
     pix = QPixmap::fromImage(img);
 }
 
-ColorDialog::ColorDialog(QWidget* parent) :
+ColorDialog::ColorDialog(QColor c, QWidget* parent) :
     QFrame(parent),
-    color(Qt::white)
+    color(c)
 {
     setLayout(new QHBoxLayout);
     layout()->setContentsMargins(0, 0, 0, 0);
     layout()->addWidget(&feedback);
     feedback.setFixedWidth(30);
     feedback.setFixedHeight(50);
-    feedback.setAutoFillBackground(true);
+    feedback.setAutoFillBackground(true); // TODO auto fill ?
     feedback.setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
     auto setColor = [this] (int h, int s, int v) {
@@ -103,11 +112,11 @@ ColorDialog::ColorDialog(QWidget* parent) :
     dialogs->setLayout(new QVBoxLayout);
     dialogs->layout()->setContentsMargins(0, 0, 0, 0);
     dialogs->layout()->addWidget(
-        new HSVDialog(HSVDialog::Type::Hue, [this, setColor] (int hue, int) {
+        new HSVDialog(HSVDialog::Type::Hue, color, [this, setColor] (int hue, int) {
             setColor(hue, color.saturation(), color.value());
         }));
     dialogs->layout()->addWidget(
-        new HSVDialog(HSVDialog::Type::SatVal, [this, setColor] (int sat, int val) {
+        new HSVDialog(HSVDialog::Type::SatVal, color, [this, setColor] (int sat, int val) {
             setColor(color.hue(), sat, val);
         }));
 
