@@ -23,10 +23,11 @@ public:
         int r, g, b;
         color.getRgb(&r, &g, &b);
         static auto perColor = [] (int& c)
-            {
-                c += Utils::randomIndex(10) - 5;
-                c = std::max(0, std::min(255, c));
-            };
+        {
+            // TODO random variation of color amplitude depends on hue sat var
+            c += Utils::randomIndex(10) - 5;
+            c = std::max(0, std::min(255, c));
+        };
         perColor(r);
         perColor(g);
         perColor(b);

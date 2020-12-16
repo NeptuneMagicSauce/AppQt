@@ -1,15 +1,13 @@
 #pragma once
 
-#include <QWidget>
 #include <QPaintEvent>
 #include <QMouseEvent>
 #include <QResizeEvent>
 #include <QFrame>
-#include <QLabel>
 
 namespace Utils
 {
-    class ColorDialog : public QFrame
+    class ColorDialog : public QWidget
     {
         Q_OBJECT
     public:
@@ -19,7 +17,7 @@ namespace Utils
         void valueChanged(QColor);
 
     private:
-        QLabel feedback;
+        QFrame feedback;
         QColor color;
         class HSVDialog : public QFrame
         {
@@ -38,6 +36,7 @@ namespace Utils
             const Callback callback;
             const QColor& color;
             HSVDialog* linked_dialog;
+            int pos;
             QPixmap pix;
 
             void callCallback(int, int);
@@ -46,6 +45,9 @@ namespace Utils
             static int hue(int x, int w);
             static int sat(int x, int w);
             static int val(int x, int w);
+
+            int position(int hue) const;
+            int position(int sat, int val) const;
         };
     };
 }
