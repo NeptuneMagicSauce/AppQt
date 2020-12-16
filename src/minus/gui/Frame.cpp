@@ -11,25 +11,28 @@ using namespace Minus;
 
 namespace FrameImpl
 {
-    QColor base_color { 112, 195, 255 };
-    // QColor base_color { 0, 38, 84 }; // debug
-    QColor color(int, int, int, int) //int column, int row, int width, int height)
+    QColor base_color = Qt::white;
+    QColor gradient_color = Qt::black;
+    QColor color(int column, int row, int width, int height)
     {
-        // TODO vary color on distance
-        // TODO auto compute color_max
+        constexpr auto max_distance = std::sqrt(2.f);
+        auto ratio_x = float(column) / (width - 1);
+        auto ratio_y = float(row) / (height - 1);
+        auto distance =
+            std::sqrt(std::pow(ratio_x, 2.f) +
+                      std::pow(ratio_y, 2.f))
+            / max_distance;
+        return Utils::lerpColor(base_color, gradient_color, distance);
+    }
 
-        // constexpr auto max_distance = std::sqrt(2.f);
-        // static const QColor
-        //     color_min(112, 195, 255),
-        //     color_max(0, 80, 137);
-        // auto ratio_x = float(column) / (width - 1);
-        // auto ratio_y = float(row) / (height - 1);
-        // auto distance =
-        //     std::sqrt(std::pow(ratio_x, 2.f) +
-        //               std::pow(ratio_y, 2.f))
-        //     / max_distance;
-        // return Utils::lerpColor(color_min, color_max, distance);
-        return base_color;
+    void updateColor(QColor color)
+    {
+        base_color = color;
+        int h,s,v;
+        base_color.getHsv(&h, &s, &v);
+        s = 255;
+        v = 128;
+        gradient_color.setHsv(h, s, v);
     }
 }
 
@@ -40,7 +43,8 @@ QColor Frame::color(void) const
 
 void Frame::setColor(QColor color)
 {
-    FrameImpl::base_color = color;
+    FrameImpl::updateColor(color);
+
     for (int column=0; column<width; ++column)
     {
         for (int row=0; row<height; ++row)
@@ -62,6 +66,7 @@ Frame::Frame(
     Utils::assertSingleton(typeid(*this));
     setLayout(&layout);
     setMinimumSize(10, 10);
+    FrameImpl::updateColor({ 112, 195, 255 });
 }
 
 CellWidget* Frame::itemAt(int x, int y)
