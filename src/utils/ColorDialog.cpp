@@ -69,8 +69,7 @@ int ColorDialog::HSVDialog::val(int x, int w)
     return 255 - std::max(0, (x - (w/2)) * 255 / (w/2));
 }
 
-// TODO what about move event?
-void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent *m)
+void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent* m)
 {
     auto rect = contentsRect();
     auto x = m->x() - rect.x();
@@ -87,8 +86,16 @@ void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent *m)
     }
 }
 
+void ColorDialog::HSVDialog::mouseMoveEvent(QMouseEvent* m)
+{
+    if (m->buttons() & Qt::LeftButton)
+    {
+        mousePressEvent(m);
+    }
+}
 
-void ColorDialog::HSVDialog::resizeEvent(QResizeEvent *ev)
+
+void ColorDialog::HSVDialog::resizeEvent(QResizeEvent* ev)
 {
     QFrame::resizeEvent(ev);
     updatePixmap();
