@@ -5,8 +5,11 @@
 #include <QToolButton>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QColorDialog>
 #include <QPushButton>
+#include <QPainter>
 
+#include "ColorDialog.hpp"
 #include "Utils.hpp"
 
 using namespace Utils;
@@ -59,10 +62,10 @@ QAction* SettingsPane::action(const QString& change_label)
     return &m_action;
 }
 
-SettingsPane::Widgets SettingsPane::beginCreate(QString name, QString longest_value, QWidget* dialog)
+SettingsPane::Widgets SettingsPane::beginCreate(QString name, QString longest_value, QWidget* dialog, QLayout* layout)
 {
     auto widget = new QGroupBox(name);
-    auto sub_layout = new QHBoxLayout;
+    auto sub_layout = layout ? layout : (new QHBoxLayout);
     auto value_label = new QLabel;
     widget->setLayout(sub_layout);
     sub_layout->addWidget(value_label);
@@ -121,5 +124,14 @@ void SettingsPane::button(QString name, Callback callback)
     widget->layout()->addWidget(button);
     button->setText(name);
     QObject::connect(button, &QPushButton::released, [callback] () { callback(1); });
+    endCreate(widget);
+}
+
+void SettingsPane::color(QString name, QColor, Callback)
+{
+    auto dialog = new ColorDialog(nullptr);
+    auto widget = new QGroupBox(name);
+    widget->setLayout(new QHBoxLayout);
+    widget->layout()->addWidget(dialog);
     endCreate(widget);
 }
