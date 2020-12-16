@@ -17,7 +17,6 @@ namespace Utils
         void valueChanged(QColor);
 
     private:
-        QFrame feedback;
         QColor color;
     };
 }
