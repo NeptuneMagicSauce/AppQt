@@ -30,8 +30,9 @@ namespace Utils
         protected:
             QSize sizeHint() const override;
             void paintEvent(QPaintEvent*) override;
-            void resizeEvent(QResizeEvent *) override;
-            void mousePressEvent(QMouseEvent *) override;
+            void resizeEvent(QResizeEvent*) override;
+            void mousePressEvent(QMouseEvent*) override;
+            void mouseMoveEvent(QMouseEvent*) override;
         private:
             const Type type;
             const Callback callback;
