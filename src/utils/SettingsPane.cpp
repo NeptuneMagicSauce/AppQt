@@ -127,9 +127,12 @@ void SettingsPane::button(QString name, Callback callback)
     endCreate(widget);
 }
 
-void SettingsPane::color(QString name, QColor color, Callback)
+void SettingsPane::color(QString name, QColor color, Callback callback)
 {
     auto dialog = new ColorDialog(color, nullptr);
+    QObject::connect(dialog, &ColorDialog::valueChanged, [callback] (QColor c) {
+        callback(c);
+    });
     auto widget = new QGroupBox(name);
     widget->setLayout(new QHBoxLayout);
     widget->layout()->addWidget(dialog);

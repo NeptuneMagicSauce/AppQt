@@ -1,24 +1,42 @@
 #include "ColorDialog.hpp"
 
 #include <QPainter>
+#include <QDebug>
 #include <QHBoxLayout>
 
 using namespace Utils;
 
-ColorDialog::HSVDialog::HSVDialog(Type type, QColor color, Callback callback) :
+ColorDialog::HSVDialog::HSVDialog(
+    Type type,
+    const QColor& color,
+    HSVDialog* linked_dialog,
+    Callback callback) :
     type(type),
-    callback(callback)
+    callback(callback),
+    color(color),
+    linked_dialog(linked_dialog)
 {
     setAutoFillBackground(false);
     setFrameStyle(QFrame::StyledPanel);
 
     if (type == Type::Hue)
     {
-        callback(color.hue(), 0);
+        callCallback(color.hue(), 0);
     }
     else if (type == Type::SatVal)
     {
-        callback(color.saturation(), color.value());
+        callCallback(color.saturation(), color.value());
+    }
+}
+
+void ColorDialog::HSVDialog::callCallback(int v0, int v1)
+{
+    // TODO slider/pointer feedback
+    callback(v0, v1);
+    if (linked_dialog != nullptr)
+    {
+        linked_dialog->updatePixmap();
+        linked_dialog->update();
     }
 }
 
@@ -35,20 +53,36 @@ void ColorDialog::HSVDialog::paintEvent(QPaintEvent* )
     p.drawPixmap(r.topLeft(), pix);
 }
 
-void ColorDialog::HSVDialog::mouseMoveEvent(QMouseEvent *)
+
+int ColorDialog::HSVDialog::hue(int x, int w)
 {
+    return x * 360 / w;
+}
+
+int ColorDialog::HSVDialog::sat(int x, int w)
+{
+    return std::min(255, x * 2 * 255 / w);
+}
+
+int ColorDialog::HSVDialog::val(int x, int w)
+{
+    return 255 - std::max(0, (x - (w/2)) * 255 / (w/2));
 }
 
 void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent *m)
 {
     auto rect = contentsRect();
-    int w = m->x() - rect.x();
+    auto x = m->x() - rect.x();
+    auto w = rect.width();
+    x = std::clamp(x, 0, w - 1);
     if (type == Type::Hue)
     {
-        callback(w * 360 / rect.width(), 0);
+        callCallback(x * 360 / w, 0);
     } else if (type == Type::SatVal)
     {
-        callback(w * 255 / rect.width(), 255);
+        callCallback(
+            std::min(255, x * 2 * 255 / w),
+            255 - std::max(0, (x - (w/2)) * 255 / (w/2)));
     }
 }
 
@@ -56,32 +90,36 @@ void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent *m)
 void ColorDialog::HSVDialog::resizeEvent(QResizeEvent *ev)
 {
     QFrame::resizeEvent(ev);
+    updatePixmap();
+}
 
+void ColorDialog::HSVDialog::updatePixmap(void)
+{
     int w = width() - frameWidth() * 2;
     int h = height() - frameWidth() * 2;
     QImage img(w, h, QImage::Format_RGB32);
     int x, y;
     uint *pixel = (uint *) img.scanLine(0);
-    // TODO first loop in width
+    // TODO first loop in width, do not loop in height
     for (y = 0; y < h; y++) {
         const uint *end = pixel + w;
         x = 0;
         while (pixel < end) {
             QPoint p(x, y);
             QColor c;
-            int hue = 360;
-            int sat = 255;
-            int val = 255;
+            int h = color.hue();
+            int s = 255;
+            int v = 255;
             if (type == Type::Hue)
             {
-                hue = x * 360 / w;
+                h = hue(x, w);
             }
             else if (type == Type::SatVal)
             {
-                sat = std::min(255, x * 2 * 255 / w);
-                val = 255 - std::max(0, (x - (w/2)) * 255 / (w/2));
+                s = sat(x, w);
+                v = val(x, w);
             }
-            c.setHsv(hue, sat, val);
+            c.setHsv(h, s, v);
             *pixel = c.rgb();
             ++pixel;
             ++x;
@@ -99,25 +137,28 @@ ColorDialog::ColorDialog(QColor c, QWidget* parent) :
     layout()->addWidget(&feedback);
     feedback.setFixedWidth(30);
     feedback.setFixedHeight(50);
-    feedback.setAutoFillBackground(true); // TODO auto fill ?
+    feedback.setAutoFillBackground(false);
     feedback.setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
     auto setColor = [this] (int h, int s, int v) {
         color.setHsv(h, s, v);
         feedback.setStyleSheet("background-color:" + color.name(QColor::HexRgb));
+        emit valueChanged(color);
     };
 
     auto dialogs = new QWidget;
     layout()->addWidget(dialogs);
     dialogs->setLayout(new QVBoxLayout);
     dialogs->layout()->setContentsMargins(0, 0, 0, 0);
-    dialogs->layout()->addWidget(
-        new HSVDialog(HSVDialog::Type::Hue, color, [this, setColor] (int hue, int) {
-            setColor(hue, color.saturation(), color.value());
-        }));
-    dialogs->layout()->addWidget(
-        new HSVDialog(HSVDialog::Type::SatVal, color, [this, setColor] (int sat, int val) {
+    auto widget_satval = new HSVDialog(
+        HSVDialog::Type::SatVal, color, nullptr, [this, setColor] (int sat, int val) {
             setColor(color.hue(), sat, val);
-        }));
+        });
+    auto widget_hue = new HSVDialog(
+        HSVDialog::Type::Hue, color, widget_satval, [this, setColor] (int hue, int) {
+            setColor(hue, color.saturation(), color.value());
+        });
+    dialogs->layout()->addWidget(widget_hue);
+    dialogs->layout()->addWidget(widget_satval);
 
 }

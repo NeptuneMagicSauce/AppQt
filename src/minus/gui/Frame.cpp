@@ -38,7 +38,6 @@ QColor Frame::color(void) const
 void Frame::setColor(QColor color)
 {
     FrameImpl::base_color = color;
-
     for (int column=0; column<width; ++column)
     {
         for (int row=0; row<height; ++row)
