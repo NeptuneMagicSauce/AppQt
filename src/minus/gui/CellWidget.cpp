@@ -1,7 +1,7 @@
 #include "CellWidget.hpp"
 
 #include <set>
-
+#include <cmath>
 #include <QTimer>
 #include <QDebug>
 #include <QMouseEvent>
@@ -20,18 +20,25 @@ class CellWidgetImpl
 public:
     static QColor processColor(const QColor& color)
     {
-        int r, g, b;
-        color.getRgb(&r, &g, &b);
-        static auto perColor = [] (int& c)
+        static auto perComponent = [] (int c, int variance)
         {
-            // TODO random variation of color amplitude depends on hue sat var
-            c += Utils::randomIndex(10) - 5;
-            c = std::max(0, std::min(255, c));
+            return std::clamp(c + int(Utils::randomIndex(2 * variance)) - variance,
+                              0, 255);
         };
-        perColor(r);
-        perColor(g);
-        perColor(b);
-        return QColor(r, g, b);
+        // uniform variation in RGB
+        /*
+        return QColor(
+            perComponent(color.red(), 5),
+            perComponent(color.green(), 5),
+            perComponent(color.blue(), 5));
+        */
+        // uniform variation in saturation/value
+        QColor ret;
+        ret.setHsv(
+            color.hue(),
+            perComponent(color.saturation(), 10),
+            color.value());
+        return ret;
     }
 
     static void setColor(CellWidget* w, bool up, bool hovered=false)
