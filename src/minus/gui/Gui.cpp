@@ -195,7 +195,7 @@ GuiImpl::GuiImpl(Gui& gui, const float& ratio) :
             emit this->gui.changeRatio(float(value.toInt()) / 100);
         });
     gui.settings.color(
-        "Cell color",
+        "Color",
         gui.frame.color(),
         [this] (QVariant color) {
             this->gui.frame.setColor(color.value<QColor>());
