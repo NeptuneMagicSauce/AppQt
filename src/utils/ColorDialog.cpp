@@ -6,7 +6,38 @@
 
 using namespace Utils;
 
-ColorDialog::HSVDialog::HSVDialog(
+class HSVDialog : public QFrame
+{
+public:
+    enum struct Type { Hue, SatVal };
+    using Callback = std::function<void(int, int)>;
+    HSVDialog(Type type, const QColor& color, HSVDialog* linked_dialog, Callback callback);
+protected:
+    QSize sizeHint() const override;
+    void paintEvent(QPaintEvent*) override;
+    void resizeEvent(QResizeEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+private:
+    const Type type;
+    const Callback callback;
+    const QColor& color;
+    HSVDialog* linked_dialog;
+    int pos;
+    QPixmap pix;
+
+    void callCallback(int, int);
+    void updatePixmap(void);
+
+    static int hue(int x, int w);
+    static int sat(int x, int w);
+    static int val(int x, int w);
+
+    int position(int hue) const;
+    int position(int sat, int val) const;
+};
+
+HSVDialog::HSVDialog(
     Type type,
     const QColor& color,
     HSVDialog* linked_dialog,
@@ -27,7 +58,7 @@ ColorDialog::HSVDialog::HSVDialog(
     // no need to call callback for SatVal here because it is linked to Hue
 }
 
-void ColorDialog::HSVDialog::callCallback(int v0, int v1)
+void HSVDialog::callCallback(int v0, int v1)
 {
     callback(v0, v1);
     if (linked_dialog != nullptr)
@@ -37,12 +68,12 @@ void ColorDialog::HSVDialog::callCallback(int v0, int v1)
     }
 }
 
-QSize ColorDialog::HSVDialog::sizeHint() const
+QSize HSVDialog::sizeHint() const
 {
     return { 200, 20 };
 }
 
-void ColorDialog::HSVDialog::paintEvent(QPaintEvent* )
+void HSVDialog::paintEvent(QPaintEvent* )
 {
     auto p = QPainter(this);
     drawFrame(&p);
@@ -55,28 +86,28 @@ void ColorDialog::HSVDialog::paintEvent(QPaintEvent* )
 }
 
 
-int ColorDialog::HSVDialog::hue(int x, int w)
+int HSVDialog::hue(int x, int w)
 {
     return x * 360 / w;
 }
 
-int ColorDialog::HSVDialog::sat(int x, int w)
+int HSVDialog::sat(int x, int w)
 {
     return std::min(255, x * 2 * 255 / w);
 }
 
-int ColorDialog::HSVDialog::val(int x, int w)
+int HSVDialog::val(int x, int w)
 {
     return 255 - std::max(0, (x - (w/2)) * 255 / (w/2));
 }
 
-int ColorDialog::HSVDialog::position(int hue) const
+int HSVDialog::position(int hue) const
 {
     int w = contentsRect().width();
     return hue * w / 360;
 }
 
-int ColorDialog::HSVDialog::position(int sat, int val) const
+int HSVDialog::position(int sat, int val) const
 {
     int half_w = contentsRect().width() / 2;
     if (val == 255)
@@ -90,7 +121,7 @@ int ColorDialog::HSVDialog::position(int sat, int val) const
     return 0;
 }
 
-void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent* m)
+void HSVDialog::mousePressEvent(QMouseEvent* m)
 {
     if ((m->buttons() & Qt::LeftButton) == Qt::NoButton)
     {
@@ -113,19 +144,19 @@ void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent* m)
     update();
 }
 
-void ColorDialog::HSVDialog::mouseMoveEvent(QMouseEvent* m)
+void HSVDialog::mouseMoveEvent(QMouseEvent* m)
 {
     mousePressEvent(m);
 }
 
 
-void ColorDialog::HSVDialog::resizeEvent(QResizeEvent* ev)
+void HSVDialog::resizeEvent(QResizeEvent* ev)
 {
     QFrame::resizeEvent(ev);
     updatePixmap();
 }
 
-void ColorDialog::HSVDialog::updatePixmap(void)
+void HSVDialog::updatePixmap(void)
 {
     int w = width() - frameWidth() * 2;
     int h = height() - frameWidth() * 2;
