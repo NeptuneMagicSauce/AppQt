@@ -92,6 +92,10 @@ int ColorDialog::HSVDialog::position(int sat, int val) const
 
 void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent* m)
 {
+    if ((m->buttons() & Qt::LeftButton) == Qt::NoButton)
+    {
+        return;
+    }
     auto rect = contentsRect();
     auto x = m->x() - rect.x();
     auto w = rect.width();
@@ -111,10 +115,7 @@ void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent* m)
 
 void ColorDialog::HSVDialog::mouseMoveEvent(QMouseEvent* m)
 {
-    if (m->buttons() & Qt::LeftButton)
-    {
-        mousePressEvent(m);
-    }
+    mousePressEvent(m);
 }
 
 
