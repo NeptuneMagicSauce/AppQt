@@ -194,7 +194,6 @@ GuiImpl::GuiImpl(Gui& gui, const float& ratio) :
         [this] (QVariant value) {
             emit this->gui.changeRatio(float(value.toInt()) / 100);
         });
-
     gui.settings.button(
         "Reveal all",
         [this] (QVariant) {
@@ -205,6 +204,11 @@ GuiImpl::GuiImpl(Gui& gui, const float& ratio) :
                     emit this->gui.frame.reveal({i, j});
                 }
             }
+        });
+    gui.settings.color(
+        "Cell color",
+        QColor(Qt::blue),
+        [this] (QVariant) {
         });
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
