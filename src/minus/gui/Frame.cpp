@@ -12,9 +12,12 @@ using namespace Minus;
 namespace FrameImpl
 {
     QColor base_color { 112, 195, 255 };
+    // QColor base_color { 0, 38, 84 }; // debug
     QColor color(int, int, int, int) //int column, int row, int width, int height)
     {
         // TODO vary color on distance
+        // TODO auto compute color_max
+
         // constexpr auto max_distance = std::sqrt(2.f);
         // static const QColor
         //     color_min(112, 195, 255),

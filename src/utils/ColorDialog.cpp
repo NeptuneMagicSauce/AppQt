@@ -14,7 +14,8 @@ ColorDialog::HSVDialog::HSVDialog(
     type(type),
     callback(callback),
     color(color),
-    linked_dialog(linked_dialog)
+    linked_dialog(linked_dialog),
+    pos(0)
 {
     setAutoFillBackground(false);
     setFrameStyle(QFrame::StyledPanel);
@@ -23,15 +24,11 @@ ColorDialog::HSVDialog::HSVDialog(
     {
         callCallback(color.hue(), 0);
     }
-    else if (type == Type::SatVal)
-    {
-        callCallback(color.saturation(), color.value());
-    }
+    // no need to call callback for SatVal here because it is linked to Hue
 }
 
 void ColorDialog::HSVDialog::callCallback(int v0, int v1)
 {
-    // TODO slider/pointer feedback
     callback(v0, v1);
     if (linked_dialog != nullptr)
     {
@@ -47,10 +44,14 @@ QSize ColorDialog::HSVDialog::sizeHint() const
 
 void ColorDialog::HSVDialog::paintEvent(QPaintEvent* )
 {
-    QPainter p(this);
+    auto p = QPainter(this);
     drawFrame(&p);
-    QRect r = contentsRect();
+    auto r = contentsRect();
     p.drawPixmap(r.topLeft(), pix);
+
+    auto pt = r.topLeft() + QPoint{ pos, 0 };
+    p.setPen(Qt::black);
+    p.fillRect(pt.x(), pt.y(), 2, r.height(), Qt::black);
 }
 
 
@@ -69,6 +70,26 @@ int ColorDialog::HSVDialog::val(int x, int w)
     return 255 - std::max(0, (x - (w/2)) * 255 / (w/2));
 }
 
+int ColorDialog::HSVDialog::position(int hue) const
+{
+    int w = contentsRect().width();
+    return hue * w / 360;
+}
+
+int ColorDialog::HSVDialog::position(int sat, int val) const
+{
+    int half_w = contentsRect().width() / 2;
+    if (val == 255)
+    {
+        return sat * half_w / 255;
+    }
+    else
+    {
+        return 2 * half_w - (val * half_w / 255);
+    }
+    return 0;
+}
+
 void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent* m)
 {
     auto rect = contentsRect();
@@ -84,6 +105,8 @@ void ColorDialog::HSVDialog::mousePressEvent(QMouseEvent* m)
             std::min(255, x * 2 * 255 / w),
             255 - std::max(0, (x - (w/2)) * 255 / (w/2)));
     }
+    pos = x;
+    update();
 }
 
 void ColorDialog::HSVDialog::mouseMoveEvent(QMouseEvent* m)
@@ -105,8 +128,8 @@ void ColorDialog::HSVDialog::updatePixmap(void)
 {
     int w = width() - frameWidth() * 2;
     int h = height() - frameWidth() * 2;
-    QImage img(w, h, QImage::Format_RGB32);
-    uint *pixel = (uint *) img.scanLine(0);
+    auto img = QImage(w, h, QImage::Format_RGB32);
+    auto pixel = (uint *) img.scanLine(0);
     QColor c;
     QVector<QColor> colors;
     colors.resize(w);
@@ -138,10 +161,19 @@ void ColorDialog::HSVDialog::updatePixmap(void)
         }
     }
     pix = QPixmap::fromImage(img);
+
+    if (type == Type::Hue)
+    {
+        pos = position(color.hue());
+    }
+    else if (type == Type::SatVal)
+    {
+        pos = position(color.saturation(), color.value());
+    }
 }
 
 ColorDialog::ColorDialog(QColor c, QWidget* parent) :
-    QFrame(parent),
+    QWidget(parent),
     color(c)
 {
     setLayout(new QHBoxLayout);
