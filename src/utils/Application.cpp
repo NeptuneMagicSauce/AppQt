@@ -126,7 +126,16 @@ public:
         static int argc_ret = argc;
         return argc_ret;
     }
+
+    static void* high_dpi_support;
 };
+
+void* ApplicationImpl::high_dpi_support =
+    [] () {
+        // needs to be called before construction of QApplication
+        QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        return nullptr;
+    }();
 
 Application::Application(int argc, char** argv) :
     QApplication(ApplicationImpl::ArgC(argc), argv)

@@ -130,6 +130,7 @@ namespace Minus
             QObject::connect(&logic, &Logic::setMineData,
                              [this] (const CellStates& data) {
                                  gui.frame.setMineData(data);
+
                              });
 
             QObject::connect(&logic, &Logic::setMineRevealed,
