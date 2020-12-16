@@ -207,8 +207,9 @@ GuiImpl::GuiImpl(Gui& gui, const float& ratio) :
         });
     gui.settings.color(
         "Cell color",
-        QColor(Qt::blue),
-        [this] (QVariant) {
+        gui.frame.color(),
+        [this] (QVariant color) {
+            this->gui.frame.setColor(color.value<QColor>());
         });
 
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);

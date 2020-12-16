@@ -11,19 +11,40 @@ using namespace Minus;
 
 namespace FrameImpl
 {
-    QColor color(int column, int row, int width, int height)
+    QColor base_color { 112, 195, 255 };
+    QColor color(int, int, int, int) //int column, int row, int width, int height)
     {
-        constexpr auto max_distance = std::sqrt(2.f);
-        static const QColor
-            color_min(112, 195, 255),
-            color_max(0, 80, 137);
-        auto ratio_x = float(column) / (width - 1);
-        auto ratio_y = float(row) / (height - 1);
-        auto distance =
-            std::sqrt(std::pow(ratio_x, 2.f) +
-                      std::pow(ratio_y, 2.f))
-            / max_distance;
-        return Utils::lerpColor(color_min, color_max, distance);
+        // TODO vary color on distance
+        // constexpr auto max_distance = std::sqrt(2.f);
+        // static const QColor
+        //     color_min(112, 195, 255),
+        //     color_max(0, 80, 137);
+        // auto ratio_x = float(column) / (width - 1);
+        // auto ratio_y = float(row) / (height - 1);
+        // auto distance =
+        //     std::sqrt(std::pow(ratio_x, 2.f) +
+        //               std::pow(ratio_y, 2.f))
+        //     / max_distance;
+        // return Utils::lerpColor(color_min, color_max, distance);
+        return base_color;
+    }
+}
+
+QColor Frame::color(void) const
+{
+    return FrameImpl::base_color;
+}
+
+void Frame::setColor(QColor color)
+{
+    FrameImpl::base_color = color;
+
+    for (int column=0; column<width; ++column)
+    {
+        for (int row=0; row<height; ++row)
+        {
+            itemAt(column, row)->changeColor(FrameImpl::color(column, row, width, height));
+        }
     }
 }
 

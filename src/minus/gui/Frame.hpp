@@ -19,6 +19,9 @@ namespace Minus
         void setMineData(const CellStates& data);
         void revealCell(Indices);
 
+        QColor color(void) const;
+        void setColor(QColor);
+
         virtual void resizeEvent(QResizeEvent *event) override;
 
     protected:

@@ -76,12 +76,17 @@ void CellWidget::reset(const QColor& c)
     m_flag = false;
     m_revealed = false;
     hovered = false;
+    changeColor(c);
+    setText("");
+    raise(true);
+}
+
+void CellWidget::changeColor(const QColor& c)
+{
     color = CellWidgetImpl::processColor(c);
     sunken_color = Utils::lerpColor(color, Qt::white, 0.25f);
     hovered_color = Utils::lerpColor(color, Qt::white, 0.18f);
     CellWidgetImpl::setColor(this, true);
-    setText("");
-    raise(true);
 }
 
 void CellWidget::reveal(void)

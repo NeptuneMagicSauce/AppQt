@@ -12,6 +12,7 @@ namespace Minus
         virtual ~CellWidget(void);
 
         void reset(const QColor& color);
+        void changeColor(const QColor& color);
         void raise(bool);
         void setLabel(bool mine, int neighbor_mines);
         void setFontSize(int);
