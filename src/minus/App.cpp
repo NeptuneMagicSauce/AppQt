@@ -29,12 +29,13 @@
    do not catch sigint, also sigterm?
    ctrl-alt-f1 is caught by window manager first
    f5 is not default keybind for refresh
-   linux font: Verdana is probably not found -> different digit size from windows
    linux stack trace: portable cstd way, boost:: ? backtrace() ?
    linux check if gdb command continue on attach should be removed
    linux gdb will need to be inside a terminal
    linux check split(\r\n) on output of addr2line
    linux do we have to implement isDebuggerAttached?
+
+   mine ratio: how much is too much? 40% or 50% maybe. do not allow more
 
    unit tests and code coverage
 
