@@ -195,6 +195,18 @@ GuiImpl::GuiImpl(Gui& gui, const float& ratio) :
             emit this->gui.changeRatio(float(value.toInt()) / 100);
         });
 
+    gui.settings.button(
+        "Reveal all",
+        [this] (QVariant) {
+            for (int i=0; i<this->gui.frame.width; ++i)
+            {
+                for (int j=0; j<this->gui.frame.height; ++j)
+                {
+                    emit this->gui.frame.reveal({i, j});
+                }
+            }
+        });
+
     tool_bar.setToolButtonStyle(Qt::ToolButtonTextOnly);
     tool_bar.setContextMenuPolicy(Qt::PreventContextMenu);
     main_window.addToolBar(Qt::TopToolBarArea, &tool_bar);

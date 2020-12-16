@@ -19,6 +19,7 @@ namespace Utils
         // register items
         using Callback = std::function<void(QVariant)>;
         void integer(QString name, QString suffix, int value, QPoint range, int step, Callback callback);
+        void button(QString name, Callback callback);
 
     private:
         QAction m_action;

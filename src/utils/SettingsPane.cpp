@@ -5,6 +5,7 @@
 #include <QToolButton>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QPushButton>
 
 #include "Utils.hpp"
 
@@ -109,5 +110,16 @@ void SettingsPane::integer(QString name, QString suffix, int value, QPoint range
                          value_label->setText(QString::number(value) + full_suffix);
                          callback(value);
                      });
+    endCreate(widget);
+}
+
+void SettingsPane::button(QString name, Callback callback)
+{
+    auto button = new QPushButton;
+    auto widget = new QGroupBox;
+    widget->setLayout(new QHBoxLayout);
+    widget->layout()->addWidget(button);
+    button->setText(name);
+    QObject::connect(button, &QPushButton::released, [callback] () { callback(1); });
     endCreate(widget);
 }
