@@ -210,15 +210,16 @@ ColorDialog::ColorDialog(QColor c, QWidget* parent) :
 {
     setLayout(new QHBoxLayout);
     layout()->setContentsMargins(0, 0, 0, 0);
-    layout()->addWidget(&feedback);
-    feedback.setFixedWidth(30);
-    feedback.setFixedHeight(50);
-    feedback.setAutoFillBackground(false);
-    feedback.setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    auto feedback = new QFrame;
+    layout()->addWidget(feedback);
+    feedback->setFixedWidth(30);
+    feedback->setFixedHeight(50);
+    feedback->setAutoFillBackground(false);
+    feedback->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
-    auto setColor = [this] (int h, int s, int v) {
+    auto setColor = [this, feedback] (int h, int s, int v) {
         color.setHsv(h, s, v);
-        feedback.setStyleSheet("background-color:" + color.name(QColor::HexRgb));
+        feedback->setStyleSheet("background-color:" + color.name(QColor::HexRgb));
         emit valueChanged(color);
     };
 
