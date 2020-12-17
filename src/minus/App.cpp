@@ -10,6 +10,11 @@
 
 /* TODO
 
+   better perf with custom render of cells without using widgets
+   use a QGraphicsView instead of QFrame ?
+   cf https://stackoverflow.com/a/13990849
+   and/or cache pixmap of expensive outlined digit on resize?
+
    cmake: require custom var QT5_MINGW
    cmake windows: make gnucxx mandatory
 
@@ -63,10 +68,6 @@
    rebouding particles
    shockwave with cells moving in depth or in XY
    shockwave: will not work with recursion, could work with async signals
-
-   better perf with custom render of cells without using widgets
-   use a QGraphicsView instead of QFrame ?
-   cf https://stackoverflow.com/a/13990849
 
    nicer font as baked resource
    outline text of neighbor count

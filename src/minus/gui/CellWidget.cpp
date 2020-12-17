@@ -224,8 +224,6 @@ void CellWidget::reveal(void)
 
 void CellWidget::resizeEvent(QResizeEvent* e)
 {
-    // TODO cache pixmap of expensive outlined digit on resize?
-    // or is it only computed once on resize anyway?
     QFrame::resizeEvent(e);
     label_outlined.resize(e->size());
 }
