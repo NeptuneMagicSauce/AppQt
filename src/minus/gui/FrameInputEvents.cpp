@@ -1,6 +1,7 @@
 #include "FrameInputEvents.hpp"
 
 #include <QMouseEvent>
+#include <QDebug>
 
 #include "Utils.hpp"
 
@@ -24,6 +25,7 @@ void FrameInputEvents::reset(bool need_reset)
     cell_pressed = nullptr;
     hovered = nullptr;
     under_mouse = nullptr;
+    pressing_reveal = false;
     key_reveal_pressed = false;
     neighbors_pressed.clear();
 
@@ -93,8 +95,8 @@ void FrameInputEvents::keyPressEvent(QKeyEvent *event)
 {
     // QWidget::keyPressEvent(event);
     if (event->isAutoRepeat()) { return; }
-    auto pressing_reveal = event->key() == key_reveal;
-    key_reveal_pressed = pressing_reveal;
+    pressing_reveal |= event->key() == key_reveal;
+    key_reveal_pressed |= pressing_reveal;
     if (pressing_reveal)
     {
         pressEvent(under_mouse, Qt::LeftButton);
@@ -108,6 +110,7 @@ void FrameInputEvents::keyReleaseEvent(QKeyEvent *event)
     auto releasing_reveal = event->key() == key_reveal;
     auto reveal_was_pressed = key_reveal_pressed;
     key_reveal_pressed &= !releasing_reveal;
+
     releaseEvent(under_mouse,
                  (reveal_was_pressed && releasing_reveal)
                  ? Qt::LeftButton
@@ -127,7 +130,7 @@ void FrameInputEvents::mouseMoveEvent(QMouseEvent *e)
     // QWidget::mouseMoveEvent(e);
     auto* w = widgetOfEvent(e);
     under_mouse = w;
-    auto pressing_reveal =
+    pressing_reveal &=
         (e->buttons() & Qt::LeftButton) ||
         key_reveal_pressed;
 
@@ -149,6 +152,7 @@ void FrameInputEvents::pressEvent(CellWidget* w, int button)
 {
     if (button == Qt::LeftButton)
     {
+        pressing_reveal = true;
         onCellPressed(w);
         if (w)
         {
@@ -161,6 +165,11 @@ void FrameInputEvents::releaseEvent(CellWidget* w, int button)
 {
     raiseAutoNeighbors();
 
+    if (button == Qt::LeftButton)
+    {
+        pressing_reveal = false;
+    }
+
     if (w && (button == Qt::LeftButton))
     {
         if (w->revealed)
@@ -172,7 +181,7 @@ void FrameInputEvents::releaseEvent(CellWidget* w, int button)
         }
     } else if (w && (button == Qt::RightButton))
     {
-        if (w->revealed == false)
+        if (pressing_reveal == false && w->revealed == false)
         {
             w->switchFlag();
             emit setFlag(indices[w], w->flag);
@@ -183,7 +192,7 @@ void FrameInputEvents::releaseEvent(CellWidget* w, int button)
 
 void FrameInputEvents::onCellPressed(CellWidget* w)
 {
-    // TODO BUG by spamming left and right click, I can have cell both flagged and pushed!
+    // TODO BUG by spamming left and right click, I can have outline is not present!
     if (w == cell_pressed)
     {
         return;
