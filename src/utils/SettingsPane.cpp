@@ -138,3 +138,24 @@ void SettingsPane::color(QString name, QColor color, Callback callback)
     widget->layout()->addWidget(dialog);
     endCreate(widget);
 }
+
+void SettingsPane::colorList(QString name, QList<QColor> colors, Callback callback)
+{
+    auto dialog = new QWidget;
+    auto layout = new QGridLayout;
+    dialog->setLayout(layout);
+    for (int i=0; i<colors.size(); ++i)
+    {
+        auto button = new QPushButton;
+        layout->addWidget(button, i / 3, i % 3);
+        auto color = colors[i];
+        button->setStyleSheet("background-color:" + color.name(QColor::HexRgb));
+        QObject::connect(button, &QPushButton::released, [callback, color] () {
+            callback(color);
+        });
+    }
+    auto widget = new QGroupBox(name);
+    widget->setLayout(new QHBoxLayout);
+    widget->layout()->addWidget(dialog);
+    endCreate(widget);
+}

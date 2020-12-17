@@ -21,6 +21,7 @@ namespace Utils
         void integer(QString name, QString suffix, int value, QPoint range, int step, Callback callback);
         void button(QString name, Callback callback);
         void color(QString name, QColor value, Callback callback);
+        void colorList(QString name, QList<QColor> colors, Callback callback);
 
     private:
         QAction m_action;
