@@ -101,6 +101,7 @@ void CellWidget::reveal(void)
 {
     raise(false);
     m_revealed = true;
+    // TODO label of revealed cell: with outline for readability!
     setText(label);
 }
 
