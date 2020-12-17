@@ -217,6 +217,8 @@ void CellWidget::reveal(void)
     if (!label.text.isEmpty())
     {
         label_outlined.show(label);
+    } else if (flag) {
+        label_outlined.hide();
     }
 }
 
