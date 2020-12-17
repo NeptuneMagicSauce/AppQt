@@ -82,13 +82,15 @@ private:
 
     void setInitialWindowSize(void)
     {
-        // TODO BUG setInitialWindowSize : puts title bar out of screen
         auto* window = tool_bar.window();
         if (!window) { return; }
         auto* screen = window->screen();
         if (!screen) { return; }
         auto screen_geom = screen->availableVirtualGeometry();
         // qDebug() << screen_geom;
+        auto frame_offset =
+            window->geometry().topLeft() -
+            window->frameGeometry().topLeft();
 
         const auto initial_cell_size = 40;
         int width = gui.frame.width * initial_cell_size;
@@ -103,7 +105,7 @@ private:
             // window->resize(screen_geom.width(), screen_geom.height());
             window->showMaximized();
         } else {
-            auto center = screen_geom.center();
+            auto center = screen_geom.center() + frame_offset / 2;
             window->setGeometry(QRect(
                 center.x() - width / 2,
                 center.y() - height / 2,
