@@ -158,4 +158,6 @@ void SettingsPane::colorList(QString name, QList<QColor> colors, Callback callba
     widget->setLayout(new QHBoxLayout);
     widget->layout()->addWidget(dialog);
     endCreate(widget);
+
+    callback(colors[0]);
 }
