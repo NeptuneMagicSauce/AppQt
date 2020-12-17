@@ -28,6 +28,7 @@ namespace Minus
     public:
         const bool& flag;
         const bool& revealed;
+        const bool& pushed;
     private:
         class LabelOutlined: public QWidget
         {
@@ -55,7 +56,7 @@ namespace Minus
 
         bool m_flag = false;
         bool m_revealed = false;
-        bool hovered = false;
+        bool m_pushed = false;
         QColor color, sunken_color, hovered_color;
         LabelOutlined label_outlined;
         LabelOutlined::Value label;

@@ -163,6 +163,7 @@ void CellWidget::LabelOutlined::showEvent(QShowEvent*)
 CellWidget::CellWidget(const QColor& color) :
     flag(m_flag),
     revealed(m_revealed),
+    pushed(m_pushed),
     label_outlined(this)
 {
     setMouseTracking(true);
@@ -181,7 +182,7 @@ void CellWidget::reset(const QColor& c)
 {
     m_flag = false;
     m_revealed = false;
-    hovered = false;
+    m_pushed = false;
     changeColor(c);
     label_outlined.reset();
     raise(true);
@@ -216,6 +217,7 @@ void CellWidget::resizeEvent(QResizeEvent* e)
 
 void CellWidget::raise(bool up)
 {
+    m_pushed = !up;
     setFrameStyle(
         // QFrame::StyledPanel | // respect qApp->style
         // QFrame::Box |         // ugly
@@ -266,12 +268,11 @@ void CellWidget::onPress(void)
     }
 }
 
-void CellWidget::hover(bool h)
+void CellWidget::hover(bool hovered)
 {
     if (revealed)
     {
         return;
     }
-    hovered = h;
     CellWidgetImpl::setColor(this, true, hovered);
 }
