@@ -52,6 +52,7 @@ namespace Minus
             const QVector<QPoint> offsets;
             virtual void resizeEvent(QResizeEvent* e) override;
             virtual void showEvent(QShowEvent*) override;
+            void setVisilityChildren(void);
         };
 
         bool m_flag = false;

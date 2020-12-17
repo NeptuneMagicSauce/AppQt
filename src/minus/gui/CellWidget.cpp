@@ -113,12 +113,20 @@ void CellWidget::LabelOutlined::setFont(const QFont& font)
 void CellWidget::LabelOutlined::show(const Value& value)
 {
     main.setStyleSheet("color:" + value.color.name(QColor::HexRgb));
+    this->outline = value.outline;
     for (auto c: all_children)
     {
-        c->setText(value.text);
+        if (outline || c == &main)
+        {
+            c->setText(value.text);
+        }
     }
-    this->outline = value.outline;
-    QWidget::show();
+    if (isVisible())
+    {
+        setVisilityChildren();
+    } else {
+        QWidget::show();
+    }
 }
 
 void CellWidget::LabelOutlined::setFontSize(int font_size)
@@ -153,6 +161,11 @@ void CellWidget::LabelOutlined::resizeEvent(QResizeEvent* e)
 }
 
 void CellWidget::LabelOutlined::showEvent(QShowEvent*)
+{
+    setVisilityChildren();
+}
+
+void CellWidget::LabelOutlined::setVisilityChildren(void)
 {
     for (auto c: all_children)
     {
