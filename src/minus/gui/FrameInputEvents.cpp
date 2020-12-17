@@ -179,7 +179,6 @@ void FrameInputEvents::releaseEvent(CellWidget* w, int button)
 
 void FrameInputEvents::onCellPressed(CellWidget* w)
 {
-    // TODO BUG by spamming left and right click, I can have cell pushed but not revealed!
     if (w == cell_pressed)
     {
         return;
