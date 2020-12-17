@@ -33,6 +33,7 @@ namespace FrameImpl
         s = 255;
         v = 128;
         gradient_color.setHsv(h, s, v);
+        // gradient_color = Utils::lerpColor(base_color, Qt::black, 0.5f);
     }
 }
 
@@ -66,7 +67,7 @@ Frame::Frame(
     Utils::assertSingleton(typeid(*this));
     setLayout(&layout);
     setMinimumSize(10, 10);
-    FrameImpl::updateColor({ 112, 195, 255 });
+    // FrameImpl::updateColor({ 112, 195, 255 });
 }
 
 CellWidget* Frame::itemAt(int x, int y)

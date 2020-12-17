@@ -37,7 +37,7 @@ public:
         ret.setHsv(
             color.hue(),
             perComponent(color.saturation(), 10),
-            color.value());
+            perComponent(color.value(), 5));
         return ret;
     }
 
@@ -190,7 +190,7 @@ void CellWidget::reset(const QColor& c)
 void CellWidget::changeColor(const QColor& c)
 {
     color = CellWidgetImpl::processColor(c);
-    sunken_color = Utils::lerpColor(color, Qt::white, 0.5f);
+    sunken_color = Utils::lerpColor(color, Qt::white, 0.35f);
     hovered_color = Utils::lerpColor(color, Qt::white, 0.18f);
     CellWidgetImpl::setColor(this, !m_revealed);
 }
