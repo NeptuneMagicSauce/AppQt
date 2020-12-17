@@ -15,6 +15,7 @@
    cf https://stackoverflow.com/a/13990849
    and/or cache pixmap of expensive outlined digit on resize?
 
+   cmake: needs QT >= 5.14 for QWidget::screen()
    cmake: require custom var QT5_MINGW
    cmake windows: make gnucxx mandatory
 
@@ -27,7 +28,6 @@
    add to path g++, moc
    QT5_MINGW: env var or cmake var?
 
-   needs QT >= 5.14 for QWidget::screen()
 
    use QFontMetrics to have perfect vertical alignment
 
