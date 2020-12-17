@@ -128,7 +128,6 @@ void Frame::reset(void)
             }
             return std::min(99, 100 - (set_visible_indices.count() * 100 / (width * height)));
         });
-        // TODO disable input while busy loading
     }
 }
 
