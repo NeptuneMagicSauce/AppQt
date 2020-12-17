@@ -121,7 +121,6 @@ public:
 
     static int& ArgC(int argc)
     {
-        // TODO test high dpi support on windows
         // returning a reference for argc passed to QApplication
         // otherwise it crashes on some platforms (linux)
         static int argc_ret = argc;
