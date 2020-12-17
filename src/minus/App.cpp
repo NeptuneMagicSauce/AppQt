@@ -24,7 +24,10 @@
 
    needs QT >= 5.14 for QWidget::screen()
 
+   use QFontMetrics to have perfect vertical alignment
+
    port Linux
+   font size: use QFontMetrics to have it match exactly with windows
    double sigint -> crash of crash handler
    do not catch sigint, also sigterm?
    ctrl-alt-f1 is caught by window manager first
