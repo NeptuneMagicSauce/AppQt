@@ -48,7 +48,6 @@ namespace Minus
         CellWidget* cell_pressed = nullptr;
         CellWidget* hovered = nullptr;
         CellWidget* under_mouse = nullptr;
-        bool pressing_reveal = false;
         std::vector<CellWidget*> neighbors_pressed;
 
         int key_reveal = Qt::Key_S;
