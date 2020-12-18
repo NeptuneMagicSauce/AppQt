@@ -14,6 +14,9 @@
    use a QGraphicsView instead of QFrame ?
    cf https://stackoverflow.com/a/13990849
    and/or cache pixmap of expensive outlined digit on resize?
+   QGraphicsView https://doc.qt.io/qt-5/qgraphicsview.html#details
+   QQuickPaintedItem https://doc.qt.io/qt-5/qquickpainteditem.html#details
+   tuto https://www.bogotobogo.com/Qt/Qt5_QGraphicsView_QGraphicsScene.php
 
    cmake: needs QT >= 5.14 for QWidget::screen()
    cmake: require custom var QT5_MINGW
