@@ -11,6 +11,7 @@
 /* TODO
 
    warnings: Wshadow Wshadow-compatible Wshadow-compatible-local
+   turn on address sanitizer (gcc)
 
    linter: clang-tidy ?
 
