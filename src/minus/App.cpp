@@ -10,6 +10,10 @@
 
 /* TODO
 
+   warnings: Wshadow Wshadow-compatible Wshadow-compatible-local
+
+   linter: clang-tidy ?
+
    better perf with custom render of cells without using widgets
    use a QGraphicsView instead of QFrame ?
    cf https://stackoverflow.com/a/13990849
