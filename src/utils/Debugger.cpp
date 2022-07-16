@@ -17,6 +17,9 @@ bool Debugger::canAttachDebugger(void)
 void Debugger::attachDebugger(void)
 {
 #warning "attachGDB() fails on linux"
+    // needs a config change ubuntu 22.4: only root
+    // needs to call cgdb when present
+
     auto pid_string = QString::number(QCoreApplication::applicationPid());
     QProcess::startDetached(
         "gdb",
@@ -98,14 +101,14 @@ void MiniDump(void)
    }
 }
 #endif
-#else
-#warning "Debugger not implemened"
+#else // not windows = linux
 void Debugger::breakDebugger(void)
 {
     asm volatile ("int3");
 }
 bool Debugger::isDebuggerAttached(void)
 {
+#warning "isDebuggerAttached not implemened"
     return false;
 }
 #endif

@@ -26,7 +26,9 @@ public:
     void installDebugActions(QWidget* w)
     {
         auto* a = new QAction;
-        a->setShortcut(QKeySequence("Ctrl+Alt+F1"));
+        a->setShortcut(QKeySequence(
+                           // "Ctrl+Alt+F1")); // caught by window manager on linux
+                           "Alt+F1"));         // works on windows and linux
         a->setShortcutContext(Qt::ApplicationShortcut);
         QObject::connect(a, &QAction::triggered, [this] () {
             debug_window->show();
