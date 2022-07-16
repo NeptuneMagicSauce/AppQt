@@ -1,5 +1,6 @@
 #include "Debugger.hpp"
 
+#include <fstream>
 #include <QString>
 #include <QCoreApplication>
 #include <QProcess>
@@ -108,7 +109,20 @@ void Debugger::breakDebugger(void)
 }
 bool Debugger::isDebuggerAttached(void)
 {
-#warning "isDebuggerAttached not implemened"
+    try
+    {
+        std::ifstream proc("/proc/self/status");
+        std::string word;
+        while (proc >> word)
+        {
+            if (word == "TracerPid:")
+            {
+                int pid;
+                proc >> pid;
+                return pid != 0;
+            }
+        }
+    } catch (std::exception const&) { }
     return false;
 }
 #endif
