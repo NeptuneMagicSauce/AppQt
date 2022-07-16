@@ -37,33 +37,41 @@ bool Debugger::canAttachDebugger(void)
 void Debugger::attachDebugger(void)
 {
 #warning "attachGDB() fails on linux"
-    // needs a config change ubuntu 22.4: only root
     // needs to call cgdb when present
 
     auto pid_string = QString::number(QCoreApplication::applicationPid());
     QProcess::startDetached(
         "gdb",
         { "-quiet" ,
-          "-ex", "\"attach " + pid_string + "\"",
+          "-ex",
+#if _WIN64
+          "\"attach " + pid_string + "\"",
           // continue on first breakpoint because
           // windows breaks on attach at DbgUiRemoteBreakin
           "-ex", "continue"
+#else
+          "attach " + pid_string,
+          "--tui"
+#endif
         });
 
-    for (int i=0; i<100; ++i)
+    // wait for gdb attach
+#if _WIN64
+    for (int i=20; i>=0; --i)
     {
         if (isDebuggerAttached())
         {
             breakDebugger();
             break;
-        } else {
-            if (i > 0)
-            {
-                qDebug() << "GDB not ready";
-            }
+        } else
+        {
+            qDebug() << "waiting for GDB attach" << i;
             QThread::msleep(100);
         }
     }
+#else
+    QThread::msleep(2 * 1000); // 2 seconds
+#endif
 }
 
 #if _WIN64
