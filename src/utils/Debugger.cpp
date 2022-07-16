@@ -12,7 +12,26 @@ using namespace Utils;
 bool Debugger::canAttachDebugger(void)
 {
     static auto ret = QProcess::startDetached("gdb", { "-q", "-ex", "quit" });
-    return ret;
+    if (ret == 0)
+    {
+        return false;
+    }
+#if __linux__
+    try
+    {
+        auto path = "/proc/sys/kernel/yama/ptrace_scope";
+        std::ifstream proc{path};
+        int ptrace_scope = -1;
+        proc >> ptrace_scope;
+        if (ptrace_scope > 0)
+        {
+            qDebug() << "Can not attach debugger with value 1 in" << path;
+            qDebug() << "Consider putting 0 there or in /etc/sysctl.d/10-ptrace.conf";
+            return false;
+        }
+    } catch (std::exception&) { }
+#endif
+    return true;
 }
 
 void Debugger::attachDebugger(void)
