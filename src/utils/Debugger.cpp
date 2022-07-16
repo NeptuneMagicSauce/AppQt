@@ -9,6 +9,25 @@
 
 using namespace Utils;
 
+namespace DebuggerImpl
+{
+    bool hasCGDB()
+    {
+#if _WIN64
+        return false;
+#elif __linux__
+        QProcess p;
+        p.start("which", { "cgdb" });
+        if (p.waitForStarted() == false)
+        {
+            return false;
+        }
+        p.waitForFinished();
+        return p.exitCode() == 0;
+#endif
+    }
+};
+
 bool Debugger::canAttachDebugger(void)
 {
     static auto ret = QProcess::startDetached("gdb", { "-q", "-ex", "quit" });
@@ -36,12 +55,21 @@ bool Debugger::canAttachDebugger(void)
 
 void Debugger::attachDebugger(void)
 {
-#warning "attachGDB() fails on linux"
-    // needs to call cgdb when present
-
     auto pid_string = QString::number(QCoreApplication::applicationPid());
+
+    static auto hasCGDB = DebuggerImpl::hasCGDB();
+
+    auto command =
+        hasCGDB
+        ? "cgdb"
+        : "gdb";
+    auto parameterTUI =
+        hasCGDB
+        ? ""
+        : "--tui";
+
     QProcess::startDetached(
-        "gdb",
+        command,
         { "-quiet" ,
           "-ex",
 #if _WIN64
@@ -51,12 +79,13 @@ void Debugger::attachDebugger(void)
           "-ex", "continue"
 #else
           "attach " + pid_string,
-          "--tui"
+          parameterTUI
 #endif
         });
 
     // wait for gdb attach
 #if _WIN64
+#warning "test if linux impl also works on windows"
     for (int i=20; i>=0; --i)
     {
         if (isDebuggerAttached())
