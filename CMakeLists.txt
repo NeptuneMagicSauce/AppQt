@@ -41,10 +41,11 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
 set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/install)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
+# for Linux Ubuntu 22.04: sudo apt install qt6-base-dev libgl-dev
 set(QTLIBLIST Core Widgets Gui) # Gui Network Test WebSockets OpenGL ...
-find_package(Qt5 REQUIRED ${QTLIBLIST})
+find_package(Qt6 REQUIRED ${QTLIBLIST})
 foreach(qtlib ${QTLIBLIST})
-  target_link_libraries(${PROJECT_NAME} Qt5::${qtlib})
+  target_link_libraries(${PROJECT_NAME} Qt6::${qtlib})
 endforeach()
 
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

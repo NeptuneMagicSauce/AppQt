@@ -126,7 +126,7 @@ void Frame::reset(void)
             {
                 return 100;
             }
-            return std::min(99, 100 - (set_visible_indices.count() * 100 / (width * height)));
+            return std::min(99, 100 - static_cast<int>(set_visible_indices.count() * 100 / (width * height)));
         });
     }
 }
