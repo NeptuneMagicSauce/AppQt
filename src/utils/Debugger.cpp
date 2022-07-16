@@ -16,6 +16,7 @@ bool Debugger::canAttachDebugger(void)
 
 void Debugger::attachDebugger(void)
 {
+#warning "attachGDB() fails on linux"
     auto pid_string = QString::number(QCoreApplication::applicationPid());
     QProcess::startDetached(
         "gdb",

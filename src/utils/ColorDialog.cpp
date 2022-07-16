@@ -128,7 +128,7 @@ void HSVDialog::mousePressEvent(QMouseEvent* m)
         return;
     }
     auto rect = contentsRect();
-    auto x = m->x() - rect.x();
+    auto x = static_cast<int>(m->position().x()) - rect.x();
     auto w = rect.width();
     x = std::clamp(x, 0, w - 1);
     if (type == Type::Hue)
