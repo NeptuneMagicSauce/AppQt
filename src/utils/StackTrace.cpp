@@ -3,6 +3,7 @@
 #include <QVector>
 #include <QProcess>
 #include <QCoreApplication>
+#include "Debugger.hpp"
 
 #if _WIN64
 #define WIN32_LEAN_AND_MEAN
@@ -177,9 +178,83 @@ StackTraceImpl::Addresses StackTraceImpl::walkStack(CONTEXT* context)
 
 }
 #else
-#warning "StackTrace::getCurrent() not implemented"
 StackTrace::Stack StackTrace::getCurrent(void)
 {
-    return { };
+    if (Debugger::isDebuggerAttached())
+    {
+        return {};
+    }
+    auto pid_string = QString::number(QCoreApplication::applicationPid());
+    QProcess p;
+    p.start(
+        "gdb",
+        {
+            "--quiet",
+            "--batch",
+            "--nx",
+            "-ex", "attach " + pid_string,
+            "-ex", "thread",
+            "-ex", "backtrace",
+        });
+    if (p.waitForStarted() == false ||
+        p.waitForFinished() == false ||
+        p.exitCode() != 0)
+    {
+        return {};
+    }
+    StackTrace::Stack ret;
+    for (auto line: QString{p.readAll()}.split("\n"))
+    {
+// #9  <signal handler called>
+// #12 0x00007f016a2793c3 in g_main_context_iteration () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+// #16 0x0000563ef0151b96 in main (argc=1, argv=0x7ffde29ac498) at /home/rlacroix/Devel/AppQt/src/minus/App.cpp:193
+        if (line.length() == 0)
+        {
+            continue;
+        }
+        if (line.at(0) == '[' && line.contains("Current thread is"))
+        {
+            ret << StackInfo{ line, "", "" };
+        }
+        else if (line.at(0) == '#')
+        {
+            auto stack_line = StackInfo{ };
+            line = line.simplified();
+            line.remove(0, 1); // '#'
+            while (line.length() && line.at(0).isDigit())
+            {
+                line.remove(0, 1); // the digit of GDB index
+            }
+            line = line.trimmed();
+            if (line.startsWith("0x"))
+            {
+                auto split_spaces = line.split(" ");
+                if (split_spaces.length() > 0)
+                {
+                    stack_line.address = split_spaces[0];
+                }
+                line = line.remove(0, stack_line.address.length());
+            }
+            else
+            {
+                stack_line.address = line;
+            }
+            if (line.startsWith(" in "))
+            {
+                line = line.remove(0, 4);
+            }
+            for (auto delimiter: QStringList{" from ", " at "})
+            {
+                auto splitted = line.split(delimiter);
+                if (splitted.size() > 1)
+                {
+                    stack_line.function = splitted[0];
+                    stack_line.location = splitted[1];
+                }
+            }
+            ret << stack_line;
+        }
+    }
+    return ret;
 }
 #endif

@@ -15,6 +15,7 @@
 
 #include "Debugger.hpp"
 #include "Utils.hpp"
+#include "StackTrace.hpp"
 
 using namespace Utils;
 
@@ -118,6 +119,12 @@ public:
         });
         installButton("break debugger", []() {
             Debugger::breakDebugger();
+        });
+        installButton("print stack trace", []() {
+            for (auto& s: StackTrace::getCurrent())
+            {
+                qDebug() << s.address << s.function << s.location;
+            }
         });
     }
 

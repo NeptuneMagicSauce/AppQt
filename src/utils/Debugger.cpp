@@ -18,12 +18,10 @@ namespace DebuggerImpl
 #elif __linux__
         QProcess p;
         p.start("which", { "cgdb" });
-        if (p.waitForStarted() == false)
-        {
-            return false;
-        }
-        p.waitForFinished();
-        return p.exitCode() == 0;
+        return
+            p.waitForStarted() &&
+            p.waitForFinished() &&
+            p.exitCode() == 0;
 #endif
     }
 };
