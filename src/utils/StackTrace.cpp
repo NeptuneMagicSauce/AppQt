@@ -3,6 +3,7 @@
 #include <QVector>
 #include <QProcess>
 #include <QCoreApplication>
+#include <QRegularExpression>
 #include "Debugger.hpp"
 
 #if _WIN64
@@ -220,37 +221,23 @@ StackTrace::Stack StackTrace::getCurrent(void)
         {
             auto stack_line = StackInfo{ };
             line = line.simplified();
-            line.remove(0, 1); // '#'
-            while (line.length() && line.at(0).isDigit())
+
+            auto matchAddress = QRegularExpression{R"(0x[\dabcdef]+)"}.match(line);
+            if (matchAddress.hasMatch())
             {
-                line.remove(0, 1); // the digit of GDB index
+                stack_line.address = matchAddress.captured(0);
             }
-            line = line.trimmed();
-            if (line.startsWith("0x"))
+
+            auto matchFunction = QRegularExpression{R"( in (.*) (from|at) )"}.match(line);
+            if (matchFunction.hasMatch())
             {
-                auto split_spaces = line.split(" ");
-                if (split_spaces.length() > 0)
-                {
-                    stack_line.address = split_spaces[0];
-                }
-                line = line.remove(0, stack_line.address.length());
+                stack_line.function = matchFunction.captured(1);
             }
-            else
+
+            auto matchLocation = QRegularExpression{R"( (from|at) (.*))"}.match(line);
+            if (matchLocation.hasMatch())
             {
-                stack_line.address = line;
-            }
-            if (line.startsWith(" in "))
-            {
-                line = line.remove(0, 4);
-            }
-            for (auto delimiter: QStringList{" from ", " at "})
-            {
-                auto splitted = line.split(delimiter);
-                if (splitted.size() > 1)
-                {
-                    stack_line.function = splitted[0];
-                    stack_line.location = splitted[1];
-                }
+                stack_line.location = matchLocation.captured(2);
             }
             ret << stack_line;
         }
