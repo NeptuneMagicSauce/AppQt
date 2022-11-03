@@ -93,7 +93,10 @@ void SettingsPane::integer(QString name, QString suffix, int value, QPoint range
 {
     auto slider = new QSlider;
     auto full_suffix = (suffix.length() ? (" " + suffix) : suffix);
-    auto [ widget, value_label ] = beginCreate(name, QString::number(range.y()) + full_suffix, slider);
+    // auto [ widget, value_label ] = // works with g++ not clang++
+    auto widgets = beginCreate(name, QString::number(range.y()) + full_suffix, slider);
+    auto& widget = widgets.widget;
+    auto& value_label = widgets.value_label;
 
     slider->setTracking(false);
     slider->setOrientation(Qt::Horizontal);
@@ -109,7 +112,7 @@ void SettingsPane::integer(QString name, QString suffix, int value, QPoint range
                          value_label->setText(QString::number(value) + full_suffix);
     });
     QObject::connect(slider, &QSlider::valueChanged,
-                     [this, value_label, callback, full_suffix] (int value) {
+                     [value_label, callback, full_suffix] (int value) {
                          value_label->setText(QString::number(value) + full_suffix);
                          callback(value);
                      });

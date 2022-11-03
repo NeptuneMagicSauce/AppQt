@@ -48,7 +48,7 @@ public:
         debug_window->setModal(true);
         auto* layout = new QGridLayout;
         debug_window->setLayout(layout);
-        auto installButton = [this, layout] (
+        auto installButton = [layout] (
             const QString& label,
             std::function<void()> cb) {
             static int index = 0;
@@ -64,7 +64,8 @@ public:
         };
 
         installButton("nullptr", []() {
-            qDebug() << *(QPoint*)nullptr;
+            QPoint* nullPoint = nullptr;
+            qDebug() << *nullPoint;
         });
         installButton("Assert(false)", []() {
             Assert(false);

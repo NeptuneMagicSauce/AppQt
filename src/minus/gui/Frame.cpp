@@ -15,7 +15,7 @@ namespace FrameImpl
     QColor gradient_color = Qt::black;
     QColor color(int column, int row, int width, int height)
     {
-        constexpr auto max_distance = std::sqrt(2.f);
+        static const auto max_distance = std::sqrt(2.f);
         auto ratio_x = float(column) / (width - 1);
         auto ratio_y = float(row) / (height - 1);
         auto distance =

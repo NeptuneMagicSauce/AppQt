@@ -53,7 +53,6 @@ public:
 
 private:
     Gui& gui;
-    const float& ratio;
     EventFilterFirstShow filter;
 
     QMainWindow main_window;
@@ -127,8 +126,7 @@ Gui::Gui(const int& width, const int& height, const float& ratio) :
 }
 
 GuiImpl::GuiImpl(Gui& gui, const float& ratio) :
-    gui(gui),
-    ratio(ratio)
+    gui(gui)
 {
     main_window.setCentralWidget(&gui.frame);
     main_window.setWindowTitle("Super Minus");

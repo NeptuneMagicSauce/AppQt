@@ -61,7 +61,7 @@ namespace Minus
         QColor color, sunken_color, hovered_color;
         LabelOutlined label_outlined;
         LabelOutlined::Value label;
-        float font_size_digit, font_size_bomb;
+        // float font_size_digit, font_size_bomb; // unused
         friend class ::CellWidgetImpl;
     };
 };
